@@ -151,7 +151,7 @@ export default function SalesPage() {
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ padding: showUrgency ? "160px 20px 72px" : "130px 20px 72px", position: "relative", overflow: "hidden" }}>
+      <section style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
         {/* noise texture */}
         <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: "128px 128px" }} />
         {/* glow orbs */}
@@ -166,17 +166,23 @@ export default function SalesPage() {
           </div>
 
           <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(34px, 6.5vw, 58px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.08, marginBottom: 24, letterSpacing: -1 }}>
-            Claude Code gives Salesforce admins
+            Build complex Flows 10x faster
             <br />
-            <span style={{ color: COLORS.orange }}>superpowers.</span>
+            <span style={{ color: COLORS.orange }}>without touching a single button.</span>
           </h1>
 
           <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2.5vw, 19px)", color: COLORS.textSecondary, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 16px" }}>
             Stop clicking. Start prompting.
           </p>
-          <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(14px, 2vw, 16px)", color: COLORS.textMuted, lineHeight: 1.6, maxWidth: 500, margin: "0 auto 36px" }}>
+          <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(14px, 2vw, 16px)", color: COLORS.textMuted, lineHeight: 1.6, maxWidth: 500, margin: "0 auto 28px" }}>
             Side hustle. More time with family. Both. Learn to use Claude Code to build Flows, create fields, write Apex, and deploy it all from your terminal. No coding needed.
           </p>
+
+          {/* social proof badge */}
+          <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.35s", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 32 }}>
+            <div style={{ display: "flex", gap: 2 }}>{[...Array(5)].map((_, i) => <span key={i} style={{ color: COLORS.gold, fontSize: 15 }}>★</span>)}</div>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textSecondary }}>Join 50+ Salesforce Admins</span>
+          </div>
 
           {/* pricing + CTA */}
           <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.4s", marginBottom: 20 }}>
@@ -185,7 +191,9 @@ export default function SalesPage() {
               <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: -2 }}>$97</span>
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: COLORS.green, background: `rgba(34,197,94,0.12)`, padding: "4px 10px", borderRadius: 100 }}>SAVE 50%</span>
             </div>
-            <CTAButton large>Get Instant Access - $97</CTAButton>
+            <div style={{ maxWidth: 400, margin: "0 auto" }}>
+              <CTAButton large full>Get Instant Access - $97</CTAButton>
+            </div>
           </div>
 
           {/* trust row */}
@@ -268,45 +276,48 @@ export default function SalesPage() {
         </div>
       </Section>
 
-      {/* ── DEMO TERMINAL ── */}
+      {/* ── INSTRUCTOR (A Note From Amit) ── */}
       <Section style={{ background: COLORS.bg }}>
+        <div style={{ maxWidth: 680, margin: "0 auto" }}>
+          <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div style={{ width: 88, height: 88, borderRadius: 16, background: `linear-gradient(135deg, ${COLORS.sfBlue}, ${COLORS.orange})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 36, color: "#fff", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800 }}>A</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <SectionLabel>A Note From Amit</SectionLabel>
+              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 4 }}>Amit</h3>
+              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.orange, marginBottom: 6 }}>8x Salesforce Certified · GTM Engineer · AI Tools Builder</p>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 16 }}>
+                <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8x Salesforce Certifications</span>
+              </div>
+              <SubText>I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.</SubText>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ── DEMO ── */}
+      <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>See It In Action</SectionLabel>
           <H2 center>One prompt. Deployed to your org.</H2>
         </div>
 
-        {/* prompt */}
-        <TerminalBlock title="claude code" lines={[
-          { type: "prompt", text: '"Create a screen flow for the Opportunity object.' },
-          { type: "prompt-cont", text: '  When a user clicks a button, open a flow that captures' },
-          { type: "prompt-cont", text: '  first name, last name, and email. Auto-populate the' },
-          { type: "prompt-cont", text: '  account name from the opportunity. Create the contact,' },
-          { type: "prompt-cont", text: '  link it to the account, and add a contact role on' },
-          { type: "prompt-cont", text: '  the opportunity."' },
-          { type: "blank" },
-          { type: "muted", text: "I'll create the screen flow and a quick action button to launch it from the Opportunity page." },
-        ]} />
-
-        <div style={{ height: 12 }} />
-
-        {/* output */}
-        <TerminalBlock title="4m 33s later..." lines={[
-          { type: "success", text: "Everything deployed successfully." },
-          { type: "blank" },
-          { type: "label", text: "Flow: ", value: "Add_Contact_to_Opportunity" },
-          { type: "step", text: "1. Get Opportunity → Account Name + Account ID" },
-          { type: "step", text: "2. Screen → First Name, Last Name, Email" },
-          { type: "step", text: "3. Create Contact → linked to Account" },
-          { type: "step", text: "4. Create Contact Role → on Opportunity" },
-          { type: "step", text: "5. Success Screen → confirmation" },
-          { type: "blank" },
-          { type: "success", text: "LWC wrapper created" },
-          { type: "success", text: "Quick Action deployed to Opportunity" },
-          { type: "success", text: "Ready to use on the record page" },
-        ]} />
+        {/* video embed */}
+        <div style={{ position: "relative", borderRadius: 12, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.4)", border: `1px solid ${COLORS.border}`, background: "#1E1E2E", aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+          {/* Replace the src below with your Loom or video embed URL */}
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+            <div style={{ width: 72, height: 72, borderRadius: "50%", background: COLORS.orange, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 8px 32px ${COLORS.orangeGlow}` }}>
+              <span style={{ fontSize: 28, color: "#fff", marginLeft: 4 }}>▶</span>
+            </div>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: COLORS.textSecondary }}>Watch: Full Flow built in under 5 minutes</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted }}>0:60 · Real Salesforce org demo</span>
+          </div>
+        </div>
 
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted, textAlign: "center", marginTop: 24 }}>
-          A screen flow, an LWC wrapper, and a quick action. Deployed. Under 5 minutes. From one prompt.
+          One prompt. A screen flow, LWC wrapper, and quick action — deployed to a real org. No clicks.
         </p>
 
         <div style={{ textAlign: "center", marginTop: 28 }}>
@@ -325,7 +336,7 @@ export default function SalesPage() {
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textMuted, letterSpacing: 1.5, marginBottom: 20 }}>BEFORE</div>
             {["15 clicks to create one field", "Manually updating permission sets", "Googling validation rule syntax", "Waiting 2 weeks for a developer", "Building flows click by click", "Reading docs and hoping it works"].map((t, i) => (
               <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "center" }}>
-                <span style={{ color: COLORS.textMuted, fontSize: 14 }}>✗</span>
+                <span style={{ color: "#EF4444", fontSize: 16, fontWeight: 800 }}>✗</span>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted, lineHeight: 1.5 }}>{t}</span>
               </div>
             ))}
@@ -341,7 +352,7 @@ export default function SalesPage() {
               "Go grab coffee. Come back. Check that it works.",
             ].map((t, i) => (
               <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "center" }}>
-                <span style={{ color: COLORS.green, fontSize: 14, fontWeight: 700 }}>✓</span>
+                <span style={{ color: "#22C55E", fontSize: 16, fontWeight: 800 }}>✓</span>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary, lineHeight: 1.5 }}>{t}</span>
               </div>
             ))}
@@ -412,36 +423,21 @@ export default function SalesPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `1px solid ${COLORS.border}` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textMuted, letterSpacing: 1.5, marginBottom: 20 }}>THE OLD WAY</div>
-            {[["Agentforce license", "$125-$550/mo"], ["Implementation partner", "$50K-$150K"], ["Time to first automation", "8-12 weeks"], ["Who owns it?", "IT + vendor"]].map(([k, v], i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}` }}>
+            {[["Agentforce license", "$125-$550/mo"], ["Extra SF license needed?", "Yes"], ["Implementation partner", "$50K-$150K"], ["Time to first automation", "8-12 weeks"], ["Who owns it?", "IT + vendor"]].map(([k, v], i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}`, alignItems: "center" }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600, color: COLORS.textMuted }}>{v}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600, color: "#EF4444" }}>{v}</span>
               </div>
             ))}
           </div>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `2px solid ${COLORS.borderHover}`, boxShadow: `0 8px 40px rgba(218,119,86,0.06)` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>WITH CLAUDE CODE</div>
-            {[["Claude subscription", "$17/mo"], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
+            {[["Claude subscription", "$17/mo"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}` }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: COLORS.orange }}>{v}</span>
               </div>
             ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ── INSTRUCTOR ── */}
-      <Section style={{ background: COLORS.bg }}>
-        <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
-          <div style={{ width: 88, height: 88, borderRadius: 16, background: `linear-gradient(135deg, ${COLORS.sfBlue}, ${COLORS.orange})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <span style={{ fontSize: 36, color: "#fff", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800 }}>A</span>
-          </div>
-          <div style={{ flex: 1, minWidth: 240 }}>
-            <SectionLabel>Your Instructor</SectionLabel>
-            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 4 }}>Amit</h3>
-            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.orange, marginBottom: 16 }}>GTM Engineer · Salesforce Admin · AI Tools Builder</p>
-            <SubText>I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.</SubText>
           </div>
         </div>
       </Section>
@@ -545,6 +541,7 @@ export default function SalesPage() {
         <FAQItem q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code is a $17/month AI tool from Anthropic that connects to your org. No Salesforce add-on license needed." />
         <FAQItem q="How long do I have access?" a="Lifetime. Watch it once, come back anytime. All future updates are included." />
         <FAQItem q="What if I don't like it?" a="Full refund within 7 days. No questions asked." />
+        <FAQItem q="Is this safe for my production org?" a="Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." />
         <FAQItem q="Is this affiliated with Salesforce or Anthropic?" a="No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." />
       </Section>
 
