@@ -166,13 +166,13 @@ export default function SalesPage() {
           </div>
 
           <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(34px, 6.5vw, 58px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.08, marginBottom: 24, letterSpacing: -1 }}>
-            Salesforce admins just got
+            Claude Code gives Salesforce admins
             <br />
-            <span style={{ color: COLORS.orange }}>a superpower.</span>
+            <span style={{ color: COLORS.orange }}>superpowers.</span>
           </h1>
 
           <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2.5vw, 19px)", color: COLORS.textSecondary, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 16px" }}>
-            What are you going to do with all that free time?
+            Stop clicking. Start prompting.
           </p>
           <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(14px, 2vw, 16px)", color: COLORS.textMuted, lineHeight: 1.6, maxWidth: 500, margin: "0 auto 36px" }}>
             Side hustle. More time with family. Both. Learn to use Claude Code to build Flows, create fields, write Apex, and deploy it all from your terminal. No coding needed.
