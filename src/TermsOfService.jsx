@@ -1,7 +1,14 @@
 import LegalPage from "./LegalPage.jsx";
+import SEO from "./components/SEO.jsx";
 
 export default function TermsOfService() {
   return (
+    <>
+    <SEO
+      title="Terms of Service — CC for SF"
+      description="The agreement between you and CC for SF covering licensing, course use, intellectual property, refunds, arbitration, and the limits of our liability."
+      path="/terms"
+    />
     <LegalPage title="Terms of Service" lastUpdated="April 17, 2026">
       <p>The following Terms of Use are entered into by and between You and CC for SF ("Company," "we," or "us").</p>
 
@@ -108,5 +115,6 @@ export default function TermsOfService() {
         Email: <a href="mailto:aroramit.17@gmail.com">aroramit.17@gmail.com</a>
       </p>
     </LegalPage>
+    </>
   );
 }

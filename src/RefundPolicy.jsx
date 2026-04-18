@@ -1,7 +1,14 @@
 import LegalPage from "./LegalPage.jsx";
+import SEO from "./components/SEO.jsx";
 
 export default function RefundPolicy() {
   return (
+    <>
+    <SEO
+      title="Refund Policy — CC for SF"
+      description="The CC for SF course is backed by a 30-day, no-questions-asked money-back guarantee. If you went through the course and didn't level up, you get a full refund."
+      path="/refund"
+    />
     <LegalPage title="Refund Policy" lastUpdated="April 17, 2026">
       <p>Your enrollment in the CC for SF course is backed by a <strong>30-day, no-questions-asked money-back guarantee</strong>.</p>
 
@@ -11,7 +18,7 @@ export default function RefundPolicy() {
 
       <h2>How to Request a Refund</h2>
       <p>Send an email to <a href="mailto:aroramit.17@gmail.com">aroramit.17@gmail.com</a> from the email address you used to purchase, within 30 days of your original purchase date. Include your order confirmation if you have it handy. That's it.</p>
-      <p>Refunds are issued back to the original payment method. Your payment processor (Stripe, Gumroad, etc.) controls the exact timing — typically 5–10 business days to appear on your statement.</p>
+      <p>Refunds are issued back to the original payment method via our checkout provider, Thrivecart. Your card issuer controls the exact timing — typically 5–10 business days to appear on your statement.</p>
 
       <h2>What Happens After a Refund</h2>
       <p>Once your refund is processed, your access to the course, any bonus materials, and any private channels or groups will be revoked. You agree to stop using the course materials and to delete any downloaded files (video recordings, slide decks, CLAUDE.md templates, prompts, etc.).</p>
@@ -24,5 +31,6 @@ export default function RefundPolicy() {
 
       <p>This Refund Policy is incorporated by reference into the CC for SF <a href="/terms">Terms of Service</a>.</p>
     </LegalPage>
+    </>
   );
 }

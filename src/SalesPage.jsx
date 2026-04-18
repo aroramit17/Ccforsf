@@ -1,4 +1,46 @@
 import { useState, useEffect, useRef } from "react";
+import SEO from "./components/SEO.jsx";
+
+const HOMEPAGE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Course",
+      "name": "Claude Code for Salesforce Admins",
+      "description": "A hands-on mini-course that teaches Salesforce Admins how to use Claude Code to build Flows, custom fields, validation rules, and Apex — without clicking through Setup or writing code by hand.",
+      "provider": {
+        "@type": "Organization",
+        "name": "AI with Amit",
+        "url": "https://ccforsf.com",
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "97",
+        "priceCurrency": "USD",
+        "category": "OneTimePurchase",
+        "availability": "https://schema.org/InStock",
+      },
+      "hasCourseInstance": {
+        "@type": "CourseInstance",
+        "courseMode": "Online",
+        "courseWorkload": "PT2H",
+      },
+    },
+    {
+      "@type": "Organization",
+      "name": "AI with Amit",
+      "url": "https://ccforsf.com",
+      "logo": "https://ccforsf.com/favicon.svg",
+    },
+    {
+      "@type": "Person",
+      "name": "Amit",
+      "jobTitle": "GTM Engineer, 8x Salesforce Certified",
+      "image": "https://ccforsf.com/amit-headshot.png",
+      "description": "Creator of AI with Amit. Builds AI-native tools for Salesforce Admins.",
+    },
+  ],
+};
 
 const COLORS = {
   orange: "#DA7756",
@@ -122,8 +164,13 @@ export default function SalesPage() {
 
   return (
     <div style={{ background: COLORS.bg, minHeight: "100vh", overflowX: "hidden", color: COLORS.textPrimary }}>
+      <SEO
+        title="CC for SF — Claude Code for Salesforce Admins"
+        description="The hands-on mini-course that teaches Salesforce Admins to build Flows, fields, and Apex with Claude Code in minutes. $97 one-time, 30-day guarantee."
+        path="/"
+        jsonLd={HOMEPAGE_JSON_LD}
+      />
       <GlobalStyles />
-      <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       {/* ── URGENCY BAR ── */}
       {showUrgency && (
@@ -212,7 +259,7 @@ export default function SalesPage() {
       <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "0 20px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
           {[
-            ["$17/mo", "Claude Code cost"],
+            ["$20/mo", "Claude Code cost"],
             ["5 min", "To deploy your first Flow"],
             ["0 lines", "Of code you need to write"],
           ].map(([num, label], i) => (
@@ -432,7 +479,7 @@ export default function SalesPage() {
           </div>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `2px solid ${COLORS.borderHover}`, boxShadow: `0 8px 40px rgba(218,119,86,0.06)` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>WITH CLAUDE CODE</div>
-            {[["Claude subscription", "$17/mo"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
+            {[["Claude subscription", "$20/mo (Pro) · Max recommended"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}` }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: COLORS.orange }}>{v}</span>
@@ -546,8 +593,8 @@ export default function SalesPage() {
           <H2 center>Common questions.</H2>
         </div>
         <FAQItem q="Do I need to know how to code?" a="No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." />
-        <FAQItem q="What do I need to get started?" a="A Claude Pro subscription ($17/month) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
-        <FAQItem q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code is a $17/month AI tool from Anthropic that connects to your org. No Salesforce add-on license needed." />
+        <FAQItem q="What do I need to get started?" a="A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
+        <FAQItem q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." />
         <FAQItem q="How long do I have access?" a="Lifetime. Watch it once, come back anytime. All future updates are included." />
         <FAQItem q="What if I don't like it?" a="Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." />
         <FAQItem q="Is this safe for my production org?" a="Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." />

@@ -1,7 +1,14 @@
 import LegalPage from "./LegalPage.jsx";
+import SEO from "./components/SEO.jsx";
 
 export default function PrivacyPolicy() {
   return (
+    <>
+    <SEO
+      title="Privacy Policy — CC for SF"
+      description="How CC for SF collects, stores, and uses your information. Covers cookies, analytics, email, GDPR rights, and how to contact us with questions."
+      path="/privacy"
+    />
     <LegalPage title="Privacy Policy" lastUpdated="April 17, 2026">
       <p>CC for SF ("Company", "we", or "us") respects your privacy and is committed to protecting it through this Privacy Policy.</p>
 
@@ -87,5 +94,6 @@ export default function PrivacyPolicy() {
         Email: <a href="mailto:aroramit.17@gmail.com">aroramit.17@gmail.com</a>
       </p>
     </LegalPage>
+    </>
   );
 }
