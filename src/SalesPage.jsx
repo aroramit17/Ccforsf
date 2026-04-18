@@ -198,7 +198,7 @@ export default function SalesPage() {
 
           {/* trust row */}
           <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.5s", display: "flex", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
-            {["∞ Lifetime Access", "Video Modules", "7-Day Guarantee"].map((t, i) => (
+            {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{t}</span>
@@ -280,8 +280,8 @@ export default function SalesPage() {
       <Section style={{ background: COLORS.bg }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ width: 88, height: 88, borderRadius: 16, background: `linear-gradient(135deg, ${COLORS.sfBlue}, ${COLORS.orange})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontSize: 36, color: "#fff", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800 }}>A</span>
+            <div style={{ width: 88, height: 88, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: `2px solid ${COLORS.border}` }}>
+              <img src="amit-headshot.png" alt="Amit" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
             <div style={{ flex: 1, minWidth: 240 }}>
               <SectionLabel>A Note From Amit</SectionLabel>
@@ -475,8 +475,8 @@ export default function SalesPage() {
       <Section style={{ background: COLORS.bg }}>
         <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "40px 32px" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
-          <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: COLORS.textPrimary, marginBottom: 12 }}>7-Day Money-Back Guarantee</h3>
-          <SubText center>Try the whole course. If it's not for you, email me within 7 days and I'll refund every penny. No questions. No hoops. I'd rather you try it risk-free than wonder "what if."</SubText>
+          <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: COLORS.textPrimary, marginBottom: 12 }}>30-Day Risk-Free Guarantee</h3>
+          <SubText center>Go through the whole course. Try the prompts in your own org. If you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days and I'll refund every penny. No questions. No hoops. I'd rather you try it risk-free than wonder "what if."</SubText>
         </div>
       </Section>
 
@@ -494,12 +494,21 @@ export default function SalesPage() {
 
             <div style={{ padding: "36px 32px 32px", position: "relative" }}>
               {/* price */}
-              <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <div style={{ textAlign: "center", marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 8 }}>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 22, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
                   <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 52, fontWeight: 800, color: "#fff", letterSpacing: -3 }}>$97</span>
                 </div>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>One-time payment · Lifetime access</span>
+              </div>
+
+              {/* employer reimbursement blurb */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, background: `rgba(34,197,94,0.08)`, border: `1px solid rgba(34,197,94,0.2)`, borderRadius: 10, padding: "12px 14px", marginBottom: 24 }}>
+                <span style={{ fontSize: 16, lineHeight: "22px" }}>💼</span>
+                <div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: COLORS.green, marginBottom: 2 }}>Most companies cover this</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: COLORS.textSecondary, lineHeight: 1.5 }}>Most employers offer an education or training stipend that covers the cost of this course. Ask your manager — receipt provided.</div>
+                </div>
               </div>
 
               {/* features */}
@@ -511,7 +520,7 @@ export default function SalesPage() {
                   "Real Salesforce org demos",
                   "Debugging & troubleshooting module",
                   "All future updates included",
-                  "7-day money-back guarantee",
+                  "30-day money-back guarantee",
                 ].map((f, i) => (
                   <div key={i} style={{ display: "flex", gap: 10, padding: "10px 0", borderBottom: `1px solid ${COLORS.border}`, alignItems: "center" }}>
                     <span style={{ color: COLORS.green, fontSize: 14, fontWeight: 700 }}>✓</span>
@@ -540,7 +549,7 @@ export default function SalesPage() {
         <FAQItem q="What do I need to get started?" a="A Claude Pro subscription ($17/month) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
         <FAQItem q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code is a $17/month AI tool from Anthropic that connects to your org. No Salesforce add-on license needed." />
         <FAQItem q="How long do I have access?" a="Lifetime. Watch it once, come back anytime. All future updates are included." />
-        <FAQItem q="What if I don't like it?" a="Full refund within 7 days. No questions asked." />
+        <FAQItem q="What if I don't like it?" a="Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." />
         <FAQItem q="Is this safe for my production org?" a="Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." />
         <FAQItem q="Is this affiliated with Salesforce or Anthropic?" a="No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." />
       </Section>
@@ -553,7 +562,7 @@ export default function SalesPage() {
             Stop clicking.<br />Start prompting.
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.textSecondary, lineHeight: 1.6, marginBottom: 32 }}>
-            $97 one-time. Lifetime access. 7-day money-back guarantee.
+            $97 one-time. Lifetime access. 30-day money-back guarantee.
           </p>
           <CTAButton large>Get Instant Access - $97</CTAButton>
         </div>
@@ -571,8 +580,12 @@ export default function SalesPage() {
             <span style={{ color: "rgba(255,255,255,0.12)" }}>__c</span>
           </div>
           <div style={{ display: "flex", gap: 20 }}>
-            {["Terms", "Privacy", "Refund Policy"].map((t, i) => (
-              <span key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.2)", cursor: "pointer" }}>{t}</span>
+            {[
+              { label: "Terms", href: "/terms" },
+              { label: "Privacy", href: "/privacy" },
+              { label: "Refund Policy", href: "/refund" },
+            ].map((item, i) => (
+              <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{item.label}</a>
             ))}
           </div>
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.12)" }}>© 2026 AI with Amit</span>
