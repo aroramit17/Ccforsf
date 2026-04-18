@@ -1,24 +1,50 @@
 import { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
 
+const FAQ_ITEMS = [
+  { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
+  { q: "What do I need to get started?", a: "A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
+  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." },
+  { q: "How long do I have access?", a: "Lifetime. Watch it once, come back anytime. All future updates are included." },
+  { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
+  { q: "Is this safe for my production org?", a: "Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
+  { q: "Is this affiliated with Salesforce or Anthropic?", a: "No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." },
+];
+
+// sameAs URLs for Person/Organization schema — fill in with real profile URLs to strengthen entity resolution
+const SAME_AS = [
+  // "https://www.linkedin.com/in/aroramit17/",
+  // "https://www.youtube.com/@aiwithamit",
+  // "https://twitter.com/aiwithamit",
+  // "https://github.com/aroramit17",
+];
+
 const HOMEPAGE_JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "Course",
+      "@id": "https://ccforsf.com/#course",
       "name": "Claude Code for Salesforce Admins",
       "description": "A hands-on mini-course that teaches Salesforce Admins how to use Claude Code to build Flows, custom fields, validation rules, and Apex — without clicking through Setup or writing code by hand.",
-      "provider": {
-        "@type": "Organization",
-        "name": "AI with Amit",
-        "url": "https://ccforsf.com",
+      "url": "https://ccforsf.com/",
+      "image": "https://ccforsf.com/amit-headshot.png",
+      "inLanguage": "en",
+      "educationalLevel": "intermediate",
+      "teaches": "Using Claude Code with Salesforce DX to build Flows, fields, validation rules, Apex triggers, and LWC components via natural-language prompts instead of clicking through Setup.",
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": "Salesforce Administrator",
       },
+      "provider": { "@id": "https://ccforsf.com/#org" },
+      "instructor": { "@id": "https://ccforsf.com/#person-amit" },
       "offers": {
         "@type": "Offer",
         "price": "97",
         "priceCurrency": "USD",
         "category": "OneTimePurchase",
         "availability": "https://schema.org/InStock",
+        "url": "https://ccforsf.com/#pricing",
       },
       "hasCourseInstance": {
         "@type": "CourseInstance",
@@ -28,16 +54,53 @@ const HOMEPAGE_JSON_LD = {
     },
     {
       "@type": "Organization",
+      "@id": "https://ccforsf.com/#org",
       "name": "AI with Amit",
       "url": "https://ccforsf.com",
       "logo": "https://ccforsf.com/favicon.svg",
+      "founder": { "@id": "https://ccforsf.com/#person-amit" },
+      ...(SAME_AS.length > 0 && { "sameAs": SAME_AS }),
     },
     {
       "@type": "Person",
+      "@id": "https://ccforsf.com/#person-amit",
       "name": "Amit",
       "jobTitle": "GTM Engineer, 8x Salesforce Certified",
       "image": "https://ccforsf.com/amit-headshot.png",
       "description": "Creator of AI with Amit. Builds AI-native tools for Salesforce Admins.",
+      "knowsAbout": [
+        "Salesforce administration",
+        "Salesforce DX",
+        "Claude Code",
+        "Model Context Protocol (MCP)",
+        "Salesforce Flow",
+        "Apex",
+        "Lightning Web Components",
+        "Revenue operations",
+        "GTM engineering",
+      ],
+      "worksFor": { "@id": "https://ccforsf.com/#org" },
+      ...(SAME_AS.length > 0 && { "sameAs": SAME_AS }),
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://ccforsf.com/#faq",
+      "mainEntity": FAQ_ITEMS.map((item) => ({
+        "@type": "Question",
+        "name": item.q,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": item.a,
+        },
+      })),
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://ccforsf.com/#website",
+      "url": "https://ccforsf.com",
+      "name": "CC for SF",
+      "publisher": { "@id": "https://ccforsf.com/#org" },
+      "inLanguage": "en",
     },
   ],
 };
@@ -415,7 +478,7 @@ export default function SalesPage() {
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div style={{ width: 88, height: 88, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: `2px solid ${COLORS.border}` }}>
-              <img src="amit-headshot.png" alt="Amit" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src="amit-headshot.png" alt="Amit — 8× Salesforce Certified instructor, creator of CC for SF" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
             <div style={{ flex: 1, minWidth: 240 }}>
               <SectionLabel>A Note From Amit</SectionLabel>
@@ -680,13 +743,7 @@ export default function SalesPage() {
           <SectionLabel>FAQ</SectionLabel>
           <H2 center>Frequently asked questions.</H2>
         </div>
-        <FAQItem q="Do I need to know how to code?" a="No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." />
-        <FAQItem q="What do I need to get started?" a="A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
-        <FAQItem q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." />
-        <FAQItem q="How long do I have access?" a="Lifetime. Watch it once, come back anytime. All future updates are included." />
-        <FAQItem q="What if I don't like it?" a="Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." />
-        <FAQItem q="Is this safe for my production org?" a="Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." />
-        <FAQItem q="Is this affiliated with Salesforce or Anthropic?" a="No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." />
+        {FAQ_ITEMS.map((item, i) => (<FAQItem key={i} q={item.q} a={item.a} />))}
       </Section>
 
       {/* ── FINAL CTA ── */}

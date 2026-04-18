@@ -1,6 +1,34 @@
 import LegalPage from "./LegalPage.jsx";
 import SEO from "./components/SEO.jsx";
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ccforsf.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Refund Policy", "item": "https://ccforsf.com/refund" },
+      ],
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://ccforsf.com/refund",
+      "name": "Refund Policy — CC for SF",
+      "url": "https://ccforsf.com/refund",
+      "isPartOf": { "@id": "https://ccforsf.com/#website" },
+      "inLanguage": "en",
+      "about": {
+        "@type": "MerchantReturnPolicy",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 30,
+        "returnMethod": "https://schema.org/ReturnByMail",
+        "returnFees": "https://schema.org/FreeReturn",
+      },
+    },
+  ],
+};
+
 export default function RefundPolicy() {
   return (
     <>
@@ -8,6 +36,7 @@ export default function RefundPolicy() {
       title="Refund Policy — CC for SF"
       description="The CC for SF course is backed by a 30-day, no-questions-asked money-back guarantee. If you went through the course and didn't level up, you get a full refund."
       path="/refund"
+      jsonLd={JSON_LD}
     />
     <LegalPage title="Refund Policy" lastUpdated="April 17, 2026">
       <p>Your enrollment in the CC for SF course is backed by a <strong>30-day, no-questions-asked money-back guarantee</strong>.</p>

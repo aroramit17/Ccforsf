@@ -1,6 +1,27 @@
 import LegalPage from "./LegalPage.jsx";
 import SEO from "./components/SEO.jsx";
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ccforsf.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Terms of Service", "item": "https://ccforsf.com/terms" },
+      ],
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://ccforsf.com/terms",
+      "name": "Terms of Service — CC for SF",
+      "url": "https://ccforsf.com/terms",
+      "isPartOf": { "@id": "https://ccforsf.com/#website" },
+      "inLanguage": "en",
+    },
+  ],
+};
+
 export default function TermsOfService() {
   return (
     <>
@@ -8,6 +29,7 @@ export default function TermsOfService() {
       title="Terms of Service — CC for SF"
       description="The agreement between you and CC for SF covering licensing, course use, intellectual property, refunds, arbitration, and the limits of our liability."
       path="/terms"
+      jsonLd={JSON_LD}
     />
     <LegalPage title="Terms of Service" lastUpdated="April 17, 2026">
       <p>The following Terms of Use are entered into by and between You and CC for SF ("Company," "we," or "us").</p>

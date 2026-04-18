@@ -1,6 +1,27 @@
 import LegalPage from "./LegalPage.jsx";
 import SEO from "./components/SEO.jsx";
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ccforsf.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": "https://ccforsf.com/privacy" },
+      ],
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://ccforsf.com/privacy",
+      "name": "Privacy Policy — CC for SF",
+      "url": "https://ccforsf.com/privacy",
+      "isPartOf": { "@id": "https://ccforsf.com/#website" },
+      "inLanguage": "en",
+    },
+  ],
+};
+
 export default function PrivacyPolicy() {
   return (
     <>
@@ -8,6 +29,7 @@ export default function PrivacyPolicy() {
       title="Privacy Policy — CC for SF"
       description="How CC for SF collects, stores, and uses your information. Covers cookies, analytics, email, GDPR rights, and how to contact us with questions."
       path="/privacy"
+      jsonLd={JSON_LD}
     />
     <LegalPage title="Privacy Policy" lastUpdated="April 17, 2026">
       <p>CC for SF ("Company", "we", or "us") respects your privacy and is committed to protecting it through this Privacy Policy.</p>
