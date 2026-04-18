@@ -1,0 +1,80 @@
+# Allow all crawlers by default
+User-agent: *
+Allow: /
+Disallow: /thanks
+Disallow: /checkout-success
+Disallow: /admin
+
+# Major search engine bots
+User-agent: Googlebot
+Allow: /
+Disallow: /thanks
+Disallow: /checkout-success
+Disallow: /admin
+
+User-agent: Bingbot
+Allow: /
+Disallow: /thanks
+Disallow: /checkout-success
+Disallow: /admin
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /thanks
+Disallow: /checkout-success
+Disallow: /admin
+
+User-agent: Applebot
+Allow: /
+Disallow: /thanks
+Disallow: /checkout-success
+Disallow: /admin
+
+# Social preview crawlers (needed for link previews on FB, Twitter/X, LinkedIn, Slack, Discord)
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+# AI / answer-engine crawlers (allowed per CLAUDE.md §6; flip to Disallow to opt out)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://ccforsf.com/sitemap.xml
