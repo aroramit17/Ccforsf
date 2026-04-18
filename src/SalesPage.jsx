@@ -144,9 +144,24 @@ function GlobalStyles() {
       @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
       @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
       @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+      @keyframes sceneReveal {
+        0% { opacity: 0; transform: translateY(4px); }
+        10% { opacity: 1; transform: translateY(0); }
+        88% { opacity: 1; transform: translateY(0); }
+        97%, 100% { opacity: 0; transform: translateY(-2px); }
+      }
+      @keyframes caretBlink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
       * { margin:0; padding:0; box-sizing:border-box; }
       body { background:${COLORS.bg}; }
       ::selection { background:${COLORS.orange}; color:#fff; }
+      .hero-grid { display:grid; grid-template-columns:1fr; gap:48px; align-items:center; }
+      .hero-left { text-align:center; display:flex; flex-direction:column; align-items:center; }
+      .hero-right { display:flex; justify-content:center; }
+      @media (min-width: 960px) {
+        .hero-grid { grid-template-columns: 1.05fr 1fr; gap:56px; }
+        .hero-left { text-align:left; align-items:flex-start; }
+        .hero-right { justify-content:flex-end; }
+      }
     `}</style>
   );
 }
@@ -205,52 +220,51 @@ export default function SalesPage() {
         <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.12) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)" }} />
         <div style={{ position: "absolute", top: "40%", right: "-10%", width: 300, height: 300, background: `radial-gradient(circle, rgba(1,118,211,0.1) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(50px)" }} />
 
-        <div style={{ maxWidth: 760, margin: "0 auto", position: "relative", zIndex: 2, textAlign: "center" }}>
-          {/* blinking badge */}
-          <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 24 }}>
-            <span style={{ color: COLORS.green, fontSize: 8, animation: "blink 1.4s infinite" }}>●</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE x SALESFORCE</span>
-          </div>
-
-          <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(34px, 6.5vw, 58px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.08, marginBottom: 24, letterSpacing: -1 }}>
-            Build complex Flows 10x faster
-            <br />
-            <span style={{ color: COLORS.orange }}>without touching a single button.</span>
-          </h1>
-
-          <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2.5vw, 19px)", color: COLORS.textSecondary, lineHeight: 1.6, maxWidth: 520, margin: "0 auto 16px" }}>
-            Stop clicking. Start prompting.
-          </p>
-          <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(14px, 2vw, 16px)", color: COLORS.textMuted, lineHeight: 1.6, maxWidth: 500, margin: "0 auto 28px" }}>
-            Side hustle. More time with family. Both. Learn to use Claude Code to build Flows, create fields, write Apex, and deploy it all from your terminal. No coding needed.
-          </p>
-
-          {/* social proof badge */}
-          <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.35s", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 32 }}>
-            <div style={{ display: "flex", gap: 2 }}>{[...Array(5)].map((_, i) => <span key={i} style={{ color: COLORS.gold, fontSize: 15 }}>★</span>)}</div>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textSecondary }}>Join 50+ Salesforce Admins</span>
-          </div>
-
-          {/* pricing + CTA */}
-          <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.4s", marginBottom: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 20 }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 20, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: -2 }}>$97</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: COLORS.green, background: `rgba(34,197,94,0.12)`, padding: "4px 10px", borderRadius: 100 }}>SAVE 50%</span>
-            </div>
-            <div style={{ maxWidth: 400, margin: "0 auto" }}>
-              <CTAButton large full>Get Instant Access - $97</CTAButton>
-            </div>
-          </div>
-
-          {/* trust row */}
-          <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.5s", display: "flex", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
-            {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{t}</span>
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
+          <div className="hero-grid">
+            {/* LEFT: copy + CTA */}
+            <div className="hero-left">
+              {/* badge */}
+              <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 24 }}>
+                <span style={{ color: COLORS.green, fontSize: 8, animation: "blink 1.4s infinite" }}>●</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE x SALESFORCE</span>
               </div>
-            ))}
+
+              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(32px, 5.4vw, 52px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.05, marginBottom: 20, letterSpacing: -1 }}>
+                What if your next Flow
+                <br />
+                <span style={{ color: COLORS.orange }}>was one prompt away?</span>
+              </h1>
+
+              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(15px, 2vw, 18px)", color: COLORS.textSecondary, lineHeight: 1.55, maxWidth: 480, marginBottom: 28 }}>
+                Claude Code × Salesforce. Ship Flows, fields, and Apex <strong style={{ color: COLORS.textPrimary }}>10× faster</strong> — straight from your terminal.
+              </p>
+
+              {/* pricing + CTA */}
+              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", marginBottom: 18, width: "100%", maxWidth: 440 }}>
+                <div className="hero-price-row" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, justifyContent: "inherit" }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 20, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
+                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: -2 }}>$97</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: COLORS.green, background: `rgba(34,197,94,0.12)`, padding: "4px 10px", borderRadius: 100 }}>SAVE 50%</span>
+                </div>
+                <CTAButton large full>Get Instant Access - $97</CTAButton>
+              </div>
+
+              {/* trust row */}
+              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.4s", display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "inherit" }}>
+                {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{t}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT: animated terminal */}
+            <div className="hero-right" style={{ animation: "fadeUp 0.7s ease 0.3s both" }}>
+              <HeroTerminal />
+            </div>
           </div>
         </div>
       </section>
@@ -320,6 +334,20 @@ export default function SalesPage() {
               Now I just tell Claude to build the flow. It goes into my org, creates it, and deploys it. All I do is go check that it works. What used to take me an afternoon takes 5 minutes.
             </p>
           </div>
+        </div>
+      </Section>
+
+      {/* ── HEADLESS FUTURE (Benioff proof) ── */}
+      <Section style={{ background: COLORS.bg }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <SectionLabel>The future is headless</SectionLabel>
+          <H2 center>Salesforce agrees. The browser isn't the UI anymore.</H2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 620, margin: "12px auto 0" }}>
+            Marc Benioff just announced <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> — every object, workflow, and agent is now a first-class API, MCP, and CLI surface. The admins who can talk to their org from a terminal are about to have a massive head start.
+          </p>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <BenioffTweet />
         </div>
       </Section>
 
@@ -415,14 +443,87 @@ export default function SalesPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 16 }}>
           {[
-            { icon: "⚡", title: "Zero to connected in minutes", desc: "Install Claude Code and connect it to your Salesforce org. Even if you've never opened a terminal." },
-            { icon: "🏗️", title: "Fields, layouts, permissions", desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt." },
-            { icon: "🔄", title: "Flows from plain English", desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org." },
-            { icon: "📝", title: "Validation rules & Apex", desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code." },
-            { icon: "🐛", title: "When AI gets it wrong", desc: "It will. Here's the process to debug and get Claude back on track when it misfires." },
-            { icon: "📋", title: "Real prompts you can steal", desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping." },
+            {
+              icon: "⚡",
+              title: "Zero to connected in minutes",
+              desc: "Install Claude Code and connect it to your Salesforce org. Even if you've never opened a terminal.",
+              scene: [
+                { t: "$ npm i -g @anthropic-ai/claude-code", c: "#6B7280" },
+                { t: "$ claude", c: "#A5D6FF" },
+                { t: "→ Connecting to dev-org.__c", c: COLORS.textSecondary },
+                { t: "✓ Authenticated via sfdx", c: COLORS.green },
+                { t: "✓ 47 objects loaded", c: COLORS.green },
+                { t: "Ready ▌", c: "#E2E8F0", blink: true },
+              ],
+            },
+            {
+              icon: "🏗️",
+              title: "Fields, layouts, permissions",
+              desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt.",
+              scene: [
+                { t: "> Add Lead_Source_Detail__c", c: COLORS.orange },
+                { t: "  picklist to Contact", c: "#A5D6FF" },
+                { t: "Creating field…", c: COLORS.textSecondary },
+                { t: "✓ Field created", c: COLORS.green },
+                { t: "✓ Added to Sales Console layout", c: COLORS.green },
+                { t: "✓ SDR permission set updated", c: COLORS.green },
+              ],
+            },
+            {
+              icon: "🔄",
+              title: "Flows from plain English",
+              desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org.",
+              scene: [
+                { t: "> Build a flow that routes", c: COLORS.orange },
+                { t: "  leads by region to owners", c: "#A5D6FF" },
+                { t: "Generating Record-Triggered Flow…", c: COLORS.textSecondary },
+                { t: "  → Decision: Region", c: COLORS.textMuted },
+                { t: "  → 4 assignment branches", c: COLORS.textMuted },
+                { t: "✓ Deployed to dev-org", c: COLORS.green },
+              ],
+            },
+            {
+              icon: "📝",
+              title: "Validation rules & Apex",
+              desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code.",
+              scene: [
+                { t: "> Require CloseDate when", c: COLORS.orange },
+                { t: "  Stage = Closed Won", c: "#A5D6FF" },
+                { t: "Writing validation rule…", c: COLORS.textSecondary },
+                { t: "AND(", c: "#E2E8F0" },
+                { t: "  ISPICKVAL(Stage,\"Closed Won\"),", c: "#E2E8F0" },
+                { t: "  ISBLANK(CloseDate))", c: "#E2E8F0" },
+                { t: "✓ Deployed", c: COLORS.green },
+              ],
+            },
+            {
+              icon: "🐛",
+              title: "When AI gets it wrong",
+              desc: "It will. Here's the process to debug and get Claude back on track when it misfires.",
+              scene: [
+                { t: "$ deploy Account_Status__c trigger", c: "#6B7280" },
+                { t: "✗ Unknown field 'Status'", c: "#EF4444" },
+                { t: "> That's the custom one —", c: COLORS.orange },
+                { t: "  use Status__c", c: "#A5D6FF" },
+                { t: "Retrying with corrected API name…", c: COLORS.textSecondary },
+                { t: "✓ Deployed, 4/4 tests passing", c: COLORS.green },
+              ],
+            },
+            {
+              icon: "📋",
+              title: "Real prompts you can steal",
+              desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping.",
+              scene: [
+                { t: "[01] Create picklist on Contact…", c: "#A5D6FF" },
+                { t: "[02] Build lead routing flow…", c: "#A5D6FF" },
+                { t: "[03] Validation: require close date…", c: "#A5D6FF" },
+                { t: "[04] Trigger: sync Account → Opp…", c: "#A5D6FF" },
+                { t: "[05] Flow: escalate stale cases…", c: "#A5D6FF" },
+                { t: "…20+ more in the prompt library", c: COLORS.orange },
+              ],
+            },
           ].map((item, i) => (
-            <BenefitCard key={i} {...item} />
+            <FlipCard key={i} {...item} />
           ))}
         </div>
       </Section>
@@ -578,8 +679,22 @@ export default function SalesPage() {
 
               <CTAButton large full>ENROLL NOW - $97</CTAButton>
 
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textMuted, textAlign: "center", marginTop: 14 }}>
-                Secure checkout · Instant access
+              {/* Secure checkout trust row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 16 }}>
+                <LockIcon />
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, fontWeight: 600, color: COLORS.textSecondary, letterSpacing: 0.3 }}>Secure checkout · SSL encrypted</span>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                <CardVisa />
+                <CardMastercard />
+                <CardAmex />
+                <CardDiscover />
+                <CardApplePay />
+              </div>
+
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: COLORS.textMuted, textAlign: "center", marginTop: 12 }}>
+                Instant access · Powered by Thrivecart
               </p>
             </div>
           </div>
@@ -590,7 +705,7 @@ export default function SalesPage() {
       <Section style={{ background: COLORS.bg }} maxWidth={680}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>FAQ</SectionLabel>
-          <H2 center>Common questions.</H2>
+          <H2 center>Frequently asked questions.</H2>
         </div>
         <FAQItem q="Do I need to know how to code?" a="No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." />
         <FAQItem q="What do I need to get started?" a="A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
@@ -655,15 +770,96 @@ function ProblemCard({ icon, title, desc }) {
   );
 }
 
-function BenefitCard({ icon, title, desc }) {
-  const [hover, setHover] = useState(false);
+function FlipCard({ icon, title, desc, scene }) {
+  const [flipped, setFlipped] = useState(false);
   return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{ display: "flex", gap: 16, padding: 20, background: COLORS.surface, border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`, borderRadius: 12, transition: "all 0.3s ease", transform: hover ? "translateY(-2px)" : "translateY(0)" }}>
-      <div style={{ fontSize: 24, flexShrink: 0, marginTop: 2 }}>{icon}</div>
-      <div>
-        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 6 }}>{title}</h3>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
+    <div
+      onMouseEnter={() => setFlipped(true)}
+      onMouseLeave={() => setFlipped(false)}
+      onClick={() => setFlipped(f => !f)}
+      style={{ perspective: 1200, cursor: "pointer", minHeight: 180 }}
+    >
+      <div style={{
+        position: "relative",
+        width: "100%",
+        minHeight: 180,
+        transformStyle: "preserve-3d",
+        WebkitTransformStyle: "preserve-3d",
+        transition: "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+        transform: flipped ? "rotateY(180deg)" : "rotateY(0)",
+      }}>
+        {/* FRONT */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+          display: "flex",
+          gap: 16,
+          padding: 20,
+          background: COLORS.surface,
+          border: `1px solid ${COLORS.border}`,
+          borderRadius: 12,
+        }}>
+          <div style={{ fontSize: 24, flexShrink: 0, marginTop: 2 }}>{icon}</div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 6 }}>{title}</h3>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
+          </div>
+          <div style={{ position: "absolute", bottom: 10, right: 14, fontSize: 9.5, color: COLORS.textMuted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.2 }}>HOVER ↻</div>
+        </div>
+        {/* BACK */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+          transform: "rotateY(180deg)",
+          background: COLORS.surface,
+          border: `1px solid ${COLORS.borderHover}`,
+          borderRadius: 12,
+          overflow: "hidden",
+        }}>
+          <Scene lines={scene} />
+        </div>
       </div>
+    </div>
+  );
+}
+
+function Scene({ lines }) {
+  const perLine = 0.7;
+  const hold = 2.2;
+  const total = lines.length * perLine + hold;
+  return (
+    <div style={{
+      width: "100%",
+      height: "100%",
+      minHeight: 180,
+      padding: "18px 18px 16px",
+      background: "#050508",
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: 11.5,
+      lineHeight: 1.7,
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+      gap: 3,
+    }}>
+      <div style={{ fontSize: 9, letterSpacing: 1.5, color: COLORS.orange, marginBottom: 10, textTransform: "uppercase", fontWeight: 700 }}>
+        <span style={{ color: COLORS.green }}>●</span> live in your terminal
+      </div>
+      {lines.map((ln, i) => (
+        <div key={i} style={{
+          opacity: 0,
+          color: ln.c || COLORS.textSecondary,
+          whiteSpace: "pre-wrap",
+          animation: `sceneReveal ${total}s ${i * perLine}s infinite`,
+        }}>
+          {ln.t}
+          {ln.blink && <span style={{ animation: "caretBlink 1s infinite" }}>│</span>}
+        </div>
+      ))}
     </div>
   );
 }
@@ -697,6 +893,230 @@ function TestimonialCard({ name, role, quote }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ── Benioff tweet card (static Twitter-style recreation) ── */
+function BenioffTweet() {
+  const TWEET_URL = "https://x.com/Benioff/status/2044981547267395620";
+  return (
+    <a
+      href={TWEET_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "block",
+        width: "100%",
+        maxWidth: 560,
+        background: "#15202B",
+        border: "1px solid #38444D",
+        borderRadius: 16,
+        padding: 20,
+        textDecoration: "none",
+        color: "#E7E9EA",
+        fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+      }}
+    >
+      {/* header: avatar, name, handle, x logo */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+        <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #1D9BF0, #0176D3, #0a0a0a)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "#fff", letterSpacing: 0.5 }}>MB</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+            <span style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>Marc Benioff</span>
+            <VerifiedBadge />
+            <span style={{ fontSize: 15, color: "#8B98A5" }}>@Benioff · 19h</span>
+          </div>
+        </div>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true" style={{ flexShrink: 0 }}>
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </div>
+
+      {/* tweet body */}
+      <div style={{ fontSize: 15, lineHeight: 1.45, color: "#E7E9EA", marginBottom: 14 }}>
+        <strong style={{ color: "#fff" }}>Welcome Salesforce Headless 360: No Browser Required!</strong> Our API is the UI. Entire Salesforce &amp; Agentforce &amp; Slack platforms are now exposed as APIs, MCP, &amp; CLI. All AI agents can access data, workflows, and tasks directly in Slack, Voice, or anywhere else with Salesforce Headless… <span style={{ color: "#1D9BF0" }}>Show more</span>
+      </div>
+
+      {/* article preview card */}
+      <div style={{ border: "1px solid #38444D", borderRadius: 16, overflow: "hidden", marginBottom: 14 }}>
+        <div style={{ position: "relative", height: 180, background: "linear-gradient(180deg, #3d5a80 0%, #293241 100%)", overflow: "hidden" }}>
+          {/* stylized skyscraper silhouette */}
+          <svg viewBox="0 0 560 180" preserveAspectRatio="xMidYMid slice" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden="true">
+            <defs>
+              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#98c1d9" />
+                <stop offset="100%" stopColor="#3d5a80" />
+              </linearGradient>
+              <linearGradient id="buildingGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#1a2c4c" />
+                <stop offset="100%" stopColor="#0a1628" />
+              </linearGradient>
+            </defs>
+            <rect width="560" height="180" fill="url(#skyGrad)" />
+            {/* tower (abstracted Salesforce Tower shape) */}
+            <polygon points="280,30 360,180 200,180" fill="url(#buildingGrad)" opacity="0.92" />
+            <polygon points="280,30 330,180 230,180" fill="#0a1628" opacity="0.5" />
+            {/* smaller buildings */}
+            <rect x="60" y="130" width="80" height="50" fill="#0a1628" opacity="0.7" />
+            <rect x="430" y="110" width="70" height="70" fill="#0a1628" opacity="0.75" />
+            <rect x="510" y="140" width="50" height="40" fill="#0a1628" opacity="0.65" />
+            {/* window lights */}
+            {Array.from({ length: 28 }).map((_, i) => (
+              <rect key={i} x={268 + (i % 4) * 5} y={60 + Math.floor(i / 4) * 14} width="2" height="6" fill="#FFD166" opacity={0.6 + (i % 3) * 0.1} />
+            ))}
+          </svg>
+          <div style={{ position: "absolute", bottom: 10, left: 12, right: 12, color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1.3, textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}>
+            Salesforce launches Headless 360 to turn its entire platform into APIs, MCP, and CLI
+          </div>
+        </div>
+        <div style={{ padding: "10px 14px", fontSize: 13, color: "#8B98A5", background: "#15202B" }}>
+          From venturebeat.com
+        </div>
+      </div>
+
+      {/* engagement row */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "#8B98A5", fontSize: 13, paddingTop: 4 }}>
+        <TweetStat icon="💬" value="251" />
+        <TweetStat icon="🔁" value="881" />
+        <TweetStat icon="♥" value="4.1K" />
+        <TweetStat icon="📊" value="2.7M" />
+        <TweetStat icon="🔖" />
+        <TweetStat icon="↗" />
+      </div>
+    </a>
+  );
+}
+
+function VerifiedBadge() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 22 22" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1D9BF0"/>
+    </svg>
+  );
+}
+
+function TweetStat({ icon, value }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+      <span style={{ opacity: 0.85 }}>{icon}</span>
+      {value && <span>{value}</span>}
+    </span>
+  );
+}
+
+/* ── hero terminal (animated cascade) ── */
+function HeroTerminal() {
+  const lines = [
+    { t: "$ claude", c: "#A5D6FF" },
+    { t: "", c: "" },
+    { t: "> I need a Flow that assigns", c: COLORS.orange },
+    { t: "  leads by region to the right", c: "#A5D6FF" },
+    { t: "  owner and notifies them in Slack.", c: "#A5D6FF" },
+    { t: "", c: "" },
+    { t: "Reading dev-org metadata…", c: COLORS.textMuted },
+    { t: "Building Record-Triggered Flow…", c: COLORS.textMuted },
+    { t: "  → Decision: Region", c: COLORS.textMuted },
+    { t: "  → 4 assignment branches", c: COLORS.textMuted },
+    { t: "  → Slack notification action", c: COLORS.textMuted },
+    { t: "Deploying to dev-org…", c: COLORS.textMuted },
+    { t: "", c: "" },
+    { t: "✓ Route_Lead_By_Region · Active", c: COLORS.green },
+    { t: "✓ 4/4 tests passing", c: COLORS.green },
+    { t: "Complete.", c: "#E2E8F0", bold: true, blink: true },
+  ];
+  const perLine = 0.45;
+  const hold = 4;
+  const total = lines.length * perLine + hold;
+
+  return (
+    <div style={{ width: "100%", maxWidth: 540, background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.08)", border: `1px solid ${COLORS.border}` }}>
+      {/* title bar */}
+      <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — claude</span>
+      </div>
+      {/* body */}
+      <div style={{ padding: "18px 22px 22px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, lineHeight: 1.8, minHeight: 360 }}>
+        {lines.map((ln, i) => {
+          if (!ln.t) return <div key={i} style={{ height: 8 }} />;
+          return (
+            <div key={i} style={{
+              opacity: 0,
+              color: ln.c || COLORS.textSecondary,
+              fontWeight: ln.bold ? 700 : 400,
+              whiteSpace: "pre-wrap",
+              animation: `sceneReveal ${total}s ${i * perLine}s infinite`,
+            }}>
+              {ln.t}
+              {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── trust badges: SSL lock + card brand logos ── */
+function LockIcon() {
+  return (
+    <svg width="12" height="14" viewBox="0 0 14 16" fill="none" aria-hidden="true">
+      <rect x="1.5" y="7" width="11" height="8" rx="1.5" stroke={COLORS.green} strokeWidth="1.4" fill="rgba(34,197,94,0.08)" />
+      <path d="M4 7V4.5a3 3 0 0 1 6 0V7" stroke={COLORS.green} strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="7" cy="11" r="1" fill={COLORS.green} />
+    </svg>
+  );
+}
+
+function CardVisa() {
+  return (
+    <svg width="38" height="24" viewBox="0 0 38 24" aria-label="Visa">
+      <rect width="38" height="24" rx="4" fill="#fff" />
+      <text x="19" y="16" textAnchor="middle" fill="#1A1F71" fontFamily="Helvetica, Arial, sans-serif" fontSize="10" fontWeight="900" fontStyle="italic" letterSpacing="0.5">VISA</text>
+    </svg>
+  );
+}
+
+function CardMastercard() {
+  return (
+    <svg width="38" height="24" viewBox="0 0 38 24" aria-label="Mastercard">
+      <rect width="38" height="24" rx="4" fill="#fff" />
+      <circle cx="16" cy="12" r="6" fill="#EB001B" />
+      <circle cx="22" cy="12" r="6" fill="#F79E1B" />
+      <path d="M19 7.5a6 6 0 0 1 0 9 6 6 0 0 1 0-9z" fill="#FF5F00" />
+    </svg>
+  );
+}
+
+function CardAmex() {
+  return (
+    <svg width="38" height="24" viewBox="0 0 38 24" aria-label="American Express">
+      <rect width="38" height="24" rx="4" fill="#006FCF" />
+      <text x="19" y="16" textAnchor="middle" fill="#fff" fontFamily="Helvetica, Arial, sans-serif" fontSize="8.5" fontWeight="900" letterSpacing="0.5">AMEX</text>
+    </svg>
+  );
+}
+
+function CardDiscover() {
+  return (
+    <svg width="46" height="24" viewBox="0 0 46 24" aria-label="Discover">
+      <rect width="46" height="24" rx="4" fill="#fff" />
+      <text x="19" y="15.5" textAnchor="middle" fill="#222" fontFamily="Helvetica, Arial, sans-serif" fontSize="6.5" fontWeight="800" letterSpacing="0.2">DISCOVER</text>
+      <circle cx="39" cy="12" r="3.5" fill="#FF6000" />
+    </svg>
+  );
+}
+
+function CardApplePay() {
+  return (
+    <svg width="40" height="24" viewBox="0 0 40 24" aria-label="Apple Pay">
+      <rect width="40" height="24" rx="4" fill="#000" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
+      <path d="M10.3 9.3c-.3.4-.8.7-1.3.6-.1-.5.2-1 .4-1.3.3-.4.9-.7 1.3-.7.1.5-.1 1-.4 1.4zm.4.7c-.7 0-1.3.4-1.6.4-.4 0-.9-.4-1.5-.4-.8 0-1.5.5-1.9 1.2-.8 1.4-.2 3.5.6 4.6.4.5.9 1.1 1.5 1.1.6 0 .8-.4 1.5-.4.7 0 .9.4 1.5.4.6 0 1-.5 1.4-1 .4-.6.6-1.1.6-1.1-.1 0-1.2-.5-1.2-1.9 0-1.2 1-1.8 1-1.8-.5-.8-1.4-.9-1.9-.9z" fill="#fff" />
+      <text x="26" y="16" textAnchor="middle" fill="#fff" fontFamily="Helvetica, Arial, sans-serif" fontSize="8" fontWeight="500">Pay</text>
+    </svg>
   );
 }
 
