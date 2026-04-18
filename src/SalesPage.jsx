@@ -182,6 +182,12 @@ function GlobalStyles() {
         background: ${COLORS.orange}; cursor: pointer; border: none;
         box-shadow: 0 0 0 4px rgba(218,119,86,0.18);
       }
+      /* Touch-friendly slider — bigger thumb + track on coarse pointers (mobile) */
+      @media (hover: none) and (pointer: coarse) {
+        input[type="range"].roi-slider { height: 10px; border-radius: 5px; }
+        input[type="range"].roi-slider::-webkit-slider-thumb { width: 28px; height: 28px; box-shadow: 0 0 0 4px rgba(218,119,86,0.22); }
+        input[type="range"].roi-slider::-moz-range-thumb { width: 28px; height: 28px; }
+      }
       @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
       .gradient-headline {
         background: linear-gradient(90deg, #FFFFFF 0%, ${COLORS.orange} 35%, ${COLORS.sfBlue} 65%, #FFFFFF 100%);
@@ -264,8 +270,19 @@ export default function SalesPage() {
           <div className="hero-grid">
             {/* LEFT: copy + CTA */}
             <div className="hero-left">
+              {/* credentials / authority strip */}
+              <div style={{ animation: "fadeUp 0.45s ease both", display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 14, fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textMuted, letterSpacing: 0.5, flexWrap: "wrap", justifyContent: "inherit" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.22)`, borderRadius: 100, color: COLORS.sfBlue, fontWeight: 700 }}>
+                  <span style={{ fontSize: 9 }}>●</span> 8× SALESFORCE CERTIFIED
+                </span>
+                <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+                <span style={{ fontWeight: 500 }}>GTM Engineer</span>
+                <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+                <span style={{ fontWeight: 500 }}>8 yrs in the ecosystem</span>
+              </div>
+
               {/* badge */}
-              <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 24 }}>
+              <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 20 }}>
                 <span style={{ color: COLORS.green, fontSize: 8, animation: "blink 1.4s infinite" }}>●</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE x SALESFORCE</span>
               </div>
@@ -303,7 +320,7 @@ export default function SalesPage() {
 
             {/* RIGHT: animated terminal */}
             <div className="hero-right" style={{ animation: "fadeUp 0.7s ease 0.3s both" }}>
-              <HeroTerminal />
+              <HeroVideo />
             </div>
           </div>
         </div>
@@ -414,34 +431,6 @@ export default function SalesPage() {
         </div>
       </Section>
 
-      {/* ── DEMO ── */}
-      <Section id="demo" style={{ background: COLORS.surface }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>See It In Action</SectionLabel>
-          <H2 center>One prompt. Deployed to your org.</H2>
-        </div>
-
-        {/* video embed */}
-        <div style={{ position: "relative", borderRadius: 12, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.4)", border: `1px solid ${COLORS.border}`, background: "#1E1E2E", aspectRatio: "16/9", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-          {/* Replace the src below with your Loom or video embed URL */}
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-            <div style={{ width: 72, height: 72, borderRadius: "50%", background: COLORS.orange, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 8px 32px ${COLORS.orangeGlow}` }}>
-              <span style={{ fontSize: 28, color: "#fff", marginLeft: 4 }}>▶</span>
-            </div>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: COLORS.textSecondary }}>Watch: Full Flow built in under 5 minutes</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted }}>0:60 · Real Salesforce org demo</span>
-          </div>
-        </div>
-
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted, textAlign: "center", marginTop: 24 }}>
-          One prompt. A screen flow, LWC wrapper, and quick action — deployed to a real org. No clicks.
-        </p>
-
-        <div style={{ textAlign: "center", marginTop: 28 }}>
-          <CTAButton large>I Want This - $97</CTAButton>
-        </div>
-      </Section>
-
       {/* ── BEFORE / AFTER ── */}
       <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
@@ -525,7 +514,7 @@ export default function SalesPage() {
             {[["Agentforce license", "$125-$550/mo"], ["Extra SF license needed?", "Yes"], ["Implementation partner", "$50K-$150K"], ["Time to first automation", "8-12 weeks"], ["Who owns it?", "IT + vendor"]].map(([k, v], i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}`, alignItems: "center" }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600, color: "#EF4444" }}>{v}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 600, color: "#EF4444" }}>{v}</span>
               </div>
             ))}
           </div>
@@ -534,7 +523,7 @@ export default function SalesPage() {
             {[["Claude subscription", "$20/mo (Pro) · Max recommended"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}` }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: COLORS.orange }}>{v}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 700, color: COLORS.orange }}>{v}</span>
               </div>
             ))}
           </div>
@@ -626,6 +615,38 @@ export default function SalesPage() {
                     <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textPrimary }}>{f}</span>
                   </div>
                 ))}
+              </div>
+
+              {/* near-CTA micro testimonial */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 10, marginBottom: 14 }}>
+                <div style={{ display: "flex" }}>
+                  {["#DA7756", "#8B5CF6", "#0176D3"].map((bg, i) => (
+                    <div key={i} style={{ width: 26, height: 26, borderRadius: "50%", background: `linear-gradient(135deg, ${bg}, ${COLORS.surface3})`, border: `2px solid ${COLORS.surface2}`, marginLeft: i === 0 ? 0 : -8, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 11, fontWeight: 800 }}>
+                      {["S", "M", "P"][i]}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    {[...Array(5)].map((_, s) => (<span key={s} style={{ color: COLORS.gold, fontSize: 12 }}>★</span>))}
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, fontWeight: 700, color: COLORS.textSecondary, marginLeft: 4 }}>5.0 from early access</span>
+                  </div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, fontStyle: "italic" }}>"Built a routing flow in 10 minutes." — Sarah K., Admin</div>
+                </div>
+              </div>
+
+              {/* "Safe for your org" trust block — pulled out of FAQ */}
+              <div style={{ background: `rgba(34,197,94,0.06)`, border: `1px solid rgba(34,197,94,0.22)`, borderRadius: 10, padding: "12px 14px", marginBottom: 18, display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <svg width="18" height="20" viewBox="0 0 20 22" fill="none" aria-hidden="true" style={{ flexShrink: 0, marginTop: 2 }}>
+                  <path d="M10 1L2 4v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V4l-8-3z" stroke={COLORS.green} strokeWidth="1.6" fill="rgba(34,197,94,0.08)" strokeLinejoin="round" />
+                  <path d="M6.5 10.5l2.5 2.5 4.5-5" stroke={COLORS.green} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                </svg>
+                <div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: COLORS.green, marginBottom: 4 }}>Safe for your org</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: COLORS.textSecondary, lineHeight: 1.5 }}>
+                    Course works in a <strong style={{ color: COLORS.textPrimary }}>sandbox</strong>, respects your existing <strong style={{ color: COLORS.textPrimary }}>permission sets + security model</strong>, and never bypasses your deployment process. Nothing hits production without you.
+                  </div>
+                </div>
               </div>
 
               <CTAButton large full>ENROLL NOW - $97</CTAButton>
@@ -1057,8 +1078,8 @@ function HamburgerMenu() {
   }, [open]);
 
   const links = [
-    { label: "The Problem", href: "#problem" },
-    { label: "How it works", href: "#demo" },
+    { label: "Watch demo", href: "#top" },
+    { label: "The problem", href: "#problem" },
     { label: "What's included", href: "#whats-included" },
     { label: "Reviews", href: "#reviews" },
     { label: "Pricing", href: "#pricing" },
@@ -1318,7 +1339,7 @@ function FeatureShowcase() {
             <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
           </div>
-          <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: 13, lineHeight: 1.85, minHeight: 260 }}>
+          <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 260 }}>
             {feat.scene.map((ln, i) => (
               <div key={i} style={{
                 opacity: 0,
@@ -1548,6 +1569,65 @@ function TweetStat({ icon, value }) {
   );
 }
 
+/* ── hero video (clickable thumbnail — wire to Loom/Wistia src when ready) ── */
+function HeroVideo() {
+  return (
+    <div style={{ width: "100%", maxWidth: 560 }}>
+      <a
+        href="#demo"
+        aria-label="Watch full demo"
+        style={{
+          display: "block",
+          position: "relative",
+          borderRadius: 14,
+          overflow: "hidden",
+          boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.1)",
+          border: `1px solid ${COLORS.border}`,
+          aspectRatio: "16 / 9",
+          background: "linear-gradient(135deg, #1E1E2E 0%, #0E0E14 100%)",
+          textDecoration: "none",
+          cursor: "pointer",
+        }}
+      >
+        {/* subtle grid overlay */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(218,119,86,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(218,119,86,0.04) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
+        {/* glow */}
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 320, height: 320, background: `radial-gradient(circle, rgba(218,119,86,0.22) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(30px)" }} />
+
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 20 }}>
+          <div style={{
+            width: 82,
+            height: 82,
+            borderRadius: "50%",
+            background: COLORS.orange,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: `0 12px 40px ${COLORS.orangeGlow}`,
+            animation: "pulseGlow 2.4s ease-in-out infinite",
+          }}>
+            <svg width="28" height="32" viewBox="0 0 28 32" fill="#fff" aria-hidden="true" style={{ marginLeft: 4 }}>
+              <path d="M26 14.268L2 .536v30.928L26 17.732a2 2 0 0 0 0-3.464z" />
+            </svg>
+          </div>
+          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(16px, 2vw, 19px)", fontWeight: 700, color: "#fff", marginBottom: 6 }}>
+              Watch: Full Flow built in under 5 minutes
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textSecondary, letterSpacing: 0.5 }}>
+              0:60 · Real Salesforce org demo
+            </div>
+          </div>
+        </div>
+      </a>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: COLORS.textMuted }}>
+        <span style={{ color: COLORS.green, fontSize: 8 }}>●</span>
+        <span>One prompt. Screen Flow + LWC + Quick Action — deployed to a real org. No clicks.</span>
+      </div>
+    </div>
+  );
+}
+
 /* ── hero terminal (animated cascade) ── */
 function HeroTerminal() {
   const lines = [
@@ -1672,7 +1752,7 @@ function TerminalBlock({ title, lines }) {
         <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840" }} />
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.25)", marginLeft: 10 }}>{title}</span>
       </div>
-      <div style={{ padding: "20px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: 13, lineHeight: 1.9 }}>
+      <div style={{ padding: "20px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.9 }}>
         {lines.map((line, i) => {
           if (line.type === "blank") return <br key={i} />;
           if (line.type === "prompt") return <div key={i}><span style={{ color: COLORS.orange }}>❯</span> <span style={{ color: "#A5D6FF" }}>{line.text}</span></div>;
