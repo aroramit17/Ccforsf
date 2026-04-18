@@ -162,6 +162,26 @@ function GlobalStyles() {
         .hero-left { text-align:left; align-items:flex-start; }
         .hero-right { justify-content:flex-end; }
       }
+      .roi-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+      @media (min-width: 800px) { .roi-grid { grid-template-columns: 1fr 1fr; gap:28px; } }
+      input[type="range"].roi-slider {
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 6px; border-radius: 3px;
+        background: rgba(255,255,255,0.08); outline: none; cursor: pointer;
+      }
+      input[type="range"].roi-slider::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: ${COLORS.orange}; cursor: pointer;
+        box-shadow: 0 0 0 4px rgba(218,119,86,0.18);
+        transition: box-shadow 0.2s, transform 0.1s;
+      }
+      input[type="range"].roi-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 8px rgba(218,119,86,0.28); transform: scale(1.08); }
+      input[type="range"].roi-slider::-moz-range-thumb {
+        width: 20px; height: 20px; border-radius: 50%;
+        background: ${COLORS.orange}; cursor: pointer; border: none;
+        box-shadow: 0 0 0 4px rgba(218,119,86,0.18);
+      }
     `}</style>
   );
 }
@@ -303,7 +323,7 @@ export default function SalesPage() {
         </div>
       </div>
 
-      {/* ── PROBLEM (2×2 grid) ── */}
+      {/* ── PROBLEM (3×2 grid) ── */}
       <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>The Problem</SectionLabel>
@@ -311,10 +331,12 @@ export default function SalesPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
           {[
-            { icon: "🖱️", title: "Death by clicks", desc: "Creating a custom field means 15 clicks. Then the page layout. Then the permission set. Then the profile. For one field." },
-            { icon: "⏳", title: "Waiting on developers", desc: "You know the business logic better than anyone. But you're filing Jira tickets and waiting two weeks for someone else to build it." },
-            { icon: "🔍", title: "Googling syntax", desc: "You know exactly what the validation rule should do. But you're still searching for the right formula, testing in sandbox, hoping nothing breaks." },
-            { icon: "📋", title: "Backlog is growing", desc: "Leadership keeps asking what's taking so long. The admin who figured out AI tools is shipping twice as fast. You can feel the gap widening." },
+            { icon: "🖱️", title: "15 clicks. One field.", desc: "Create the field. Add it to the layout. Update the permission set. Assign the profile. Test it in sandbox. Push to prod. You wanted a picklist. You got an afternoon." },
+            { icon: "⏳", title: "Stuck in Jira ticket purgatory", desc: "You know the business logic cold. But you're writing tickets, pinging devs, and waiting two weeks for a change you could describe in two sentences." },
+            { icon: "🔀", title: "Staring at the Flow canvas", desc: "You know what it should do. But the elements, loops, and decision trees turn a 10-minute idea into a 3-hour build — plus the debugging when something breaks in UAT." },
+            { icon: "🔍", title: "Googling validation syntax", desc: "ISPICKVAL or TEXT? AND or &&? You know the logic. You're just losing 20 minutes every time to syntax that you'll forget again next week." },
+            { icon: "📈", title: "Your backlog is getting worse", desc: "Leadership keeps asking what's taking so long. Every sprint ends with more work added than shipped. And the AI-fluent admin on the team next door is shipping twice as fast." },
+            { icon: "🤖", title: "AI already changed the job", desc: "Agentforce. Einstein Copilot. Anthropic MCP. The admins who can talk to their org in plain English are about to leap past the ones still hunting through Setup menus." },
           ].map((item, i) => (
             <ProblemCard key={i} {...item} />
           ))}
@@ -341,9 +363,9 @@ export default function SalesPage() {
       <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <SectionLabel>The future is headless</SectionLabel>
-          <H2 center>Salesforce agrees. The browser isn't the UI anymore.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 620, margin: "12px auto 0" }}>
-            Marc Benioff just announced <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> — every object, workflow, and agent is now a first-class API, MCP, and CLI surface. The admins who can talk to their org from a terminal are about to have a massive head start.
+          <H2 center>If you can't run Salesforce from a terminal, you're already behind.</H2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 640, margin: "12px auto 0" }}>
+            Benioff made it official: <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> exposes every object, workflow, and agent as an API, MCP, and CLI. The browser is no longer the interface. Admins who can't prompt their org are about to get lapped — this course is how you get ahead of it.
           </p>
         </div>
         <div style={{ display: "flex", justifyContent: "center" }}>
@@ -555,7 +577,7 @@ export default function SalesPage() {
           {[
             { icon: "📄", title: "CLAUDE.md Starter Template", desc: "The exact config file I use to connect Claude Code to my Salesforce org. Copy, paste, go.", value: "Value: $29" },
             { icon: "💬", title: "Prompt Library", desc: "20+ tested prompts for Flows, fields, validation rules, Apex, and more. Ready to use.", value: "Value: $49" },
-            { icon: "🔄", title: "All Future Updates", desc: "New modules, new prompts, new techniques. Every update is free. Forever.", value: "Value: Priceless" },
+            { icon: "🤝", title: "Private Community Access", desc: "A members-only Slack where admins share prompts, debug live, and trade what's working. Lifetime seat.", value: "Value: $299/yr" },
           ].map((bonus, i) => (
             <BonusCard key={i} {...bonus} />
           ))}
@@ -699,6 +721,11 @@ export default function SalesPage() {
             </div>
           </div>
         </div>
+      </Section>
+
+      {/* ── ROI CALCULATOR ── */}
+      <Section style={{ background: COLORS.bg }}>
+        <ROICalculator />
       </Section>
 
       {/* ── FAQ ── */}
@@ -892,6 +919,135 @@ function TestimonialCard({ name, role, quote }) {
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textMuted }}>{role}</div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ── ROI calculator (interactive) ── */
+function ROICalculator() {
+  const [salary, setSalary] = useState(120000);
+  const [hoursPerWeek, setHoursPerWeek] = useState(5);
+  const [weeksPerYear, setWeeksPerYear] = useState(50);
+
+  const hourlyRate = salary / (40 * weeksPerYear);
+  const hoursSavedPerYear = hoursPerWeek * weeksPerYear;
+  const weeklyValue = hourlyRate * hoursPerWeek;
+  const monthlyValue = weeklyValue * 4.33;
+  const annualValue = hourlyRate * hoursSavedPerYear;
+  const COURSE = 97;
+  const roi = Math.round(annualValue / COURSE);
+  const paybackDays = weeklyValue > 0 ? Math.max(1, Math.ceil((COURSE / weeklyValue) * 7)) : 0;
+
+  const money = (n) => "$" + Math.round(n).toLocaleString();
+
+  return (
+    <div>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <SectionLabel>ROI Calculator</SectionLabel>
+        <H2 center>What 5 hours back per week is actually worth.</H2>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: COLORS.textSecondary, maxWidth: 560, margin: "10px auto 0", lineHeight: 1.55 }}>
+          Drag the sliders. Watch the math move. The course pays for itself faster than you'd think.
+        </p>
+      </div>
+
+      <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+        <div className="roi-grid">
+          {/* LEFT: inputs */}
+          <div>
+            <RoiSlider
+              label="Your annual salary"
+              value={salary}
+              onChange={setSalary}
+              min={40000}
+              max={300000}
+              step={5000}
+              display={money(salary)}
+              hint="US admin median is ~$110k–$140k per Salesforce Ben."
+            />
+            <RoiSlider
+              label="Hours saved per week"
+              value={hoursPerWeek}
+              onChange={setHoursPerWeek}
+              min={1}
+              max={20}
+              step={1}
+              display={`${hoursPerWeek} hrs`}
+              hint="Most students hit 5–10 within the first month."
+            />
+            <RoiSlider
+              label="Weeks worked per year"
+              value={weeksPerYear}
+              onChange={setWeeksPerYear}
+              min={40}
+              max={52}
+              step={1}
+              display={`${weeksPerYear} weeks`}
+              hint="Accounts for PTO, holidays, sick days."
+            />
+          </div>
+
+          {/* RIGHT: results */}
+          <div style={{ background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: "20px 22px" }}>
+            <MetricRow label="Your hourly rate" value={money(hourlyRate) + "/hr"} />
+            <MetricRow label="Hours saved per year" value={hoursSavedPerYear.toLocaleString() + " hrs"} />
+            <div style={{ height: 1, background: COLORS.border, margin: "14px 0" }} />
+            <MetricRow label="Weekly $ value of saved time" value={money(weeklyValue)} />
+            <MetricRow label="Monthly $ value" value={money(monthlyValue)} />
+            <MetricRow label="Annual $ value" value={money(annualValue)} big />
+            <div style={{ height: 1, background: COLORS.border, margin: "14px 0" }} />
+            <MetricRow label="Return on $97 course" value={roi + "×"} highlight />
+            <MetricRow label="Course pays for itself in" value={paybackDays + (paybackDays === 1 ? " day" : " days")} highlight />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 22, padding: "16px 18px", background: `rgba(218,119,86,0.08)`, border: `1px solid rgba(218,119,86,0.22)`, borderRadius: 12 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.6, color: COLORS.textPrimary, margin: 0 }}>
+            At <strong>{money(salary)}/yr</strong> and <strong>{hoursPerWeek} hrs/week</strong> saved, you'd pocket <strong style={{ color: COLORS.orange }}>{money(annualValue)}</strong> this year. The course is $97 — that's a <strong style={{ color: COLORS.orange }}>{roi}× return</strong> in year one, paid back in <strong>{paybackDays} {paybackDays === 1 ? "day" : "days"}</strong>.
+          </p>
+        </div>
+
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: COLORS.textMuted, textAlign: "center", marginTop: 14 }}>
+          Hourly rate based on 40-hour work weeks. Your mileage varies; the math doesn't.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function RoiSlider({ label, value, onChange, min, max, step, display, hint }) {
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+        <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: COLORS.textSecondary, letterSpacing: 0.2 }}>{label}</label>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, color: COLORS.orange, letterSpacing: 0.3 }}>{display}</span>
+      </div>
+      <input
+        type="range"
+        className="roi-slider"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
+      {hint && (
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, marginTop: 6, lineHeight: 1.5 }}>{hint}</div>
+      )}
+    </div>
+  );
+}
+
+function MetricRow({ label, value, big, highlight }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "8px 0" }}>
+      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: highlight ? COLORS.textPrimary : COLORS.textSecondary, fontWeight: highlight ? 600 : 400 }}>{label}</span>
+      <span style={{
+        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontSize: highlight ? 22 : (big ? 26 : 16),
+        fontWeight: highlight || big ? 800 : 700,
+        color: highlight ? COLORS.orange : (big ? "#fff" : COLORS.textPrimary),
+        letterSpacing: big || highlight ? -0.5 : 0,
+      }}>{value}</span>
     </div>
   );
 }
