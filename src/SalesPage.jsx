@@ -91,8 +91,8 @@ function SectionLabel({ children }) {
   return <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 2.5, color: COLORS.orange, textTransform: "uppercase", marginBottom: 10 }}>{children}</div>;
 }
 
-function H2({ children, center, light }) {
-  return <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: light ? COLORS.textPrimary : COLORS.textPrimary, lineHeight: 1.15, marginBottom: 16, textAlign: center ? "center" : "left", letterSpacing: -0.5 }}>{children}</h2>;
+function H2({ children, center, light, className }) {
+  return <h2 className={className} style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: light ? COLORS.textPrimary : COLORS.textPrimary, lineHeight: 1.15, marginBottom: 16, textAlign: center ? "center" : "left", letterSpacing: -0.5 }}>{children}</h2>;
 }
 
 function SubText({ children, center }) {
@@ -162,6 +162,43 @@ function GlobalStyles() {
         .hero-left { text-align:left; align-items:flex-start; }
         .hero-right { justify-content:flex-end; }
       }
+      .roi-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+      @media (min-width: 800px) { .roi-grid { grid-template-columns: 1fr 1fr; gap:28px; } }
+      input[type="range"].roi-slider {
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 6px; border-radius: 3px;
+        background: rgba(255,255,255,0.08); outline: none; cursor: pointer;
+      }
+      input[type="range"].roi-slider::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: ${COLORS.orange}; cursor: pointer;
+        box-shadow: 0 0 0 4px rgba(218,119,86,0.18);
+        transition: box-shadow 0.2s, transform 0.1s;
+      }
+      input[type="range"].roi-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 8px rgba(218,119,86,0.28); transform: scale(1.08); }
+      input[type="range"].roi-slider::-moz-range-thumb {
+        width: 20px; height: 20px; border-radius: 50%;
+        background: ${COLORS.orange}; cursor: pointer; border: none;
+        box-shadow: 0 0 0 4px rgba(218,119,86,0.18);
+      }
+      @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+      .gradient-headline {
+        background: linear-gradient(90deg, #FFFFFF 0%, ${COLORS.orange} 35%, ${COLORS.sfBlue} 65%, #FFFFFF 100%);
+        background-size: 300% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        animation: gradientShift 7s ease infinite;
+      }
+      .feat-tabs { display:grid; grid-template-columns:1fr; gap:20px; }
+      @media (min-width: 920px) { .feat-tabs { grid-template-columns: minmax(320px, 0.9fr) 1.1fr; gap:28px; } }
+      .feat-row { transition: background 0.25s, border-color 0.25s, transform 0.2s; cursor: pointer; }
+      .feat-row:hover { transform: translateX(4px); }
+      @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+      @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(218,119,86,0.4); } 50% { box-shadow: 0 0 0 14px rgba(218,119,86,0); } }
+      @keyframes unlockIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     `}</style>
   );
 }
@@ -303,7 +340,7 @@ export default function SalesPage() {
         </div>
       </div>
 
-      {/* ── PROBLEM (2×2 grid) ── */}
+      {/* ── PROBLEM (3×2 grid) ── */}
       <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>The Problem</SectionLabel>
@@ -311,10 +348,12 @@ export default function SalesPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
           {[
-            { icon: "🖱️", title: "Death by clicks", desc: "Creating a custom field means 15 clicks. Then the page layout. Then the permission set. Then the profile. For one field." },
-            { icon: "⏳", title: "Waiting on developers", desc: "You know the business logic better than anyone. But you're filing Jira tickets and waiting two weeks for someone else to build it." },
-            { icon: "🔍", title: "Googling syntax", desc: "You know exactly what the validation rule should do. But you're still searching for the right formula, testing in sandbox, hoping nothing breaks." },
-            { icon: "📋", title: "Backlog is growing", desc: "Leadership keeps asking what's taking so long. The admin who figured out AI tools is shipping twice as fast. You can feel the gap widening." },
+            { icon: "🖱️", title: "15 clicks. One field.", desc: "Create the field. Add it to the layout. Update the permission set. Assign the profile. Test in sandbox. Push to prod. You wanted a picklist. You got an afternoon." },
+            { icon: "⏳", title: "Stuck in Jira ticket purgatory", desc: "You know the business logic cold. But you're writing tickets, pinging devs, and waiting two weeks for a change you could describe in two sentences." },
+            { icon: "🔀", title: "Staring at the Flow canvas", desc: "You know what it should do. But elements, loops, and decision trees turn a 10-minute idea into a 3-hour build — plus the debugging when something breaks in UAT." },
+            { icon: "🔍", title: "Googling validation syntax", desc: "ISPICKVAL or TEXT? AND or &&? You know the logic. You're losing 20 minutes every time to syntax you'll forget again next week." },
+            { icon: "📈", title: "Your backlog is getting worse", desc: "Leadership keeps asking what's taking so long. Every sprint ends with more added than shipped. The AI-fluent admin next door is shipping twice as fast." },
+            { icon: "🤖", title: "AI already changed the job", desc: "Agentforce. Einstein Copilot. Anthropic MCP. Admins who can talk to their org in plain English are about to leap past the ones still hunting through Setup menus." },
           ].map((item, i) => (
             <ProblemCard key={i} {...item} />
           ))}
@@ -341,9 +380,9 @@ export default function SalesPage() {
       <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <SectionLabel>The future is headless</SectionLabel>
-          <H2 center>Salesforce agrees. The browser isn't the UI anymore.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 620, margin: "12px auto 0" }}>
-            Marc Benioff just announced <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> — every object, workflow, and agent is now a first-class API, MCP, and CLI surface. The admins who can talk to their org from a terminal are about to have a massive head start.
+          <H2 center>If you can't run Salesforce from a terminal, you're already behind.</H2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 640, margin: "12px auto 0" }}>
+            Benioff made it official: <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> exposes every object, workflow, and agent as an API, MCP, and CLI. The browser is no longer the interface. Admins who can't prompt their org are about to get lapped — this course is how you get ahead of it.
           </p>
         </div>
         <div style={{ display: "flex", justifyContent: "center" }}>
@@ -435,97 +474,14 @@ export default function SalesPage() {
         </div>
       </Section>
 
-      {/* ── WHAT YOU GET ── */}
+      {/* ── WHAT YOU GET (interactive tabs) ── */}
       <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>What You Get</SectionLabel>
           <H2 center>Everything you need to start using Claude Code with Salesforce.</H2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textMuted, marginTop: 8 }}>Click a module on the left. Watch it run.</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 16 }}>
-          {[
-            {
-              icon: "⚡",
-              title: "Zero to connected in minutes",
-              desc: "Install Claude Code and connect it to your Salesforce org. Even if you've never opened a terminal.",
-              scene: [
-                { t: "$ npm i -g @anthropic-ai/claude-code", c: "#6B7280" },
-                { t: "$ claude", c: "#A5D6FF" },
-                { t: "→ Connecting to dev-org.__c", c: COLORS.textSecondary },
-                { t: "✓ Authenticated via sfdx", c: COLORS.green },
-                { t: "✓ 47 objects loaded", c: COLORS.green },
-                { t: "Ready ▌", c: "#E2E8F0", blink: true },
-              ],
-            },
-            {
-              icon: "🏗️",
-              title: "Fields, layouts, permissions",
-              desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt.",
-              scene: [
-                { t: "> Add Lead_Source_Detail__c", c: COLORS.orange },
-                { t: "  picklist to Contact", c: "#A5D6FF" },
-                { t: "Creating field…", c: COLORS.textSecondary },
-                { t: "✓ Field created", c: COLORS.green },
-                { t: "✓ Added to Sales Console layout", c: COLORS.green },
-                { t: "✓ SDR permission set updated", c: COLORS.green },
-              ],
-            },
-            {
-              icon: "🔄",
-              title: "Flows from plain English",
-              desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org.",
-              scene: [
-                { t: "> Build a flow that routes", c: COLORS.orange },
-                { t: "  leads by region to owners", c: "#A5D6FF" },
-                { t: "Generating Record-Triggered Flow…", c: COLORS.textSecondary },
-                { t: "  → Decision: Region", c: COLORS.textMuted },
-                { t: "  → 4 assignment branches", c: COLORS.textMuted },
-                { t: "✓ Deployed to dev-org", c: COLORS.green },
-              ],
-            },
-            {
-              icon: "📝",
-              title: "Validation rules & Apex",
-              desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code.",
-              scene: [
-                { t: "> Require CloseDate when", c: COLORS.orange },
-                { t: "  Stage = Closed Won", c: "#A5D6FF" },
-                { t: "Writing validation rule…", c: COLORS.textSecondary },
-                { t: "AND(", c: "#E2E8F0" },
-                { t: "  ISPICKVAL(Stage,\"Closed Won\"),", c: "#E2E8F0" },
-                { t: "  ISBLANK(CloseDate))", c: "#E2E8F0" },
-                { t: "✓ Deployed", c: COLORS.green },
-              ],
-            },
-            {
-              icon: "🐛",
-              title: "When AI gets it wrong",
-              desc: "It will. Here's the process to debug and get Claude back on track when it misfires.",
-              scene: [
-                { t: "$ deploy Account_Status__c trigger", c: "#6B7280" },
-                { t: "✗ Unknown field 'Status'", c: "#EF4444" },
-                { t: "> That's the custom one —", c: COLORS.orange },
-                { t: "  use Status__c", c: "#A5D6FF" },
-                { t: "Retrying with corrected API name…", c: COLORS.textSecondary },
-                { t: "✓ Deployed, 4/4 tests passing", c: COLORS.green },
-              ],
-            },
-            {
-              icon: "📋",
-              title: "Real prompts you can steal",
-              desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping.",
-              scene: [
-                { t: "[01] Create picklist on Contact…", c: "#A5D6FF" },
-                { t: "[02] Build lead routing flow…", c: "#A5D6FF" },
-                { t: "[03] Validation: require close date…", c: "#A5D6FF" },
-                { t: "[04] Trigger: sync Account → Opp…", c: "#A5D6FF" },
-                { t: "[05] Flow: escalate stale cases…", c: "#A5D6FF" },
-                { t: "…20+ more in the prompt library", c: COLORS.orange },
-              ],
-            },
-          ].map((item, i) => (
-            <FlipCard key={i} {...item} />
-          ))}
-        </div>
+        <FeatureShowcase />
       </Section>
 
       {/* ── SOCIAL PROOF ── */}
@@ -534,39 +490,31 @@ export default function SalesPage() {
           <SectionLabel>Early Reactions</SectionLabel>
           <H2 center>What people are saying.</H2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
-          {[
-            { name: "Sarah K.", role: "Salesforce Admin, Series B SaaS", quote: "I built a lead routing flow in 10 minutes that would have taken me an entire afternoon. I keep looking for the catch." },
-            { name: "Marcus T.", role: "Sr. Admin, Healthcare", quote: "I've been an admin for 6 years and never touched a terminal. Did the setup and had my first flow deployed before lunch." },
-            { name: "Priya R.", role: "RevOps Lead, FinTech", quote: "Showed my VP the before and after. We cancelled the Agentforce eval the same week." },
-          ].map((t, i) => (
-            <TestimonialCard key={i} {...t} />
-          ))}
-        </div>
+        <TestimonialCarousel items={[
+          { name: "Sarah K.", role: "Salesforce Admin · Series B SaaS", quote: "I built a lead routing flow in 10 minutes that would have taken me an entire afternoon. I keep looking for the catch.", accent: "#DA7756" },
+          { name: "Marcus T.", role: "Sr. Admin · Healthcare", quote: "I've been an admin for 6 years and never touched a terminal. Did the setup and had my first flow deployed before lunch.", accent: "#8B5CF6" },
+          { name: "Priya R.", role: "RevOps Lead · FinTech", quote: "Showed my VP the before and after. We cancelled the Agentforce eval the same week.", accent: "#0176D3" },
+        ]} />
       </Section>
 
-      {/* ── BONUSES ── */}
+      {/* ── BONUSES (single bundle card) ── */}
       <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>Bonuses</SectionLabel>
           <H2 center>Included free when you enroll today.</H2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
-          {[
-            { icon: "📄", title: "CLAUDE.md Starter Template", desc: "The exact config file I use to connect Claude Code to my Salesforce org. Copy, paste, go.", value: "Value: $29" },
-            { icon: "💬", title: "Prompt Library", desc: "20+ tested prompts for Flows, fields, validation rules, Apex, and more. Ready to use.", value: "Value: $49" },
-            { icon: "🔄", title: "All Future Updates", desc: "New modules, new prompts, new techniques. Every update is free. Forever.", value: "Value: Priceless" },
-          ].map((bonus, i) => (
-            <BonusCard key={i} {...bonus} />
-          ))}
-        </div>
+        <BonusBundle items={[
+          { icon: "📄", title: "CLAUDE.md Starter Template", desc: "The exact config file I use to connect Claude Code to my Salesforce org. Copy, paste, go.", value: 29 },
+          { icon: "💬", title: "Prompt Library", desc: "20+ tested prompts for Flows, fields, validation rules, Apex, and more. Ready to use.", value: 49 },
+          { icon: "🤝", title: "Private Community Access", desc: "A members-only Slack where admins share prompts, debug live, and trade what's working. Lifetime seat.", value: 299 },
+        ]} />
       </Section>
 
       {/* ── THE MATH ── */}
       <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>The Math</SectionLabel>
-          <H2 center>You're already paying more than this in wasted time.</H2>
+          <H2 center className="gradient-headline">You're already paying more than this in wasted time.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `1px solid ${COLORS.border}` }}>
@@ -692,13 +640,14 @@ export default function SalesPage() {
                 <CardDiscover />
                 <CardApplePay />
               </div>
-
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: COLORS.textMuted, textAlign: "center", marginTop: 12 }}>
-                Instant access · Powered by Thrivecart
-              </p>
             </div>
           </div>
         </div>
+      </Section>
+
+      {/* ── ROI CALCULATOR ── */}
+      <Section style={{ background: COLORS.bg }}>
+        <ROICalculator />
       </Section>
 
       {/* ── FAQ ── */}
@@ -864,6 +813,130 @@ function Scene({ lines }) {
   );
 }
 
+function BonusBundle({ items }) {
+  const total = items.reduce((s, it) => s + it.value, 0);
+  const [ref, visible] = useInView(0.15);
+
+  return (
+    <div ref={ref} style={{ maxWidth: 820, margin: "0 auto", position: "relative" }}>
+      {/* pulsing FREE sticker */}
+      <div style={{
+        position: "absolute",
+        top: -26,
+        right: -6,
+        width: 108,
+        height: 108,
+        borderRadius: "50%",
+        background: `linear-gradient(135deg, ${COLORS.orange}, #C4613F)`,
+        color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "'Bricolage Grotesque', sans-serif",
+        fontWeight: 800,
+        zIndex: 2,
+        transform: "rotate(-8deg)",
+        boxShadow: "0 12px 32px rgba(218,119,86,0.35)",
+        animation: "pulseGlow 2.4s ease-in-out infinite",
+      }}>
+        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginBottom: 2 }}>BUNDLE</div>
+        <div style={{ fontSize: 24, lineHeight: 1 }}>${total}</div>
+        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginTop: 2 }}>FREE</div>
+      </div>
+
+      <div style={{
+        background: "linear-gradient(180deg, #15151D, #0d0d13)",
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: 20,
+        padding: "36px 36px 28px",
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        {/* orange corner glow */}
+        <div style={{ position: "absolute", top: "-50%", right: "-20%", width: 400, height: 400, background: "radial-gradient(circle, rgba(218,119,86,0.12) 0%, transparent 65%)", borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none" }} />
+
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 2, marginBottom: 20, textTransform: "uppercase" }}>
+            <span style={{ color: COLORS.green }}>●</span>  Your enrollment unlocks
+          </div>
+
+          {items.map((it, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 20,
+                padding: "22px 0",
+                borderBottom: i < items.length - 1 ? `1px dashed ${COLORS.border}` : "none",
+                opacity: visible ? 1 : 0,
+                animation: visible ? `unlockIn 0.6s ease ${i * 0.15}s both` : "none",
+              }}
+            >
+              <div style={{
+                flexShrink: 0,
+                width: 52,
+                height: 52,
+                borderRadius: 12,
+                background: COLORS.surface2,
+                border: `1px solid ${COLORS.border}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 24,
+              }}>{it.icon}</div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted }}>0{i + 1}</span>
+                  <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: "#fff", margin: 0 }}>{it.title}</h3>
+                </div>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, margin: 0 }}>{it.desc}</p>
+              </div>
+
+              <div style={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}>
+                <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 20, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>
+                  ${it.value}
+                </span>
+                <span style={{ fontSize: 12, color: COLORS.green, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.3 }}>✓ incl.</span>
+              </div>
+            </div>
+          ))}
+
+          {/* total strip */}
+          <div style={{
+            marginTop: 20,
+            padding: "16px 20px",
+            background: `linear-gradient(90deg, rgba(218,119,86,0.18), rgba(218,119,86,0.05))`,
+            border: `1px solid ${COLORS.borderHover}`,
+            borderRadius: 12,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+          }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, letterSpacing: 0.3 }}>
+              Total bundle value
+            </span>
+            <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>FREE</span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textSecondary }}>with enrollment</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BonusCard({ icon, title, desc, value }) {
   const [hover, setHover] = useState(false);
   return (
@@ -872,6 +945,71 @@ function BonusCard({ icon, title, desc, value }) {
       <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{title}</h3>
       <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0, flex: 1 }}>{desc}</p>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.orange, marginTop: 14, fontWeight: 600 }}>{value}</div>
+    </div>
+  );
+}
+
+function TestimonialCarousel({ items }) {
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setI((n) => (n + 1) % items.length), 7000);
+    return () => clearInterval(id);
+  }, [paused, items.length]);
+
+  const prev = () => { setI((n) => (n - 1 + items.length) % items.length); setPaused(true); };
+  const next = () => { setI((n) => (n + 1) % items.length); setPaused(true); };
+  const pick = (n) => { setI(n); setPaused(true); };
+
+  const t = items[i];
+
+  return (
+    <div style={{ maxWidth: 820, margin: "0 auto", position: "relative" }}>
+      <div
+        key={i}
+        style={{
+          background: COLORS.surface2,
+          border: `1px solid ${COLORS.border}`,
+          borderLeft: `4px solid ${t.accent}`,
+          borderRadius: 16,
+          padding: "40px 44px",
+          animation: "carouselSlide 0.5s ease",
+          position: "relative",
+        }}
+      >
+        {/* big quote mark */}
+        <div style={{ position: "absolute", top: 18, right: 28, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 96, lineHeight: 1, color: t.accent, opacity: 0.18, fontWeight: 800 }}>"</div>
+        <div style={{ display: "flex", gap: 2, marginBottom: 18 }}>
+          {[...Array(5)].map((_, s) => (<span key={s} style={{ color: COLORS.gold, fontSize: 16 }}>★</span>))}
+        </div>
+        <blockquote style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: 1.45, color: "#fff", margin: 0, marginBottom: 24, fontWeight: 500, letterSpacing: -0.3 }}>
+          "{t.quote}"
+        </blockquote>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg, ${t.accent}, ${COLORS.surface3})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, flexShrink: 0 }}>{t.name.charAt(0)}</div>
+          <div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, color: COLORS.textPrimary }}>{t.name}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>{t.role}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* controls */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, marginTop: 22 }}>
+        <button onClick={prev} aria-label="Previous testimonial" style={{ width: 40, height: 40, borderRadius: "50%", border: `1px solid ${COLORS.border}`, background: COLORS.surface, color: COLORS.textSecondary, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>←</button>
+        <div style={{ display: "flex", gap: 6 }}>
+          {items.map((_, n) => (
+            <button
+              key={n}
+              onClick={() => pick(n)}
+              aria-label={`Go to testimonial ${n + 1}`}
+              style={{ width: n === i ? 28 : 8, height: 8, padding: 0, borderRadius: 4, border: "none", background: n === i ? COLORS.orange : "rgba(255,255,255,0.15)", cursor: "pointer", transition: "width 0.3s, background 0.3s" }}
+            />
+          ))}
+        </div>
+        <button onClick={next} aria-label="Next testimonial" style={{ width: 40, height: 40, borderRadius: "50%", border: `1px solid ${COLORS.border}`, background: COLORS.surface, color: COLORS.textSecondary, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>→</button>
+      </div>
     </div>
   );
 }
@@ -892,6 +1030,272 @@ function TestimonialCard({ name, role, quote }) {
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textMuted }}>{role}</div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ── Feature showcase (interactive tabs) ── */
+const FEATURES = [
+  {
+    icon: "⚡",
+    title: "Zero to connected in minutes",
+    desc: "Install Claude Code and connect it to your Salesforce org. No terminal experience required.",
+    scene: [
+      { t: "$ npm i -g @anthropic-ai/claude-code", c: "#6B7280" },
+      { t: "$ claude", c: "#A5D6FF" },
+      { t: "→ Connecting to dev-org.__c", c: "#a0a0a0" },
+      { t: "✓ Authenticated via sfdx", c: "#22C55E" },
+      { t: "✓ 47 objects loaded", c: "#22C55E" },
+      { t: "Ready ▌", c: "#E2E8F0", blink: true },
+    ],
+  },
+  {
+    icon: "🏗️",
+    title: "Fields, layouts, permissions",
+    desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt.",
+    scene: [
+      { t: "> Add Lead_Source_Detail__c", c: "#DA7756" },
+      { t: "  picklist to Contact", c: "#A5D6FF" },
+      { t: "Creating field…", c: "#a0a0a0" },
+      { t: "✓ Field created", c: "#22C55E" },
+      { t: "✓ Added to Sales Console layout", c: "#22C55E" },
+      { t: "✓ SDR permission set updated", c: "#22C55E" },
+    ],
+  },
+  {
+    icon: "🔄",
+    title: "Flows from plain English",
+    desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org.",
+    scene: [
+      { t: "> Build a flow that routes", c: "#DA7756" },
+      { t: "  leads by region to owners", c: "#A5D6FF" },
+      { t: "Generating Record-Triggered Flow…", c: "#a0a0a0" },
+      { t: "  → Decision: Region", c: "#666666" },
+      { t: "  → 4 assignment branches", c: "#666666" },
+      { t: "✓ Deployed to dev-org", c: "#22C55E" },
+    ],
+  },
+  {
+    icon: "📝",
+    title: "Validation rules & Apex",
+    desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code.",
+    scene: [
+      { t: "> Require CloseDate when", c: "#DA7756" },
+      { t: "  Stage = Closed Won", c: "#A5D6FF" },
+      { t: "Writing validation rule…", c: "#a0a0a0" },
+      { t: "AND(", c: "#E2E8F0" },
+      { t: '  ISPICKVAL(Stage,"Closed Won"),', c: "#E2E8F0" },
+      { t: "  ISBLANK(CloseDate))", c: "#E2E8F0" },
+      { t: "✓ Deployed", c: "#22C55E" },
+    ],
+  },
+  {
+    icon: "🐛",
+    title: "When AI gets it wrong",
+    desc: "It will. Here's the process to debug and get Claude back on track when it misfires.",
+    scene: [
+      { t: "$ deploy Account_Status__c trigger", c: "#6B7280" },
+      { t: "✗ Unknown field 'Status'", c: "#EF4444" },
+      { t: "> That's the custom one —", c: "#DA7756" },
+      { t: "  use Status__c", c: "#A5D6FF" },
+      { t: "Retrying with corrected API name…", c: "#a0a0a0" },
+      { t: "✓ Deployed, 4/4 tests passing", c: "#22C55E" },
+    ],
+  },
+  {
+    icon: "📋",
+    title: "Real prompts you can steal",
+    desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping.",
+    scene: [
+      { t: "[01] Create picklist on Contact…", c: "#A5D6FF" },
+      { t: "[02] Build lead routing flow…", c: "#A5D6FF" },
+      { t: "[03] Validation: require close date…", c: "#A5D6FF" },
+      { t: "[04] Trigger: sync Account → Opp…", c: "#A5D6FF" },
+      { t: "[05] Flow: escalate stale cases…", c: "#A5D6FF" },
+      { t: "…20+ more in the prompt library", c: "#DA7756" },
+    ],
+  },
+];
+
+function FeatureShowcase() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setActive((i) => (i + 1) % FEATURES.length), 6000);
+    return () => clearInterval(id);
+  }, [paused]);
+
+  const handlePick = (i) => {
+    setActive(i);
+    setPaused(true);
+  };
+
+  const feat = FEATURES[active];
+
+  return (
+    <div className="feat-tabs">
+      {/* LEFT: tab list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {FEATURES.map((f, i) => {
+          const on = i === active;
+          return (
+            <button
+              key={i}
+              className="feat-row"
+              onClick={() => handlePick(i)}
+              style={{
+                display: "flex",
+                gap: 14,
+                alignItems: "flex-start",
+                padding: "16px 18px",
+                background: on ? "linear-gradient(90deg, rgba(218,119,86,0.14), rgba(218,119,86,0.04))" : COLORS.surface,
+                border: `1px solid ${on ? COLORS.borderHover : COLORS.border}`,
+                borderLeft: `3px solid ${on ? COLORS.orange : "transparent"}`,
+                borderRadius: 10,
+                textAlign: "left",
+                cursor: "pointer",
+                color: COLORS.textPrimary,
+                fontFamily: "inherit",
+              }}
+            >
+              <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1, filter: on ? "none" : "grayscale(0.3)", transition: "filter 0.2s" }}>{f.icon}</span>
+              <span style={{ flex: 1 }}>
+                <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15.5, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4 }}>{f.title}</span>
+                <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.5 }}>{f.desc}</span>
+              </span>
+              <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: on ? COLORS.orange : "rgba(255,255,255,0.15)", marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* RIGHT: live terminal demo */}
+      <div style={{ height: "fit-content", alignSelf: "start" }}>
+        <div style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
+          <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
+            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
+            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
+            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
+          </div>
+          <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: 13, lineHeight: 1.85, minHeight: 260 }}>
+            {feat.scene.map((ln, i) => (
+              <div key={i} style={{
+                opacity: 0,
+                color: ln.c || COLORS.textSecondary,
+                whiteSpace: "pre-wrap",
+                animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
+              }}>
+                {ln.t}
+                {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
+          {FEATURES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handlePick(i)}
+              aria-label={`Show feature ${i + 1}`}
+              style={{
+                width: i === active ? 24 : 8,
+                height: 8,
+                padding: 0,
+                borderRadius: 4,
+                border: "none",
+                background: i === active ? COLORS.orange : "rgba(255,255,255,0.15)",
+                cursor: "pointer",
+                transition: "width 0.3s, background 0.3s",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── ROI calculator (interactive) ── */
+function ROICalculator() {
+  const [salary, setSalary] = useState(120000);
+  const [hoursPerWeek, setHoursPerWeek] = useState(5);
+  const [weeksPerYear, setWeeksPerYear] = useState(50);
+
+  const hourlyRate = salary / (40 * weeksPerYear);
+  const hoursSavedPerYear = hoursPerWeek * weeksPerYear;
+  const weeklyValue = hourlyRate * hoursPerWeek;
+  const monthlyValue = weeklyValue * 4.33;
+  const annualValue = hourlyRate * hoursSavedPerYear;
+  const COURSE = 97;
+  const roi = Math.round(annualValue / COURSE);
+  const paybackDays = weeklyValue > 0 ? Math.max(1, Math.ceil((COURSE / weeklyValue) * 7)) : 0;
+
+  const money = (n) => "$" + Math.round(n).toLocaleString();
+
+  return (
+    <div>
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <SectionLabel>ROI Calculator</SectionLabel>
+        <H2 center>What 5 hours back per week is actually worth.</H2>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: COLORS.textSecondary, maxWidth: 560, margin: "10px auto 0", lineHeight: 1.55 }}>
+          Drag the sliders. Watch the math move. The course pays for itself faster than you'd think.
+        </p>
+      </div>
+
+      <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+        <div className="roi-grid">
+          <div>
+            <RoiSlider label="Your annual salary" value={salary} onChange={setSalary} min={40000} max={300000} step={5000} display={money(salary)} hint="US admin median is ~$110k–$140k per Salesforce Ben." />
+            <RoiSlider label="Hours saved per week" value={hoursPerWeek} onChange={setHoursPerWeek} min={1} max={20} step={1} display={`${hoursPerWeek} hrs`} hint="Most students hit 5–10 within the first month." />
+            <RoiSlider label="Weeks worked per year" value={weeksPerYear} onChange={setWeeksPerYear} min={40} max={52} step={1} display={`${weeksPerYear} weeks`} hint="Accounts for PTO, holidays, sick days." />
+          </div>
+          <div style={{ background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: "20px 22px" }}>
+            <MetricRow label="Your hourly rate" value={money(hourlyRate) + "/hr"} />
+            <MetricRow label="Hours saved per year" value={hoursSavedPerYear.toLocaleString() + " hrs"} />
+            <div style={{ height: 1, background: COLORS.border, margin: "14px 0" }} />
+            <MetricRow label="Weekly $ value of saved time" value={money(weeklyValue)} />
+            <MetricRow label="Monthly $ value" value={money(monthlyValue)} />
+            <MetricRow label="Annual $ value" value={money(annualValue)} big />
+            <div style={{ height: 1, background: COLORS.border, margin: "14px 0" }} />
+            <MetricRow label="Return on $97 course" value={roi + "×"} highlight />
+            <MetricRow label="Course pays for itself in" value={paybackDays + (paybackDays === 1 ? " day" : " days")} highlight />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 22, padding: "16px 18px", background: `rgba(218,119,86,0.08)`, border: `1px solid rgba(218,119,86,0.22)`, borderRadius: 12 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.6, color: COLORS.textPrimary, margin: 0 }}>
+            At <strong>{money(salary)}/yr</strong> and <strong>{hoursPerWeek} hrs/week</strong> saved, you'd pocket <strong style={{ color: COLORS.orange }}>{money(annualValue)}</strong> this year. The course is $97 — that's a <strong style={{ color: COLORS.orange }}>{roi}× return</strong> in year one, paid back in <strong>{paybackDays} {paybackDays === 1 ? "day" : "days"}</strong>.
+          </p>
+        </div>
+
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: COLORS.textMuted, textAlign: "center", marginTop: 14 }}>
+          Hourly rate based on 40-hour work weeks. Your mileage varies; the math doesn't.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function RoiSlider({ label, value, onChange, min, max, step, display, hint }) {
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+        <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: COLORS.textSecondary, letterSpacing: 0.2 }}>{label}</label>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, color: COLORS.orange, letterSpacing: 0.3 }}>{display}</span>
+      </div>
+      <input type="range" className="roi-slider" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
+      {hint && (<div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, marginTop: 6, lineHeight: 1.5 }}>{hint}</div>)}
+    </div>
+  );
+}
+
+function MetricRow({ label, value, big, highlight }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "8px 0" }}>
+      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: highlight ? COLORS.textPrimary : COLORS.textSecondary, fontWeight: highlight ? 600 : 400 }}>{label}</span>
+      <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: highlight ? 22 : (big ? 26 : 16), fontWeight: highlight || big ? 800 : 700, color: highlight ? COLORS.orange : (big ? "#fff" : COLORS.textPrimary), letterSpacing: big || highlight ? -0.5 : 0 }}>{value}</span>
     </div>
   );
 }
