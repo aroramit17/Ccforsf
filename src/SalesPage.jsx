@@ -199,6 +199,9 @@ function GlobalStyles() {
       @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
       @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(218,119,86,0.4); } 50% { box-shadow: 0 0 0 14px rgba(218,119,86,0); } }
       @keyframes unlockIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+      html { scroll-behavior: smooth; }
+      section[id] { scroll-margin-top: 110px; }
+      @keyframes menuOpen { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     `}</style>
   );
 }
@@ -237,20 +240,20 @@ export default function SalesPage() {
       {/* ── NAV ── */}
       <nav style={{ position: "fixed", top: showUrgency ? 37 : 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(10,10,10,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", height: 56 }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5 }}>
+          <a href="#top" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: "none" }}>
             <span style={{ color: COLORS.orange }}>cc</span>
             <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
             <span style={{ color: "rgba(255,255,255,0.5)" }}>for</span>
             <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
             <span style={{ color: COLORS.sfBlue }}>sf</span>
             <span style={{ color: "rgba(255,255,255,0.18)" }}>__c</span>
-          </div>
-          <CTAButton>Get Access</CTAButton>
+          </a>
+          <HamburgerMenu />
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
+      <section id="top" style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
         {/* noise texture */}
         <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: "128px 128px" }} />
         {/* glow orbs */}
@@ -341,7 +344,7 @@ export default function SalesPage() {
       </div>
 
       {/* ── PROBLEM (3×2 grid) ── */}
-      <Section style={{ background: COLORS.bg }}>
+      <Section id="problem" style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>The Problem</SectionLabel>
           <H2 center>You know Salesforce. You just can't move fast enough.</H2>
@@ -412,7 +415,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── DEMO ── */}
-      <Section style={{ background: COLORS.surface }}>
+      <Section id="demo" style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>See It In Action</SectionLabel>
           <H2 center>One prompt. Deployed to your org.</H2>
@@ -475,7 +478,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── WHAT YOU GET (interactive tabs) ── */}
-      <Section style={{ background: COLORS.bg }}>
+      <Section id="whats-included" style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>What You Get</SectionLabel>
           <H2 center>Everything you need to start using Claude Code with Salesforce.</H2>
@@ -485,7 +488,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── SOCIAL PROOF ── */}
-      <Section style={{ background: COLORS.surface }}>
+      <Section id="reviews" style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>Early Reactions</SectionLabel>
           <H2 center>What people are saying.</H2>
@@ -651,7 +654,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── FAQ ── */}
-      <Section style={{ background: COLORS.bg }} maxWidth={680}>
+      <Section id="faq" style={{ background: COLORS.bg }} maxWidth={680}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>FAQ</SectionLabel>
           <H2 center>Frequently asked questions.</H2>
@@ -1030,6 +1033,142 @@ function TestimonialCard({ name, role, quote }) {
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textMuted }}>{role}</div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ── Hamburger menu (smooth-scrolls to page sections) ── */
+function HamburgerMenu() {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const links = [
+    { label: "The Problem", href: "#problem" },
+    { label: "How it works", href: "#demo" },
+    { label: "What's included", href: "#whats-included" },
+    { label: "Reviews", href: "#reviews" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
+  ];
+
+  const onLink = () => setOpen(false);
+
+  return (
+    <div ref={menuRef} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label={open ? "Close menu" : "Open menu"}
+        aria-expanded={open}
+        style={{
+          width: 40,
+          height: 40,
+          border: `1px solid ${COLORS.border}`,
+          background: open ? COLORS.surface2 : "rgba(255,255,255,0.03)",
+          borderRadius: 8,
+          cursor: "pointer",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 4,
+          transition: "background 0.2s, border-color 0.2s",
+        }}
+      >
+        <span style={{
+          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
+          transition: "transform 0.25s, opacity 0.25s",
+          transform: open ? "translateY(6px) rotate(45deg)" : "none",
+        }} />
+        <span style={{
+          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
+          transition: "opacity 0.2s",
+          opacity: open ? 0 : 1,
+        }} />
+        <span style={{
+          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
+          transition: "transform 0.25s",
+          transform: open ? "translateY(-6px) rotate(-45deg)" : "none",
+        }} />
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 12px)",
+            right: 0,
+            minWidth: 240,
+            background: "rgba(14,14,18,0.96)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: 12,
+            padding: 8,
+            boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            animation: "menuOpen 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
+            transformOrigin: "top right",
+          }}
+        >
+          {links.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={onLink}
+              style={{
+                display: "block",
+                padding: "10px 14px",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 14.5,
+                fontWeight: 500,
+                color: COLORS.textSecondary,
+                textDecoration: "none",
+                borderRadius: 8,
+                transition: "background 0.15s, color 0.15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(218,119,86,0.08)"; e.currentTarget.style.color = COLORS.textPrimary; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.textSecondary; }}
+            >
+              {l.label}
+            </a>
+          ))}
+          <div style={{ height: 1, background: COLORS.border, margin: "8px 6px" }} />
+          <a
+            href="#pricing"
+            onClick={onLink}
+            style={{
+              display: "block",
+              margin: "4px 4px 2px",
+              padding: "12px 14px",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 14.5,
+              fontWeight: 800,
+              color: "#fff",
+              background: COLORS.orange,
+              textAlign: "center",
+              textDecoration: "none",
+              borderRadius: 8,
+              letterSpacing: 0.3,
+              boxShadow: "0 4px 16px rgba(218,119,86,0.3)",
+            }}
+          >
+            Get Access <span style={{ marginLeft: 4 }}>→</span>
+          </a>
+        </div>
+      )}
     </div>
   );
 }
