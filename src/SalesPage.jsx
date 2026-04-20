@@ -270,21 +270,10 @@ export default function SalesPage() {
           <div className="hero-grid">
             {/* LEFT: copy + CTA */}
             <div className="hero-left">
-              {/* credentials / authority strip */}
-              <div style={{ animation: "fadeUp 0.45s ease both", display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 14, fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textMuted, letterSpacing: 0.5, flexWrap: "wrap", justifyContent: "inherit" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px", background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.22)`, borderRadius: 100, color: COLORS.sfBlue, fontWeight: 700 }}>
-                  <span style={{ fontSize: 9 }}>●</span> 8× SALESFORCE CERTIFIED
-                </span>
-                <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
-                <span style={{ fontWeight: 500 }}>GTM Engineer</span>
-                <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
-                <span style={{ fontWeight: 500 }}>8 yrs in the ecosystem</span>
-              </div>
-
               {/* badge */}
               <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 20 }}>
                 <span style={{ color: COLORS.green, fontSize: 8, animation: "blink 1.4s infinite" }}>●</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE x SALESFORCE</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE for SALESFORCE</span>
               </div>
 
               <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(32px, 5.4vw, 52px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.05, marginBottom: 20, letterSpacing: -1 }}>
@@ -297,14 +286,9 @@ export default function SalesPage() {
                 Claude Code × Salesforce. Ship Flows, fields, and Apex <strong style={{ color: COLORS.textPrimary }}>10× faster</strong> — straight from your terminal.
               </p>
 
-              {/* pricing + CTA */}
+              {/* primary CTA */}
               <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", marginBottom: 18, width: "100%", maxWidth: 440 }}>
-                <div className="hero-price-row" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, justifyContent: "inherit" }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 20, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
-                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: -2 }}>$97</span>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: COLORS.green, background: `rgba(34,197,94,0.12)`, padding: "4px 10px", borderRadius: 100 }}>SAVE 50%</span>
-                </div>
-                <CTAButton large full>Get Instant Access - $97</CTAButton>
+                <CTAButton large full>Get Instant Access — $97</CTAButton>
               </div>
 
               {/* trust row */}
@@ -361,7 +345,7 @@ export default function SalesPage() {
       </div>
 
       {/* ── PROBLEM (3×2 grid) ── */}
-      <Section id="problem" style={{ background: "radial-gradient(ellipse 70% 60% at 15% 10%, rgba(218,119,86,0.08), transparent 60%), radial-gradient(ellipse 50% 50% at 85% 90%, rgba(1,118,211,0.05), transparent 60%), #0a0a0a" }}>
+      <Section id="problem" style={{ background: "radial-gradient(ellipse 80% 70% at 10% 10%, rgba(218,119,86,0.22), transparent 55%), radial-gradient(ellipse 60% 60% at 92% 95%, rgba(1,118,211,0.16), transparent 55%), #0a0a0a" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>The Problem</SectionLabel>
           <H2 center>You know Salesforce. You just can't move fast enough.</H2>
@@ -397,7 +381,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── HEADLESS FUTURE (Benioff proof) ── */}
-      <Section style={{ background: COLORS.bg }}>
+      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.25), transparent 55%), linear-gradient(180deg, #0d1320 0%, #0a0a0f 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <SectionLabel>The future is headless</SectionLabel>
           <H2 center>If you can't run Salesforce from a terminal, you're already behind.</H2>
@@ -432,7 +416,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── BEFORE / AFTER ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.06) 0%, #111111 45%, rgba(34,197,94,0.05) 100%)" }}>
+      <Section style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.20) 0%, #151319 38%, #151319 62%, rgba(34,197,94,0.18) 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>What Changes</SectionLabel>
           <H2 center>Things you'll stop doing.</H2>
@@ -490,7 +474,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── BONUSES (single bundle card) ── */}
-      <Section style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(218,119,86,0.10), transparent 60%), linear-gradient(180deg, #0f0f15 0%, #0a0a0a 100%)" }}>
+      <Section style={{ background: "radial-gradient(ellipse 85% 55% at 50% -10%, rgba(218,119,86,0.30), transparent 55%), linear-gradient(180deg, #131320 0%, #0a0a0a 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>Bonuses</SectionLabel>
           <H2 center>Included free when you enroll today.</H2>
@@ -503,7 +487,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── THE MATH ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(218,119,86,0.06) 0%, #111111 40%, #111111 60%, rgba(1,118,211,0.06) 100%)" }}>
+      <Section style={{ background: "linear-gradient(135deg, rgba(218,119,86,0.22) 0%, #151319 35%, #151319 65%, rgba(1,118,211,0.22) 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>The Math</SectionLabel>
           <H2 center className="gradient-headline">You're already paying more than this in wasted time.</H2>
@@ -560,7 +544,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── GUARANTEE ── */}
-      <Section style={{ background: COLORS.bg }}>
+      <Section style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.20), transparent 55%), #0a0a0a" }}>
         <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "40px 32px" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
           <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: COLORS.textPrimary, marginBottom: 12 }}>30-Day Risk-Free Guarantee</h3>
@@ -569,7 +553,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── PRICING CARD ── */}
-      <Section id="pricing" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(218,119,86,0.14), transparent 55%), radial-gradient(ellipse 60% 50% at 50% 100%, rgba(1,118,211,0.08), transparent 55%), #0d0d12" }}>
+      <Section id="pricing" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,119,86,0.32), transparent 55%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(1,118,211,0.22), transparent 55%), #0d0d1a" }}>
         <div style={{ maxWidth: 500, margin: "0 auto" }}>
           <div style={{ background: COLORS.surface2, borderRadius: 16, overflow: "hidden", border: `2px solid ${COLORS.orange}`, position: "relative" }}>
             {/* orange glow */}
@@ -1642,10 +1626,6 @@ function HeroVideo() {
           </div>
         </div>
       </a>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 14, fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: COLORS.textMuted }}>
-        <span style={{ color: COLORS.green, fontSize: 8 }}>●</span>
-        <span>One prompt. Screen Flow + LWC + Quick Action — deployed to a real org. No clicks.</span>
-      </div>
     </div>
   );
 }
