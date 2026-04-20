@@ -208,6 +208,8 @@ function GlobalStyles() {
       html { scroll-behavior: smooth; }
       section[id] { scroll-margin-top: 110px; }
       @keyframes menuOpen { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+      .fit-grid { display:grid; grid-template-columns:1fr; gap:20px; }
+      @media (min-width: 820px) { .fit-grid { grid-template-columns: 1.45fr 1fr; gap:28px; align-items:start; } }
     `}</style>
   );
 }
@@ -516,11 +518,18 @@ export default function SalesPage() {
 
       {/* ── WHO THIS IS FOR ── */}
       <Section style={{ background: COLORS.surface }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 28 }}>
-          <div>
+        <div className="fit-grid">
+          {/* left: perfect fit — larger, green-tinted */}
+          <div style={{
+            background: "linear-gradient(180deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02) 60%, transparent)",
+            border: `1px solid rgba(34,197,94,0.22)`,
+            borderRadius: 16,
+            padding: "28px 30px",
+            boxShadow: "0 8px 28px rgba(34,197,94,0.06)",
+          }}>
             <SectionLabel>Perfect For</SectionLabel>
-            <H2>This is for you if...</H2>
-            <div style={{ marginTop: 8 }}>
+            <H2>This is for you if…</H2>
+            <div style={{ marginTop: 14 }}>
               <CheckItem>You're a Salesforce admin who knows the platform but wants to move faster</CheckItem>
               <CheckItem>You've heard about Claude Code but have no idea where to start</CheckItem>
               <CheckItem>You're tired of filing tickets and waiting for devs to build what you already know how to spec</CheckItem>
@@ -528,17 +537,23 @@ export default function SalesPage() {
               <CheckItem>You want to be the person on your team who figured this out first</CheckItem>
             </div>
           </div>
-          <div>
-            <SectionLabel>&nbsp;</SectionLabel>
-            <H2>Probably not for you if...</H2>
-            <div style={{ marginTop: 8 }}>
-              {["You're already a Salesforce developer using VS Code daily", "You're looking for cert prep (this is practical, not exam study)", "You want a course about Agentforce or Einstein (this is a third-party tool)"].map((t, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, marginBottom: 14, alignItems: "flex-start" }}>
-                  <span style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 1 }}>✗</span>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.6, color: COLORS.textMuted }}>{t}</span>
-                </div>
-              ))}
-            </div>
+
+          {/* right: not for you — narrower, muted */}
+          <div style={{
+            background: COLORS.surface2,
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: 16,
+            padding: "22px 24px",
+            alignSelf: "start",
+          }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 2, color: "#EF4444", textTransform: "uppercase", marginBottom: 10 }}>Not a fit</div>
+            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(20px, 3vw, 26px)", fontWeight: 800, color: COLORS.textPrimary, lineHeight: 1.2, letterSpacing: -0.3, marginBottom: 14 }}>Probably not for you if…</h3>
+            {["You're already a Salesforce developer using VS Code daily", "You're looking for cert prep (this is practical, not exam study)", "You want a course about Agentforce or Einstein (this is a third-party tool)"].map((t, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "flex-start" }}>
+                <span style={{ color: "#EF4444", fontSize: 14, fontWeight: 800, marginTop: 1, lineHeight: 1.5 }}>✗</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, lineHeight: 1.55, color: COLORS.textSecondary }}>{t}</span>
+              </div>
+            ))}
           </div>
         </div>
       </Section>
