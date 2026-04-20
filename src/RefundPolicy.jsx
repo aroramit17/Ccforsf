@@ -17,7 +17,7 @@ export default function RefundPolicy() {
       <p>I'd rather you try it risk-free than wonder "what if."</p>
 
       <h2>How to Request a Refund</h2>
-      <p>Send an email to <a href="mailto:aroramit.17@gmail.com">aroramit.17@gmail.com</a> from the email address you used to purchase, within 30 days of your original purchase date. Include your order confirmation if you have it handy. That's it.</p>
+      <p>Send an email to <a href="mailto:support@ccforsf.com">support@ccforsf.com</a> from the email address you used to purchase, within 30 days of your original purchase date. Include your order confirmation if you have it handy. That's it.</p>
       <p>Refunds are issued back to the original payment method via our checkout provider, Thrivecart. Your card issuer controls the exact timing — typically 5–10 business days to appear on your statement.</p>
 
       <h2>What Happens After a Refund</h2>
@@ -27,7 +27,7 @@ export default function RefundPolicy() {
       <p>After 30 days from purchase, refunds are no longer available. The course is lifetime access — so keep it, revisit it, and use it whenever the next Flow lands on your plate.</p>
 
       <h2>Questions</h2>
-      <p>If you have any questions about this policy before or after purchasing, email <a href="mailto:aroramit.17@gmail.com">aroramit.17@gmail.com</a>. I read every message.</p>
+      <p>If you have any questions about this policy before or after purchasing, email <a href="mailto:support@ccforsf.com">support@ccforsf.com</a>. I read every message.</p>
 
       <p>This Refund Policy is incorporated by reference into the CC for SF <a href="/terms">Terms of Service</a>.</p>
     </LegalPage>

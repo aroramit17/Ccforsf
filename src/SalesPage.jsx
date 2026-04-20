@@ -361,7 +361,7 @@ export default function SalesPage() {
       </div>
 
       {/* ── PROBLEM (3×2 grid) ── */}
-      <Section id="problem" style={{ background: COLORS.bg }}>
+      <Section id="problem" style={{ background: "radial-gradient(ellipse 70% 60% at 15% 10%, rgba(218,119,86,0.08), transparent 60%), radial-gradient(ellipse 50% 50% at 85% 90%, rgba(1,118,211,0.05), transparent 60%), #0a0a0a" }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>The Problem</SectionLabel>
           <H2 center>You know Salesforce. You just can't move fast enough.</H2>
@@ -432,7 +432,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── BEFORE / AFTER ── */}
-      <Section style={{ background: COLORS.surface }}>
+      <Section style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.06) 0%, #111111 45%, rgba(34,197,94,0.05) 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>What Changes</SectionLabel>
           <H2 center>Things you'll stop doing.</H2>
@@ -490,7 +490,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── BONUSES (single bundle card) ── */}
-      <Section style={{ background: COLORS.bg }}>
+      <Section style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(218,119,86,0.10), transparent 60%), linear-gradient(180deg, #0f0f15 0%, #0a0a0a 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>Bonuses</SectionLabel>
           <H2 center>Included free when you enroll today.</H2>
@@ -503,7 +503,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── THE MATH ── */}
-      <Section style={{ background: COLORS.surface }}>
+      <Section style={{ background: "linear-gradient(135deg, rgba(218,119,86,0.06) 0%, #111111 40%, #111111 60%, rgba(1,118,211,0.06) 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>The Math</SectionLabel>
           <H2 center className="gradient-headline">You're already paying more than this in wasted time.</H2>
@@ -569,7 +569,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── PRICING CARD ── */}
-      <Section style={{ background: COLORS.surface }} id="pricing">
+      <Section id="pricing" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(218,119,86,0.14), transparent 55%), radial-gradient(ellipse 60% 50% at 50% 100%, rgba(1,118,211,0.08), transparent 55%), #0d0d12" }}>
         <div style={{ maxWidth: 500, margin: "0 auto" }}>
           <div style={{ background: COLORS.surface2, borderRadius: 16, overflow: "hidden", border: `2px solid ${COLORS.orange}`, position: "relative" }}>
             {/* orange glow */}
@@ -735,10 +735,32 @@ export default function SalesPage() {
 function ProblemCard({ icon, title, desc }) {
   const [hover, setHover] = useState(false);
   return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{ background: COLORS.surface, border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`, borderRadius: 12, padding: 24, transition: "all 0.3s ease", transform: hover ? "translateY(-3px)" : "translateY(0)" }}>
-      <div style={{ fontSize: 28, marginBottom: 14 }}>{icon}</div>
-      <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{title}</h3>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        position: "relative",
+        background: hover
+          ? `radial-gradient(circle at top left, rgba(218,119,86,0.18) 0%, rgba(218,119,86,0.06) 40%, ${COLORS.surface} 90%)`
+          : `radial-gradient(circle at top left, rgba(218,119,86,0.10) 0%, rgba(218,119,86,0.02) 35%, ${COLORS.surface} 85%)`,
+        border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`,
+        borderRadius: 12,
+        padding: 24,
+        transition: "all 0.35s ease",
+        transform: hover ? "translateY(-3px)" : "translateY(0)",
+        boxShadow: hover
+          ? "0 16px 44px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.15) inset"
+          : "0 6px 18px rgba(218,119,86,0.06), 0 0 0 1px rgba(218,119,86,0.05) inset",
+        overflow: "hidden",
+      }}
+    >
+      {/* soft orange glow pocket */}
+      <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 180, height: 180, background: `radial-gradient(circle, rgba(218,119,86,${hover ? 0.22 : 0.12}) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none", transition: "background 0.35s ease" }} />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ fontSize: 28, marginBottom: 14 }}>{icon}</div>
+        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{title}</h3>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
+      </div>
     </div>
   );
 }
