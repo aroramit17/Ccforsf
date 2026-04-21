@@ -330,6 +330,7 @@ Always commit per-task. Never bundle unrelated changes.
 - [x] Add `<Head>` tags to every route via shared `src/components/SEO.jsx` (title, description, canonical, OG, Twitter, JSON-LD)  
 - [ ] Register site with Google Search Console and Bing Webmaster Tools; submit sitemap  
 - [ ] Wire up Thrivecart embed / button to replace the non-functional CTA buttons  
+- [ ] **Waitlist DB setup in Vercel** (required for `/api/waitlist` to work): in Vercel dashboard → Storage → Create Postgres (Neon) database → link to this project. `POSTGRES_URL` env var auto-injects. The function at `api/waitlist.js` lazily creates the `waitlist(id, name, email, role, created_at)` table on first call.  
 - [ ] Add real testimonials to replace the placeholder Sarah/Marcus/Priya quotes OR clearly mark them as illustrative — FTC matters  
 - [x] Privacy, Terms, and Refund pages shipped at `/privacy`, `/terms`, `/refund` (footer links wired)
 

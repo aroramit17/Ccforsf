@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
+import WaitlistModal, { openWaitlist } from "./components/WaitlistModal.jsx";
 
 const FAQS = [
   { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
@@ -242,11 +243,44 @@ function GlobalStyles() {
       .fit-grid { display:grid; grid-template-columns:1fr; gap:20px; }
       @media (min-width: 820px) { .fit-grid { grid-template-columns: 1.45fr 1fr; gap:28px; align-items:start; } }
 
-      /* Amit "note from" 30/70 split */
-      .amit-note-grid { display:grid; grid-template-columns:1fr; gap:24px; align-items:start; }
+      /* Amit "meet your course instructor" 30/70 split with watermark title */
+      .amit-note-grid { display:grid; grid-template-columns:1fr; gap:24px; align-items:start; position: relative; }
       @media (min-width: 720px) { .amit-note-grid { grid-template-columns: minmax(180px, 28%) 1fr; gap:40px; align-items:center; } }
-      .amit-note-image { border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+      .amit-note-image { position: relative; z-index: 2; border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
       .amit-note-image img { width: 100%; height: auto; aspect-ratio: 1/1; object-fit: cover; display: block; }
+      /* Large faded display text floating behind/next to the portrait */
+      .instructor-watermark {
+        position: absolute;
+        font-family: 'Bricolage Grotesque', sans-serif;
+        font-weight: 800;
+        line-height: 0.88;
+        letter-spacing: -3px;
+        text-transform: uppercase;
+        pointer-events: none;
+        user-select: none;
+        z-index: 1;
+        white-space: nowrap;
+      }
+      @media (max-width: 719px) {
+        .instructor-watermark {
+          top: 14%;
+          right: 6%;
+          font-size: clamp(32px, 12vw, 56px);
+          color: rgba(255,255,255,0.12);
+          mix-blend-mode: overlay;
+          white-space: normal;
+          text-align: right;
+        }
+      }
+      @media (min-width: 720px) {
+        .instructor-watermark {
+          top: 50%;
+          left: 24%;
+          transform: translateY(-50%);
+          font-size: clamp(54px, 8.5vw, 104px);
+          color: rgba(255,255,255,0.055);
+        }
+      }
 
       /* Benioff section 50/50 split
          Mobile: portrait stacks ABOVE the text (DOM order has text first for a11y/SEO,
@@ -303,7 +337,7 @@ function GlobalStyles() {
 
       /* Bonus bundle — mobile-friendly row layout */
       .bonus-card { padding: 36px 36px 28px; }
-      .bonus-row { display: flex; align-items: center; gap: 20px; padding: 22px 0; }
+      .bonus-row { display: flex; align-items: flex-start; gap: 20px; padding: 22px 0; }
       .bonus-icon { flex-shrink: 0; width: 52px; height: 52px; border-radius: 12px; background: ${COLORS.surface2}; border: 1px solid ${COLORS.border}; display: flex; align-items: center; justify-content: center; font-size: 24px; }
       .bonus-content { flex: 1; min-width: 0; }
       .bonus-price-col { flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
@@ -402,7 +436,7 @@ export default function SalesPage() {
 
               {/* primary CTA */}
               <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", marginBottom: 18, width: "100%", maxWidth: 440 }}>
-                <CTAButton large full>Get Instant Access — $97</CTAButton>
+                <CTAButton large full onClick={openWaitlist}>Join the waitlist</CTAButton>
               </div>
 
               {/* trust row */}
@@ -599,13 +633,14 @@ export default function SalesPage() {
         ]} />
       </Section>
 
-      {/* ── INSTRUCTOR (Meet your course instructor) — 30/70 split ── */}
+      {/* ── INSTRUCTOR (Meet your course instructor) — 30/70 split with watermark ── */}
       <Section style={{ background: COLORS.bg }} maxWidth={960}>
         <div className="amit-note-grid">
+          <div className="instructor-watermark" aria-hidden="true">MEET THE<br />INSTRUCTOR</div>
           <div className="amit-note-image">
             <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" />
           </div>
-          <div>
+          <div style={{ position: "relative", zIndex: 2 }}>
             <SectionLabel>Meet your course instructor</SectionLabel>
             <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 800, color: COLORS.textPrimary, marginBottom: 6, letterSpacing: -0.4 }}>Amit</h3>
             <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: COLORS.orange, marginBottom: 10, letterSpacing: 0.3 }}>8× Salesforce Certified · GTM Engineer · AI Tools Builder</p>
@@ -796,7 +831,7 @@ export default function SalesPage() {
 
               <div className="enroll-cta-wrap">
                 <div style={{ position: "relative", overflow: "hidden", borderRadius: 10 }}>
-                  <CTAButton large full>ENROLL NOW - $97</CTAButton>
+                  <CTAButton large full onClick={openWaitlist}>JOIN THE WAITLIST</CTAButton>
                   <span className="enroll-sheen" aria-hidden="true" />
                 </div>
               </div>
@@ -844,7 +879,7 @@ export default function SalesPage() {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.textSecondary, lineHeight: 1.6, marginBottom: 32 }}>
             $97 one-time. Lifetime access. 30-day money-back guarantee.
           </p>
-          <CTAButton large>Get Instant Access - $97</CTAButton>
+          <CTAButton large onClick={openWaitlist}>Join the waitlist</CTAButton>
         </div>
       </section>
 
@@ -873,6 +908,8 @@ export default function SalesPage() {
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.12)" }}>© 2026 AI with Amit</span>
         </div>
       </footer>
+
+      <WaitlistModal />
     </div>
   );
 }
@@ -1065,14 +1102,14 @@ function BonusBundle({ items }) {
             </div>
           ))}
 
-          {/* total strip — $total is the hero, "free with enrollment" is supporting */}
+          {/* total strip — $total struck, FREE WITH ENROLLMENT is the hero */}
           <div className="bonus-total">
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, letterSpacing: 0.3 }}>
               Total bundle value
             </span>
-            <span className="bonus-total-right" style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(30px, 7.5vw, 40px)", fontWeight: 800, color: COLORS.orange, letterSpacing: -1 }}>${total}</span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: COLORS.green, letterSpacing: 0.5, textTransform: "uppercase" }}>✓ Free with enrollment</span>
+            <span className="bonus-total-right" style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(22px, 5.5vw, 30px)", fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(20px, 5.5vw, 28px)", fontWeight: 800, color: COLORS.orange, letterSpacing: -0.3, textTransform: "uppercase" }}>Free with enrollment</span>
             </span>
           </div>
         </div>
@@ -1289,11 +1326,11 @@ function HamburgerMenu() {
             </a>
           ))}
           <div style={{ height: 1, background: COLORS.border, margin: "8px 6px" }} />
-          <a
-            href="#pricing"
-            onClick={onLink}
+          <button
+            onClick={() => { onLink(); openWaitlist(); }}
             style={{
               display: "block",
+              width: "calc(100% - 8px)",
               margin: "4px 4px 2px",
               padding: "12px 14px",
               fontFamily: "'DM Sans', sans-serif",
@@ -1302,14 +1339,15 @@ function HamburgerMenu() {
               color: "#fff",
               background: COLORS.orange,
               textAlign: "center",
-              textDecoration: "none",
+              border: "none",
+              cursor: "pointer",
               borderRadius: 8,
               letterSpacing: 0.3,
               boxShadow: "0 4px 16px rgba(218,119,86,0.3)",
             }}
           >
-            Get Access <span style={{ marginLeft: 4 }}>→</span>
-          </a>
+            Join the waitlist <span style={{ marginLeft: 4 }}>→</span>
+          </button>
         </div>
       )}
     </div>
