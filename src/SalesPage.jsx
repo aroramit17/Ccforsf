@@ -294,6 +294,13 @@ function GlobalStyles() {
       @keyframes roiHintBlink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
       .roi-hint-blink { animation: roiHintBlink 1.8s ease-in-out infinite; }
 
+      /* Stats strip — tight on mobile so labels don't wrap awkwardly */
+      .stats-strip { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+      .stats-cell { padding: 24px 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+      .stats-num { font-size: clamp(20px, 5.5vw, 28px); line-height: 1.1; letter-spacing: -0.5px; }
+      .stats-label { font-size: clamp(11px, 2.6vw, 13px); line-height: 1.35; }
+      @media (min-width: 640px) { .stats-cell { padding: 28px 20px; } }
+
       /* Bonus bundle — mobile-friendly row layout */
       .bonus-card { padding: 36px 36px 28px; }
       .bonus-row { display: flex; align-items: center; gap: 20px; padding: 22px 0; }
@@ -418,16 +425,16 @@ export default function SalesPage() {
       </section>
 
       {/* ── STATS STRIP ── */}
-      <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "0 20px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "0 16px" }}>
+        <div className="stats-strip">
           {[
             ["$20/mo", "Claude Code cost"],
-            ["5 min", "To deploy your first Flow"],
-            ["0 lines", "Of code you need to write"],
+            ["5 min", "To your first Flow"],
+            ["0 lines", "Of code to write"],
           ].map(([num, label], i) => (
-            <div key={i} style={{ padding: "28px 20px", textAlign: "center", borderRight: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
-              <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.orange, marginBottom: 4 }}>{num}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{label}</div>
+            <div key={i} className="stats-cell" style={{ borderRight: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
+              <div className="stats-num" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, color: COLORS.orange }}>{num}</div>
+              <div className="stats-label" style={{ fontFamily: "'DM Sans', sans-serif", color: COLORS.textMuted }}>{label}</div>
             </div>
           ))}
         </div>
@@ -897,8 +904,10 @@ function ProblemCard({ icon, title, desc }) {
       {/* soft orange glow pocket */}
       <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 180, height: 180, background: `radial-gradient(circle, rgba(218,119,86,${hover ? 0.22 : 0.12}) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none", transition: "background 0.35s ease" }} />
       <div style={{ position: "relative", zIndex: 1 }}>
-        <div style={{ fontSize: 28, marginBottom: 14 }}>{icon}</div>
-        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{title}</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+          <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>{icon}</span>
+          <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: COLORS.textPrimary, margin: 0, letterSpacing: -0.2, lineHeight: 1.25 }}>{title}</h3>
+        </div>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
       </div>
     </div>
@@ -1040,10 +1049,10 @@ function BonusBundle({ items }) {
               <div className="bonus-icon">{it.icon}</div>
 
               <div className="bonus-content">
-                <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted }}>0{i + 1}</span>
-                  <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: "#fff", margin: 0 }}>{it.title}</h3>
-                </div>
+                <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(15px, 4vw, 17px)", fontWeight: 700, color: "#fff", margin: "0 0 6px", lineHeight: 1.3, letterSpacing: -0.1 }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted, marginRight: 10, fontWeight: 600, verticalAlign: "middle" }}>0{i + 1}</span>
+                  {it.title}
+                </h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, margin: 0 }}>{it.desc}</p>
               </div>
 
@@ -1056,15 +1065,14 @@ function BonusBundle({ items }) {
             </div>
           ))}
 
-          {/* total strip */}
+          {/* total strip — $total is the hero, "free with enrollment" is supporting */}
           <div className="bonus-total">
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, letterSpacing: 0.3 }}>
               Total bundle value
             </span>
             <span className="bonus-total-right" style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(22px, 5vw, 28px)", fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 6vw, 32px)", fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>FREE</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textSecondary }}>with enrollment</span>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(30px, 7.5vw, 40px)", fontWeight: 800, color: COLORS.orange, letterSpacing: -1 }}>${total}</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: COLORS.green, letterSpacing: 0.5, textTransform: "uppercase" }}>✓ Free with enrollment</span>
             </span>
           </div>
         </div>
