@@ -31,6 +31,7 @@ export default function BlogLayout({ children }) {
           <BrandMark />
           <div style={{ display: 'flex', gap: 22, alignItems: 'center' }}>
             <a href="/blog" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textSecondary, textDecoration: 'none' }}>Blog</a>
+            <a href="/about" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textSecondary, textDecoration: 'none' }}>About</a>
             <a href="/#pricing" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, color: '#fff', background: COLORS.orange, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', letterSpacing: 0.3 }}>Get the course →</a>
           </div>
         </div>
@@ -44,6 +45,7 @@ export default function BlogLayout({ children }) {
           <div style={{ display: 'flex', gap: 20 }}>
             {[
               { label: 'Blog', href: '/blog' },
+              { label: 'About', href: '/about' },
               { label: 'Terms', href: '/terms' },
               { label: 'Privacy', href: '/privacy' },
               { label: 'Refund Policy', href: '/refund' },

@@ -18,6 +18,7 @@ const TODAY = new Date().toISOString().slice(0, 10)
 
 const STATIC_URLS = [
   { loc: '/', changefreq: 'weekly', priority: '1.0', lastmod: TODAY },
+  { loc: '/about', changefreq: 'monthly', priority: '0.7', lastmod: TODAY },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8', lastmod: TODAY },
   { loc: '/privacy', changefreq: 'yearly', priority: '0.3', lastmod: '2026-04-18' },
   { loc: '/terms', changefreq: 'yearly', priority: '0.3', lastmod: '2026-04-18' },
