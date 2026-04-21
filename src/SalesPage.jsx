@@ -1,43 +1,66 @@
 import { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
 
+const FAQS = [
+  { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
+  { q: "What do I need to get started?", a: "A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
+  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." },
+  { q: "How long do I have access?", a: "Lifetime. Watch it once, come back anytime. All future updates are included." },
+  { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
+  { q: "Is this safe for my production org?", a: "Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
+  { q: "Is this affiliated with Salesforce or Anthropic?", a: "No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." },
+];
+
 const HOMEPAGE_JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "Course",
+      "@id": "https://ccforsf.com/#course",
       "name": "Claude Code for Salesforce Admins",
       "description": "A hands-on mini-course that teaches Salesforce Admins how to use Claude Code to build Flows, custom fields, validation rules, and Apex — without clicking through Setup or writing code by hand.",
-      "provider": {
-        "@type": "Organization",
-        "name": "AI with Amit",
-        "url": "https://ccforsf.com",
-      },
+      "url": "https://ccforsf.com/",
+      "inLanguage": "en",
+      "provider": { "@id": "https://ccforsf.com/#org" },
+      "instructor": { "@id": "https://ccforsf.com/#amit" },
       "offers": {
         "@type": "Offer",
         "price": "97",
         "priceCurrency": "USD",
         "category": "OneTimePurchase",
         "availability": "https://schema.org/InStock",
+        "url": "https://ccforsf.com/#pricing",
       },
       "hasCourseInstance": {
         "@type": "CourseInstance",
         "courseMode": "Online",
         "courseWorkload": "PT2H",
+        "inLanguage": "en",
       },
     },
     {
       "@type": "Organization",
+      "@id": "https://ccforsf.com/#org",
       "name": "AI with Amit",
       "url": "https://ccforsf.com",
       "logo": "https://ccforsf.com/favicon.svg",
     },
     {
       "@type": "Person",
+      "@id": "https://ccforsf.com/#amit",
       "name": "Amit",
       "jobTitle": "GTM Engineer, 8x Salesforce Certified",
       "image": "https://ccforsf.com/amit-headshot.png",
       "description": "Creator of AI with Amit. Builds AI-native tools for Salesforce Admins.",
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://ccforsf.com/#faq",
+      "mainEntity": FAQS.map(({ q, a }) => ({
+        "@type": "Question",
+        "name": q,
+        "acceptedAnswer": { "@type": "Answer", "text": a },
+      })),
     },
   ],
 };
@@ -679,13 +702,7 @@ export default function SalesPage() {
           <SectionLabel>FAQ</SectionLabel>
           <H2 center>Frequently asked questions.</H2>
         </div>
-        <FAQItem q="Do I need to know how to code?" a="No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." />
-        <FAQItem q="What do I need to get started?" a="A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
-        <FAQItem q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." />
-        <FAQItem q="How long do I have access?" a="Lifetime. Watch it once, come back anytime. All future updates are included." />
-        <FAQItem q="What if I don't like it?" a="Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." />
-        <FAQItem q="Is this safe for my production org?" a="Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." />
-        <FAQItem q="Is this affiliated with Salesforce or Anthropic?" a="No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." />
+        {FAQS.map((item) => <FAQItem key={item.q} q={item.q} a={item.a} />)}
       </Section>
 
       {/* ── FINAL CTA ── */}
