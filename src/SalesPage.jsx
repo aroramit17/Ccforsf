@@ -424,7 +424,7 @@ export default function SalesPage() {
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div style={{ width: 88, height: 88, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: `2px solid ${COLORS.border}` }}>
-              <img src="amit-headshot.png" alt="Amit" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
             <div style={{ flex: 1, minWidth: 240 }}>
               <SectionLabel>A Note From Amit</SectionLabel>
@@ -732,6 +732,8 @@ export default function SalesPage() {
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             {[
+              { label: "Blog", href: "/blog" },
+              { label: "About", href: "/about" },
               { label: "Terms", href: "/terms" },
               { label: "Privacy", href: "/privacy" },
               { label: "Refund Policy", href: "/refund" },
@@ -1122,6 +1124,8 @@ function HamburgerMenu() {
     { label: "Reviews", href: "#reviews" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
+    { label: "Blog", href: "/blog" },
+    { label: "About", href: "/about" },
   ];
 
   const onLink = () => setOpen(false);

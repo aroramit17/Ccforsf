@@ -1,0 +1,86 @@
+---
+title: "Claude Code vs Agentforce: when to use which for Salesforce work"
+description: "Both let AI do Salesforce work. One costs $20/month and lives in your terminal. One costs $125-$550/user/month and lives in your org. Here's the actual decision framework."
+date: 2026-04-20
+author: Amit
+heroImage: /amit-headshot.png
+---
+
+If you're a Salesforce Admin looking at AI tools in 2026, the two names that keep coming up are **Agentforce** (Salesforce's official agent platform) and **Claude Code** (Anthropic's terminal-based coding agent). They sound like they do the same thing. They don't.
+
+This is the decision framework I wish someone had given me when I was comparing them.
+
+## What each one actually is
+
+**Agentforce** is a Salesforce product. It lives inside your org, you configure it via Setup and Agent Script, and the agents it creates run inside Salesforce to help *your users* (sales reps, service agents, customers). It's priced per-user, roughly $125–$550/user/month depending on the SKU, plus implementation.
+
+**Claude Code** is a CLI tool from Anthropic. You run it from your own terminal. It connects to your Salesforce org via the Salesforce DX CLI, and it helps *you* — the admin or builder — do your job faster. You pay $20/month for a Claude Pro subscription (Claude Max is highly recommended for longer agent runs). No per-user Salesforce add-on.
+
+One is a product your org runs for users. The other is a tool you run for yourself.
+
+## The decision framework
+
+The short version:
+
+| Use case | Use this |
+|---|---|
+| Build and deploy Salesforce metadata (fields, Flows, validation rules, Apex, page layouts, permission sets) | **Claude Code** |
+| Ship a customer-facing chat agent that uses your org's data to answer questions | **Agentforce** |
+| Troubleshoot a failing Apex test in CI | **Claude Code** |
+| Give sales reps an in-app assistant that drafts emails and logs calls | **Agentforce** |
+| Migrate an Aura component to LWC | **Claude Code** |
+| Let a customer check their order status via chat | **Agentforce** |
+
+The split is clean once you see it: **Claude Code is for building Salesforce. Agentforce is for running on top of Salesforce.**
+
+## Why the cost comparison is misleading
+
+People look at "$20/month vs $125/user/month" and think Claude Code is 6× cheaper. That's not the right comparison — they're doing different jobs.
+
+A more honest framing:
+
+- If you're an admin shipping work: **Claude Code replaces an hour of your clicking**. $20/month vs your own salary. The ROI is obvious.
+- If you're deploying a customer-facing agent: **Agentforce replaces a headcount or an external chat tool**. $125/user/month is either a bargain or a ripoff depending on what you're replacing.
+
+Don't stack them against each other on price. Ask which problem you're solving.
+
+## Where they overlap (and how to think about it)
+
+The one real overlap: **building an Agentforce agent**. Agentforce agents are defined in Agent Script. And guess what writes Agent Script well? Claude Code.
+
+In practice, this is how most teams end up using both:
+
+1. Admin uses **Claude Code** on their laptop to describe an Agentforce agent in plain English.
+2. Claude Code generates the `.ascript` file, deploys it to the sandbox via SF CLI.
+3. **Agentforce** runs the deployed agent for end users.
+
+Claude Code is the editor. Agentforce is the runtime. They're not competing — they're stacked.
+
+([More on that workflow here.](/blog/agentforce-with-claude-code))
+
+## Licensing and prerequisites
+
+**Claude Code needs:**
+- A Claude subscription: Pro ($20/month) or Max (recommended for long runs)
+- A Salesforce org that supports DX — Enterprise, Unlimited, or Developer edition
+- A terminal (macOS, Linux, or Windows via WSL)
+
+That's it. No Salesforce add-on license.
+
+**Agentforce needs:**
+- A Salesforce org with Agentforce licenses purchased (per-user SKU)
+- Data Cloud for grounding (in most setups)
+- Einstein Platform licenses for most actions
+- Implementation — either internal or partner
+
+The procurement path alone is the difference between a Tuesday afternoon decision and a Q3 RFP.
+
+## Bottom line
+
+If you're an admin trying to move faster on daily work, **start with Claude Code**. It's a $20 experiment. You'll know in a week whether it fits your workflow.
+
+If you're building a customer-facing or employee-facing agent as a product, that's **Agentforce territory** — and you probably want Claude Code on your laptop to help you build it.
+
+> Don't pick one. The question isn't "which tool," it's "which layer of the stack."
+
+If you want the step-by-step on using Claude Code for your daily Salesforce work — Flows, fields, Apex, validation rules, deployments — [that's literally what the course teaches](/#pricing).

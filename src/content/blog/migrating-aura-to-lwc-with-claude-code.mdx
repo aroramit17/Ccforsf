@@ -1,0 +1,128 @@
+---
+title: "Migrating Aura components to LWC with Claude Code"
+description: "Aura is end-of-life. LWC is the future. Manual migration takes hours per component. Here's how to do it in minutes with Claude Code and the Salesforce DX MCP tools."
+date: 2026-04-18
+author: Amit
+heroImage: /amit-headshot.png
+---
+
+If your org has a pile of Aura components, you already know the situation. Aura is being slowly sunset. LWC is where Salesforce is investing. At some point — probably this fiscal year — someone is going to ask, "what's our plan for migrating all of this?"
+
+The old answer was "block out three sprints." The 2026 answer is "let Claude Code do it."
+
+## What the Aura → LWC migration actually involves
+
+For a single component, you're roughly doing:
+
+1. Read the `.cmp` file and understand the component's responsibilities.
+2. Identify Aura-specific things (`aura:attribute`, `aura:handler`, controller actions).
+3. Map each to its LWC equivalent (`@api`, `@track`, lifecycle hooks, event handlers).
+4. Rewrite the JavaScript controller and helper files into a single LWC `.js` file.
+5. Port any static resources or lightning events.
+6. Rebuild the template with the LWC template syntax.
+7. Update references — any parent component, app, or Flow that uses the old Aura component.
+8. Test it.
+9. Deploy.
+
+For a *small* component, that's 45 minutes. For anything that talks to three other components and handles custom events, it's half a day. Multiply by 30 components and you start understanding why nobody does this until they're forced to.
+
+## How Claude Code handles it
+
+The Salesforce DX MCP server Claude Code integrates with ships with tools specifically for this — `create_lwc`, `migrate_aura_to_lwc`, `test_lwc`, `review_lwc`. You don't need to remember them by name. You just ask:
+
+```
+Migrate the Aura component "accountContactList" to LWC.
+
+Keep the same behavior. Update all parent components that
+reference the old one. Deploy to dev-org when done.
+```
+
+Claude Code will:
+
+1. Retrieve the Aura component metadata from the org (or your local DX project).
+2. Analyze the component's structure — attributes, handlers, dependencies.
+3. Generate the LWC equivalent: `.html`, `.js`, `.js-meta.xml`, `.css` if needed.
+4. Find every parent component, Flow, or page that references the old Aura one.
+5. Update those references to point to the LWC.
+6. Show you a diff for **every file** that changed.
+7. On approval, deploy and run the LWC tests it generated along the way.
+
+For a small-to-medium component, you're done in under 10 minutes, most of which is you reading diffs.
+
+## What the generated LWC actually looks like
+
+Taking a simple Aura component that displays a list of contacts for the current account:
+
+**Old Aura `.cmp`:**
+```xml
+<aura:component implements="force:hasRecordId">
+  <aura:attribute name="contacts" type="Contact[]" />
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+  <lightning:card title="Contacts">
+    <aura:iteration items="{!v.contacts}" var="c">
+      <p>{!c.Name} — {!c.Title}</p>
+    </aura:iteration>
+  </lightning:card>
+</aura:component>
+```
+
+**Generated LWC `.html`:**
+```html
+<template>
+  <lightning-card title="Contacts">
+    <template for:each={contacts} for:item="c">
+      <p key={c.Id}>{c.Name} — {c.Title}</p>
+    </template>
+  </lightning-card>
+</template>
+```
+
+**Generated LWC `.js`:**
+```js
+import { LightningElement, api, wire } from 'lwc';
+import getContacts from '@salesforce/apex/AccountController.getContacts';
+
+export default class AccountContactList extends LightningElement {
+  @api recordId;
+  contacts = [];
+
+  @wire(getContacts, { accountId: '$recordId' })
+  wiredContacts({ data, error }) {
+    if (data) this.contacts = data;
+    if (error) console.error(error);
+  }
+}
+```
+
+The key things Claude gets right that humans sometimes miss:
+
+- `key={c.Id}` in the iteration — LWC requires it, Aura didn't.
+- `@wire` with reactive `$recordId` instead of the Aura `init` handler.
+- Splitting controller + helper into one class method.
+- `@api` on the record ID because `force:hasRecordId` became a public property.
+
+## Things to still watch for
+
+**Custom events.** If your Aura component fires `component.getEvent('myCustomEvent').fire()`, the LWC equivalent (`new CustomEvent('mycustomevent')`) has case-sensitive naming rules. Claude handles this, but read the generated dispatch code carefully.
+
+**Lightning events vs DOM events.** Aura's application-level events don't have a direct LWC equivalent. Claude will usually propose a replacement pattern (Lightning Message Service). If your old component broadcasts events to three other Aura components, verify the new message channel is wired to each consumer.
+
+**External libraries.** If the Aura component loaded a static resource via `ltng:require`, the LWC equivalent uses `loadScript` from `lightning/platformResourceLoader`. Claude writes this correctly in my experience, but it's worth confirming the resource is still appropriate for LWC's sandboxed iframe model.
+
+**Tests.** Claude can write Jest tests for the new LWC. Don't skip this. It's the easiest safety net you'll get.
+
+## What to migrate first
+
+Don't start with your most complex, most-depended-on component. Start with a simple utility — something that displays data and doesn't fire events. Build your comfort with reviewing Claude's output. *Then* move to the harder ones.
+
+By component 5 you'll be reviewing diffs in 3 minutes each instead of 15.
+
+## The honest caveat
+
+Claude Code isn't going to nail every Aura component on the first try. Components with heavy dynamic component creation (`$A.createComponent`), unusual helper patterns, or deep Lightning Data Service customization will need human editing. Expect to revise maybe 1 in 5 generated components.
+
+Even then, starting from Claude's draft is faster than starting from scratch.
+
+---
+
+**Related:** [AI for Salesforce Flows](/blog/ai-for-salesforce-flows) · [Claude Code vs Agentforce](/blog/claude-code-vs-agentforce) · [Get the full course →](/#pricing)
