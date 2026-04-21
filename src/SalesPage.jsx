@@ -165,7 +165,6 @@ function GlobalStyles() {
   return (
     <style>{`
       @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-      @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
       @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
       @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
       @keyframes sceneReveal {
@@ -211,16 +210,6 @@ function GlobalStyles() {
         input[type="range"].roi-slider { height: 10px; border-radius: 5px; }
         input[type="range"].roi-slider::-webkit-slider-thumb { width: 28px; height: 28px; box-shadow: 0 0 0 4px rgba(218,119,86,0.22); }
         input[type="range"].roi-slider::-moz-range-thumb { width: 28px; height: 28px; }
-      }
-      @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-      .gradient-headline {
-        background: linear-gradient(90deg, #FFFFFF 0%, ${COLORS.orange} 35%, ${COLORS.sfBlue} 65%, #FFFFFF 100%);
-        background-size: 300% 100%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-        animation: gradientShift 7s ease infinite;
       }
       .feat-tabs { display:grid; grid-template-columns:1fr; gap:20px; }
       @media (min-width: 920px) { .feat-tabs { grid-template-columns: minmax(320px, 0.9fr) 1.1fr; gap:28px; } }
@@ -338,10 +327,10 @@ function GlobalStyles() {
       /* Bonus bundle — mobile-friendly row layout */
       .bonus-card { padding: 36px 36px 28px; }
       .bonus-row { display: flex; align-items: flex-start; gap: 20px; padding: 22px 0; }
-      .bonus-icon { flex-shrink: 0; width: 52px; height: 52px; border-radius: 12px; background: ${COLORS.surface2}; border: 1px solid ${COLORS.border}; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+      .bonus-icon { flex-shrink: 0; width: 52px; height: 52px; border-radius: 10px; background: ${COLORS.surface2}; border: 1px solid ${COLORS.border}; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: ${COLORS.orange}; letter-spacing: 1px; }
       .bonus-content { flex: 1; min-width: 0; }
       .bonus-price-col { flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
-      .bonus-sticker { position: absolute; top: -26px; right: -6px; width: 108px; height: 108px; border-radius: 50%; background: linear-gradient(135deg, ${COLORS.orange}, #C4613F); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; z-index: 2; transform: rotate(-8deg); box-shadow: 0 12px 32px rgba(218,119,86,0.35); animation: pulseGlow 2.4s ease-in-out infinite; }
+      .bonus-sticker { position: absolute; top: -26px; right: -6px; width: 108px; height: 108px; border-radius: 50%; background: linear-gradient(135deg, ${COLORS.orange}, #C4613F); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; z-index: 2; transform: rotate(-8deg); box-shadow: 0 12px 32px rgba(218,119,86,0.35); }
       .bonus-total { margin-top: 20px; padding: 16px 20px; background: linear-gradient(90deg, rgba(218,119,86,0.18), rgba(218,119,86,0.05)); border: 1px solid ${COLORS.borderHover}; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
       @media (max-width: 640px) {
@@ -408,11 +397,8 @@ export default function SalesPage() {
 
       {/* ── HERO ── */}
       <section id="top" style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
-        {/* noise texture */}
-        <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: "128px 128px" }} />
-        {/* glow orbs */}
-        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.12) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)" }} />
-        <div style={{ position: "absolute", top: "40%", right: "-10%", width: 300, height: 300, background: `radial-gradient(circle, rgba(1,118,211,0.1) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(50px)" }} />
+        {/* single soft orange glow, top center */}
+        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.10) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
           <div className="hero-grid">
@@ -474,40 +460,22 @@ export default function SalesPage() {
         </div>
       </div>
 
-      {/* ── TOOLS MARQUEE ── */}
-      <div style={{ padding: "40px 0", overflow: "hidden", position: "relative" }}>
-        {/* fade edges */}
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(90deg, ${COLORS.bg}, transparent)`, zIndex: 2 }} />
-        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(270deg, ${COLORS.bg}, transparent)`, zIndex: 2 }} />
-        <div style={{ display: "flex", animation: "marquee 30s linear infinite", width: "max-content" }}>
-          {[...Array(2)].map((_, setIdx) => (
-            <div key={setIdx} style={{ display: "flex", gap: 12, paddingRight: 12 }}>
-              {["Flows", "Apex Triggers", "Validation Rules", "Custom Fields", "Permission Sets", "Page Layouts", "LWC", "SOQL Queries", "Quick Actions", "Record-Triggered Flows", "Screen Flows", "Approval Processes"].map((tool, i) => (
-                <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: "10px 20px", whiteSpace: "nowrap", display: "flex", alignItems: "center", height: 42 }}>
-                  {tool}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* ── PROBLEM (3×2 grid) ── */}
-      <Section id="problem" style={{ background: "radial-gradient(ellipse 80% 70% at 10% 10%, rgba(218,119,86,0.22), transparent 55%), radial-gradient(ellipse 60% 60% at 92% 95%, rgba(1,118,211,0.16), transparent 55%), #0a0a0a" }}>
+      <Section id="problem" style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>The Problem</SectionLabel>
           <H2 center>You know Salesforce. You just can't move fast enough.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
           {[
-            { icon: "🖱️", title: "15 clicks. One field.", desc: "Create the field. Add it to the layout. Update the permission set. Assign the profile. Test in sandbox. Push to prod. You wanted a picklist. You got an afternoon." },
-            { icon: "⏳", title: "Stuck in Jira ticket purgatory", desc: "You know the business logic cold. But you're writing tickets, pinging devs, and waiting two weeks for a change you could describe in two sentences." },
-            { icon: "🔀", title: "Staring at the Flow canvas", desc: "You know what it should do. But elements, loops, and decision trees turn a 10-minute idea into a 3-hour build — plus the debugging when something breaks in UAT." },
-            { icon: "🔍", title: "Googling validation syntax", desc: "ISPICKVAL or TEXT? AND or &&? You know the logic. You're losing 20 minutes every time to syntax you'll forget again next week." },
-            { icon: "📈", title: "Your backlog is getting worse", desc: "Leadership keeps asking what's taking so long. Every sprint ends with more added than shipped. The AI-fluent admin next door is shipping twice as fast." },
-            { icon: "🤖", title: "AI already changed the job", desc: "Agentforce. Einstein Copilot. Anthropic MCP. Admins who can talk to their org in plain English are about to leap past the ones still hunting through Setup menus." },
+            { title: "15 clicks. One field.", desc: "Create the field. Add it to the layout. Update the permission set. Assign the profile. Test in sandbox. Push to prod. You wanted a picklist. You got an afternoon." },
+            { title: "Stuck in Jira ticket purgatory", desc: "You know the business logic cold. But you're writing tickets, pinging devs, and waiting two weeks for a change you could describe in two sentences." },
+            { title: "Staring at the Flow canvas", desc: "You know what it should do. But elements, loops, and decision trees turn a 10-minute idea into a 3-hour build — plus the debugging when something breaks in UAT." },
+            { title: "Googling validation syntax", desc: "ISPICKVAL or TEXT? AND or &&? You know the logic. You're losing 20 minutes every time to syntax you'll forget again next week." },
+            { title: "Your backlog is getting worse", desc: "Leadership keeps asking what's taking so long. Every sprint ends with more added than shipped. The AI-fluent admin next door is shipping twice as fast." },
+            { title: "AI already changed the job", desc: "Agentforce. Einstein Copilot. Anthropic MCP. Admins who can talk to their org in plain English are about to leap past the ones still hunting through Setup menus." },
           ].map((item, i) => (
-            <ProblemCard key={i} {...item} />
+            <ProblemCard key={i} i={i} {...item} />
           ))}
         </div>
       </Section>
@@ -576,7 +544,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── BEFORE / AFTER ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.20) 0%, #151319 38%, #151319 62%, rgba(34,197,94,0.18) 100%)" }}>
+      <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>What Changes</SectionLabel>
           <H2 center>Things you'll stop doing.</H2>
@@ -656,7 +624,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── BONUSES (single bundle card) ── */}
-      <Section style={{ background: "radial-gradient(ellipse 85% 55% at 50% -10%, rgba(218,119,86,0.30), transparent 55%), linear-gradient(180deg, #131320 0%, #0a0a0a 100%)" }}>
+      <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>Bonuses</SectionLabel>
           <H2 center>Included free when you enroll today.</H2>
@@ -669,10 +637,10 @@ export default function SalesPage() {
       </Section>
 
       {/* ── THE MATH ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(218,119,86,0.22) 0%, #151319 35%, #151319 65%, rgba(1,118,211,0.22) 100%)" }}>
+      <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>The Math</SectionLabel>
-          <H2 center className="gradient-headline">You're already paying more than this in wasted time.</H2>
+          <H2 center>You're already paying more than this in wasted time.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `1px solid ${COLORS.border}` }}>
@@ -739,7 +707,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── GUARANTEE ── */}
-      <Section style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.20), transparent 55%), #0a0a0a" }}>
+      <Section style={{ background: COLORS.bg }}>
         <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "40px 32px" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
           <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: COLORS.textPrimary, marginBottom: 12 }}>30-Day Risk-Free Guarantee</h3>
@@ -916,37 +884,21 @@ export default function SalesPage() {
 
 /* ══════════════════════════ SUB-COMPONENTS ══════════════════════════ */
 
-function ProblemCard({ icon, title, desc }) {
-  const [hover, setHover] = useState(false);
+function ProblemCard({ i, title, desc }) {
   return (
     <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={{
-        position: "relative",
-        background: hover
-          ? `radial-gradient(circle at top left, rgba(218,119,86,0.18) 0%, rgba(218,119,86,0.06) 40%, ${COLORS.surface} 90%)`
-          : `radial-gradient(circle at top left, rgba(218,119,86,0.10) 0%, rgba(218,119,86,0.02) 35%, ${COLORS.surface} 85%)`,
-        border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`,
-        borderRadius: 12,
-        padding: 24,
-        transition: "all 0.35s ease",
-        transform: hover ? "translateY(-3px)" : "translateY(0)",
-        boxShadow: hover
-          ? "0 16px 44px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.15) inset"
-          : "0 6px 18px rgba(218,119,86,0.06), 0 0 0 1px rgba(218,119,86,0.05) inset",
-        overflow: "hidden",
+        background: COLORS.surface,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: 10,
+        padding: "28px 24px",
       }}
     >
-      {/* soft orange glow pocket */}
-      <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 180, height: 180, background: `radial-gradient(circle, rgba(218,119,86,${hover ? 0.22 : 0.12}) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none", transition: "background 0.35s ease" }} />
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-          <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>{icon}</span>
-          <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: COLORS.textPrimary, margin: 0, letterSpacing: -0.2, lineHeight: 1.25 }}>{title}</h3>
-        </div>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: COLORS.orange, letterSpacing: 1, flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
+        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 700, color: COLORS.textPrimary, margin: 0, letterSpacing: -0.3, lineHeight: 1.25 }}>{title}</h3>
       </div>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textSecondary, lineHeight: 1.65, margin: 0 }}>{desc}</p>
     </div>
   );
 }
@@ -1083,11 +1035,10 @@ function BonusBundle({ items }) {
                 animation: visible ? `unlockIn 0.6s ease ${i * 0.15}s both` : "none",
               }}
             >
-              <div className="bonus-icon">{it.icon}</div>
+              <div className="bonus-icon">0{i + 1}</div>
 
               <div className="bonus-content">
                 <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(15px, 4vw, 17px)", fontWeight: 700, color: "#fff", margin: "0 0 6px", lineHeight: 1.3, letterSpacing: -0.1 }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted, marginRight: 10, fontWeight: 600, verticalAlign: "middle" }}>0{i + 1}</span>
                   {it.title}
                 </h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, margin: 0 }}>{it.desc}</p>
@@ -1524,12 +1475,11 @@ function FeatureShowcase() {
                   fontFamily: "inherit",
                 }}
               >
-                <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1, filter: on ? "none" : "grayscale(0.3)", transition: "filter 0.2s" }}>{f.icon}</span>
+                <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 1, color: on ? COLORS.orange : "rgba(255,255,255,0.3)", marginTop: 3, transition: "color 0.2s" }}>{String(i + 1).padStart(2, "0")}</span>
                 <span style={{ flex: 1 }}>
-                  <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15.5, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4 }}>{f.title}</span>
-                  <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.5 }}>{f.desc}</span>
+                  <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4, letterSpacing: -0.2 }}>{f.title}</span>
+                  <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.55 }}>{f.desc}</span>
                 </span>
-                <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: on ? COLORS.orange : "rgba(255,255,255,0.15)", marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span>
               </button>
               {on && (
                 <div className="feat-terminal-inline">
