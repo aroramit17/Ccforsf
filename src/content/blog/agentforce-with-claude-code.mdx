@@ -1,0 +1,99 @@
+---
+title: "Build Agentforce agents without hand-writing Agent Script"
+description: "Salesforce's new Agent Script DSL is clean. You still shouldn't write it by hand. Describe the agent in English, let Claude Code generate and deploy the aScript."
+date: 2026-04-21
+author: Amit
+heroImage: /amit-headshot.png
+---
+
+Salesforce shipped a new language this year: **Agent Script** (often called aScript). It's the DSL you use to define Agentforce agents — conversational flows, LLM prompts, deterministic branching, action calls, the whole thing in one file.
+
+The language is fine. Clean syntax, readable, Python/YAML-ish. Docs [here](https://developer.salesforce.com/docs/ai/agentforce/guide/ascript-lang.html) if you want to browse.
+
+You still probably don't want to write it by hand.
+
+## What Agent Script actually looks like
+
+Every line is either **logic** (prefixed with `->`) or a **prompt** (prefixed with `|`). Logic lines run deterministically. Prompt lines go to the LLM.
+
+```
+name: case_triage
+description: |
+  Classify an inbound case and route it.
+
+steps:
+  - |
+    Read the case subject and body. Classify as one of:
+    "self_serve", "human", or "unknown".
+  -> set category = llm_output
+  -> if @variables.category == "self_serve"
+     -> run @actions.send_kb_reply
+        with case_id = @variables.case_id
+        set reply_id
+```
+
+You reference things with `@`: `@actions.<name>`, `@variables.<name>`, `@outputs.<name>`, `@subagent.<name>`. You embed a variable inside a prompt with `{!@variables.<name>}`. You run an action with `run ... with ... set`. Comparisons are the usual `==`, `!=`, `is None`. Whitespace matters — mixing spaces and tabs breaks the parse.
+
+## Why typing this by hand is a tax
+
+None of it is hard. All of it is annoying.
+
+- You have to remember which prefix is which (`->` vs `|`), and get the indentation exactly right.
+- You have to remember the `@` namespaces (`actions`, `variables`, `outputs`, `subagent`) and which one applies where.
+- You have to know the action's input schema before you can write `with ...`.
+- You have to context-switch between *what the agent should do* and *how aScript wants you to spell it*.
+
+That last one is the real cost. Every minute you spend translating intent into syntax is a minute you're not thinking about whether the agent actually solves the customer's problem.
+
+## The Claude Code move
+
+You describe the agent in plain English. Claude reads the aScript reference, your org's action metadata, and your variable definitions. It writes the `.ascript` file. It deploys via SF CLI. You review the diff.
+
+Here's the prompt:
+
+```
+Build an Agentforce agent called "case_triage".
+
+When a case comes in, it should:
+1. Read the subject and description.
+2. Classify as self_serve, human, or unknown.
+3. If self_serve, run the send_kb_reply action with the case_id.
+4. If human, escalate to the Tier2_Support queue.
+5. If unknown, ask the customer one clarifying question.
+
+Store the classification in a variable called category.
+Deploy to dev-org when done.
+```
+
+That's the whole input. No syntax. No `->`. No `@variables.`. You describe what the agent does; Claude handles the spelling.
+
+## What it does next
+
+Claude Code will typically:
+
+1. **Inspect your org.** `retrieve_metadata` on `AiAgent` and related types. If your org has a custom `send_kb_reply` action, Claude reads its input schema so the `with` block is right.
+2. **Draft the file.** Writes `force-app/main/default/aiAgents/case_triage.ascript` with the correct indentation and namespace prefixes.
+3. **Show you the diff.** Before anything deploys, you see the generated aScript. Read it.
+4. **Deploy.** On your approval, `deploy_metadata` pushes to your dev-org alias.
+5. **Offer a smoke test.** Claude can run the agent against a sample input and show you the trace, so you catch classification mistakes before real cases hit it.
+
+## What to actually verify
+
+Don't rubber-stamp it. The LLM is writing code; your job is to check intent.
+
+- **Branch conditions.** If you said "classify as X, Y, or unknown," make sure the else-branch is actually `"unknown"` and not a silent fallthrough.
+- **Action inputs.** `with case_id = @variables.case_id` is right; `with case = @variables.case_id` isn't. Small, easy to miss.
+- **Prompt wording.** The `|` blocks are the LLM's instructions at runtime. Read them the way you'd read a prompt you were going to ship to users. Because they are.
+- **Variables you didn't ask for.** If Claude introduced a new `@variables.retry_count` to handle an edge case, decide whether you want it.
+
+## Why this changes the workflow
+
+Agentforce agents aren't Flows. They aren't Apex. They're a new thing with new syntax, and most admins aren't going to memorize a new DSL just to ship one agent a quarter.
+
+Claude Code flips the default. Instead of *"first, learn aScript,"* it's *"first, describe the behavior, then read the generated aScript to check the work."* The language becomes something you *read* rather than something you *write*.
+
+That's a much smaller tax.
+
+> The point isn't to avoid understanding the language. It's to avoid paying the typing cost every time you ship an agent.
+
+In the next post we'll build a **multi-step agent with a subagent handoff** — the kind of pattern that's genuinely annoying to hand-write because of how the `@subagent` references nest. Same workflow, bigger payoff.
