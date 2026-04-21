@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
 
 const FAQS = [
@@ -225,6 +225,14 @@ function GlobalStyles() {
       @media (min-width: 920px) { .feat-tabs { grid-template-columns: minmax(320px, 0.9fr) 1.1fr; gap:28px; } }
       .feat-row { transition: background 0.25s, border-color 0.25s, transform 0.2s; cursor: pointer; }
       .feat-row:hover { transform: translateX(4px); }
+      /* On desktop: dedicated terminal column visible; inline terminal hidden.
+         On mobile: inline terminal renders right below the active row. */
+      .feat-terminal-inline { display:block; margin: 6px 0 12px; }
+      .feat-terminal-desktop { display:none; }
+      @media (min-width: 920px) {
+        .feat-terminal-inline { display:none; }
+        .feat-terminal-desktop { display:block; }
+      }
       @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
       @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(218,119,86,0.4); } 50% { box-shadow: 0 0 0 14px rgba(218,119,86,0); } }
       @keyframes unlockIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -233,6 +241,46 @@ function GlobalStyles() {
       @keyframes menuOpen { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
       .fit-grid { display:grid; grid-template-columns:1fr; gap:20px; }
       @media (min-width: 820px) { .fit-grid { grid-template-columns: 1.45fr 1fr; gap:28px; align-items:start; } }
+
+      /* Amit "note from" 30/70 split */
+      .amit-note-grid { display:grid; grid-template-columns:1fr; gap:24px; align-items:start; }
+      @media (min-width: 720px) { .amit-note-grid { grid-template-columns: minmax(180px, 28%) 1fr; gap:40px; align-items:center; } }
+      .amit-note-image { border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+      .amit-note-image img { width: 100%; height: auto; aspect-ratio: 1/1; object-fit: cover; display: block; }
+
+      /* Benioff section 50/50 split */
+      .benioff-grid { display:grid; grid-template-columns:1fr; gap:36px; align-items:center; }
+      @media (min-width: 860px) { .benioff-grid { grid-template-columns: 1fr 1fr; gap:48px; } }
+      .benioff-portrait { position: relative; border-radius: 14px; overflow: hidden; background: radial-gradient(ellipse at 50% 60%, #0a0a0f 0%, #000 85%); aspect-ratio: 16/10; box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(218,119,86,0.25); }
+      .benioff-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; filter: url(#benioff-duotone) contrast(1.12) brightness(1.05); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(ellipse 75% 85% at 50% 52%, #000 55%, transparent 92%); mask-image: radial-gradient(ellipse 75% 85% at 50% 52%, #000 55%, transparent 92%); }
+      .benioff-portrait::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0, rgba(0,0,0,0.28) 1px, transparent 1px, transparent 3px); mix-blend-mode: multiply; }
+      .benioff-portrait::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 30%, rgba(218,119,86,0.18) 0%, transparent 55%); }
+      .benioff-caption { position: absolute; bottom: 10px; left: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(218,119,86,0.85); letter-spacing: 1.2px; text-transform: uppercase; pointer-events: none; }
+
+      /* The Math rows — stack value under label on narrow widths */
+      .math-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; flex-wrap: wrap; gap: 2px; }
+      @media (max-width: 520px) {
+        .math-row { flex-direction: column; align-items: flex-start; }
+        .math-row .math-value { text-align: left !important; }
+      }
+
+      /* Pricing card: animated gradient border + lifted shadow */
+      @keyframes pricingBorderRotate { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      .pricing-card-wrap { position: relative; border-radius: 20px; padding: 2px; background: linear-gradient(120deg, #DA7756 0%, #FFB347 20%, #DA7756 40%, #0176D3 60%, #DA7756 80%, #FFB347 100%); background-size: 300% 300%; animation: pricingBorderRotate 8s ease infinite; box-shadow: 0 40px 90px rgba(0,0,0,0.6), 0 16px 40px rgba(218,119,86,0.22), 0 0 0 1px rgba(218,119,86,0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      .pricing-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 50px 110px rgba(0,0,0,0.65), 0 24px 55px rgba(218,119,86,0.32), 0 0 0 1px rgba(218,119,86,0.25); }
+      .pricing-card-inner { background: ${COLORS.surface2}; border-radius: 18px; overflow: hidden; position: relative; }
+
+      /* ROI calculator — pulsing slider thumbs so the drag affordance reads */
+      @keyframes roiThumbPulse {
+        0%, 100% { box-shadow: 0 0 0 4px rgba(218,119,86,0.22), 0 0 0 0 rgba(218,119,86,0); }
+        50%      { box-shadow: 0 0 0 6px rgba(218,119,86,0.35), 0 0 0 16px rgba(218,119,86,0.08); }
+      }
+      input[type="range"].roi-slider::-webkit-slider-thumb { animation: roiThumbPulse 1.9s ease-in-out infinite; }
+      input[type="range"].roi-slider::-moz-range-thumb { animation: roiThumbPulse 1.9s ease-in-out infinite; }
+      input[type="range"].roi-slider:focus::-webkit-slider-thumb,
+      input[type="range"].roi-slider:active::-webkit-slider-thumb { animation-play-state: paused; }
+      @keyframes roiHintBlink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+      .roi-hint-blink { animation: roiHintBlink 1.8s ease-in-out infinite; }
     `}</style>
   );
 }
@@ -405,37 +453,70 @@ export default function SalesPage() {
         </div>
       </Section>
 
-      {/* ── HEADLESS FUTURE (Benioff proof) ── */}
-      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.25), transparent 55%), linear-gradient(180deg, #0d1320 0%, #0a0a0f 100%)" }}>
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <SectionLabel>The future is headless</SectionLabel>
-          <H2 center>If you can't run Salesforce from a terminal, you're already behind.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 640, margin: "12px auto 0" }}>
-            Benioff made it official: <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> exposes every object, workflow, and agent as an API, MCP, and CLI. The browser is no longer the interface. Admins who can't prompt their org are about to get lapped — this course is how you get ahead of it.
-          </p>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <BenioffTweet />
+      {/* ── HEADLESS FUTURE (Benioff proof) — 50/50 split ── */}
+      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.25), transparent 55%), linear-gradient(180deg, #0d1320 0%, #0a0a0f 100%)" }} maxWidth={1100}>
+        {/* inline SVG filter defs used by the portrait (orange duotone) */}
+        <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }} aria-hidden="true">
+          <defs>
+            <filter id="benioff-duotone">
+              <feColorMatrix type="matrix" values="0.33 0.5 0.17 0 0  0.33 0.5 0.17 0 0  0.33 0.5 0.17 0 0  0 0 0 1 0" />
+              <feComponentTransfer>
+                <feFuncR tableValues="0.04 0.95" />
+                <feFuncG tableValues="0.02 0.55" />
+                <feFuncB tableValues="0.06 0.38" />
+              </feComponentTransfer>
+            </filter>
+          </defs>
+        </svg>
+
+        <div className="benioff-grid">
+          {/* LEFT: title + explanation */}
+          <div>
+            <SectionLabel>The future is headless</SectionLabel>
+            <H2>Salesforce is going headless.</H2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginTop: 14 }}>
+              Benioff just announced <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> — every object, workflow, and Agentforce agent exposed as an API, MCP, and CLI. The browser is no longer the interface. The terminal is.
+            </p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginTop: 14 }}>
+              Here's what that means: every admin who only knows how to click through Setup is about to get lapped by admins who can prompt their org from the command line. The skill gap is opening right now.
+            </p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textPrimary, marginTop: 14, fontWeight: 500 }}>
+              This course is how you end up on the right side of it — while it's still early.
+            </p>
+            <div style={{ marginTop: 22, padding: "12px 16px", background: "rgba(1,118,211,0.08)", border: "1px solid rgba(1,118,211,0.25)", borderRadius: 10, display: "inline-block" }}>
+              <a href="https://x.com/Benioff/status/2044981547267395620" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.sfBlue, textDecoration: "none", letterSpacing: 0.5 }}>
+                → Read Benioff's full announcement
+              </a>
+            </div>
+          </div>
+
+          {/* RIGHT: terminal/ASCII Benioff portrait */}
+          <div>
+            <div className="benioff-portrait">
+              <img src="benioff.png" alt="Marc Benioff, CEO of Salesforce, announcing Headless 360" />
+              <div className="benioff-caption">marc_benioff.ceo@salesforce</div>
+            </div>
+          </div>
         </div>
       </Section>
 
-      {/* ── INSTRUCTOR (A Note From Amit) ── */}
-      <Section style={{ background: COLORS.bg }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ width: 88, height: 88, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: `2px solid ${COLORS.border}` }}>
-              <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      {/* ── INSTRUCTOR (A Note From Amit) — 30/70 split ── */}
+      <Section style={{ background: COLORS.bg }} maxWidth={960}>
+        <div className="amit-note-grid">
+          <div className="amit-note-image">
+            <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" />
+          </div>
+          <div>
+            <SectionLabel>A Note From Amit</SectionLabel>
+            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 800, color: COLORS.textPrimary, marginBottom: 6, letterSpacing: -0.4 }}>Amit</h3>
+            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: COLORS.orange, marginBottom: 10, letterSpacing: 0.3 }}>8× Salesforce Certified · GTM Engineer · AI Tools Builder</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 18 }}>
+              <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8× Salesforce Certifications</span>
             </div>
-            <div style={{ flex: 1, minWidth: 240 }}>
-              <SectionLabel>A Note From Amit</SectionLabel>
-              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 4 }}>Amit</h3>
-              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.orange, marginBottom: 6 }}>8x Salesforce Certified · GTM Engineer · AI Tools Builder</p>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 16 }}>
-                <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8x Salesforce Certifications</span>
-              </div>
-              <SubText>I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.</SubText>
-            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginBottom: 0 }}>
+              I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.
+            </p>
           </div>
         </div>
       </Section>
@@ -521,18 +602,18 @@ export default function SalesPage() {
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `1px solid ${COLORS.border}` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textMuted, letterSpacing: 1.5, marginBottom: 20 }}>THE OLD WAY</div>
             {[["Agentforce license", "$125-$550/mo"], ["Extra SF license needed?", "Yes"], ["Implementation partner", "$50K-$150K"], ["Time to first automation", "8-12 weeks"], ["Who owns it?", "IT + vendor"]].map(([k, v], i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}`, alignItems: "center" }}>
+              <div key={i} className="math-row" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 600, color: "#EF4444" }}>{v}</span>
+                <span className="math-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600, color: "#EF4444", textAlign: "right" }}>{v}</span>
               </div>
             ))}
           </div>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `2px solid ${COLORS.borderHover}`, boxShadow: `0 8px 40px rgba(218,119,86,0.06)` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>WITH CLAUDE CODE</div>
-            {[["Claude subscription", "$20/mo (Pro) · Max recommended"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}` }}>
+            {[["Claude subscription", "$20/mo · Max recommended"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
+              <div key={i} className="math-row" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 700, color: COLORS.orange }}>{v}</span>
+                <span className="math-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: COLORS.orange, textAlign: "right" }}>{v}</span>
               </div>
             ))}
           </div>
@@ -593,7 +674,8 @@ export default function SalesPage() {
       {/* ── PRICING CARD ── */}
       <Section id="pricing" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,119,86,0.32), transparent 55%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(1,118,211,0.22), transparent 55%), #0d0d1a" }}>
         <div style={{ maxWidth: 500, margin: "0 auto" }}>
-          <div style={{ background: COLORS.surface2, borderRadius: 16, overflow: "hidden", border: `2px solid ${COLORS.orange}`, position: "relative" }}>
+          <div className="pricing-card-wrap">
+            <div className="pricing-card-inner">
             {/* orange glow */}
             <div style={{ position: "absolute", top: "-30%", left: "50%", transform: "translateX(-50%)", width: 400, height: 400, background: `radial-gradient(circle, rgba(218,119,86,0.08) 0%, transparent 60%)`, borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
 
@@ -686,6 +768,7 @@ export default function SalesPage() {
                 <CardDiscover />
                 <CardApplePay />
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -1335,85 +1418,97 @@ function FeatureShowcase() {
 
   const feat = FEATURES[active];
 
+  const renderTerminal = () => (
+    <div style={{ height: "fit-content" }}>
+      <div style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
+        <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
+          <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
+          <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
+          <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
+        </div>
+        <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 260 }}>
+          {feat.scene.map((ln, i) => (
+            <div key={i} style={{
+              opacity: 0,
+              color: ln.c || COLORS.textSecondary,
+              whiteSpace: "pre-wrap",
+              animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
+            }}>
+              {ln.t}
+              {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
+        {FEATURES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => handlePick(i)}
+            aria-label={`Show feature ${i + 1}`}
+            style={{
+              width: i === active ? 24 : 8,
+              height: 8,
+              padding: 0,
+              borderRadius: 4,
+              border: "none",
+              background: i === active ? COLORS.orange : "rgba(255,255,255,0.15)",
+              cursor: "pointer",
+              transition: "width 0.3s, background 0.3s",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="feat-tabs">
-      {/* LEFT: tab list */}
+      {/* LEFT: tab list (on mobile, terminal renders inline below the active row) */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {FEATURES.map((f, i) => {
           const on = i === active;
           return (
-            <button
-              key={i}
-              className="feat-row"
-              onClick={() => handlePick(i)}
-              style={{
-                display: "flex",
-                gap: 14,
-                alignItems: "flex-start",
-                padding: "16px 18px",
-                background: on ? "linear-gradient(90deg, rgba(218,119,86,0.14), rgba(218,119,86,0.04))" : COLORS.surface,
-                border: `1px solid ${on ? COLORS.borderHover : COLORS.border}`,
-                borderLeft: `3px solid ${on ? COLORS.orange : "transparent"}`,
-                borderRadius: 10,
-                textAlign: "left",
-                cursor: "pointer",
-                color: COLORS.textPrimary,
-                fontFamily: "inherit",
-              }}
-            >
-              <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1, filter: on ? "none" : "grayscale(0.3)", transition: "filter 0.2s" }}>{f.icon}</span>
-              <span style={{ flex: 1 }}>
-                <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15.5, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4 }}>{f.title}</span>
-                <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.5 }}>{f.desc}</span>
-              </span>
-              <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: on ? COLORS.orange : "rgba(255,255,255,0.15)", marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span>
-            </button>
+            <React.Fragment key={i}>
+              <button
+                className="feat-row"
+                onClick={() => handlePick(i)}
+                style={{
+                  display: "flex",
+                  gap: 14,
+                  alignItems: "flex-start",
+                  padding: "16px 18px",
+                  background: on ? "linear-gradient(90deg, rgba(218,119,86,0.14), rgba(218,119,86,0.04))" : COLORS.surface,
+                  border: `1px solid ${on ? COLORS.borderHover : COLORS.border}`,
+                  borderLeft: `3px solid ${on ? COLORS.orange : "transparent"}`,
+                  borderRadius: 10,
+                  textAlign: "left",
+                  cursor: "pointer",
+                  color: COLORS.textPrimary,
+                  fontFamily: "inherit",
+                }}
+              >
+                <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1, filter: on ? "none" : "grayscale(0.3)", transition: "filter 0.2s" }}>{f.icon}</span>
+                <span style={{ flex: 1 }}>
+                  <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15.5, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4 }}>{f.title}</span>
+                  <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.5 }}>{f.desc}</span>
+                </span>
+                <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: on ? COLORS.orange : "rgba(255,255,255,0.15)", marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span>
+              </button>
+              {on && (
+                <div className="feat-terminal-inline">
+                  {renderTerminal()}
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
       </div>
 
-      {/* RIGHT: live terminal demo */}
-      <div style={{ height: "fit-content", alignSelf: "start" }}>
-        <div style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
-          <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
-          </div>
-          <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 260 }}>
-            {feat.scene.map((ln, i) => (
-              <div key={i} style={{
-                opacity: 0,
-                color: ln.c || COLORS.textSecondary,
-                whiteSpace: "pre-wrap",
-                animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
-              }}>
-                {ln.t}
-                {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
-          {FEATURES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => handlePick(i)}
-              aria-label={`Show feature ${i + 1}`}
-              style={{
-                width: i === active ? 24 : 8,
-                height: 8,
-                padding: 0,
-                borderRadius: 4,
-                border: "none",
-                background: i === active ? COLORS.orange : "rgba(255,255,255,0.15)",
-                cursor: "pointer",
-                transition: "width 0.3s, background 0.3s",
-              }}
-            />
-          ))}
-        </div>
+      {/* RIGHT: live terminal demo (desktop only) */}
+      <div className="feat-terminal-desktop" style={{ alignSelf: "start" }}>
+        {renderTerminal()}
       </div>
     </div>
   );
@@ -1439,14 +1534,25 @@ function ROICalculator() {
   return (
     <div>
       <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <SectionLabel>ROI Calculator</SectionLabel>
-        <H2 center>What 5 hours back per week is actually worth.</H2>
+        <SectionLabel>Return on Investment</SectionLabel>
+        <H2 center>Return on your investment.</H2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: COLORS.textSecondary, maxWidth: 560, margin: "10px auto 0", lineHeight: 1.55 }}>
           Drag the sliders. Watch the math move. The course pays for itself faster than you'd think.
         </p>
       </div>
 
       <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+        {/* Calculator-style header bar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#0a0a0a", border: `1px solid ${COLORS.border}`, borderRadius: 10, marginBottom: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.green, boxShadow: `0 0 8px ${COLORS.green}` }} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textSecondary, letterSpacing: 2 }}>ROI.CALC</span>
+          </div>
+          <span className="roi-hint-blink" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.orange, letterSpacing: 1 }}>
+            ← DRAG TO ADJUST
+          </span>
+        </div>
+
         <div className="roi-grid">
           <div>
             <RoiSlider label="Your annual salary" value={salary} onChange={setSalary} min={40000} max={300000} step={5000} display={money(salary)} hint="US admin median is ~$110k–$140k per Salesforce Ben." />
