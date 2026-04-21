@@ -541,27 +541,6 @@ export default function SalesPage() {
         </div>
       </Section>
 
-      {/* ── INSTRUCTOR (A Note From Amit) — 30/70 split ── */}
-      <Section style={{ background: COLORS.bg }} maxWidth={960}>
-        <div className="amit-note-grid">
-          <div className="amit-note-image">
-            <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" />
-          </div>
-          <div>
-            <SectionLabel>A Note From Amit</SectionLabel>
-            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 800, color: COLORS.textPrimary, marginBottom: 6, letterSpacing: -0.4 }}>Amit</h3>
-            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: COLORS.orange, marginBottom: 10, letterSpacing: 0.3 }}>8× Salesforce Certified · GTM Engineer · AI Tools Builder</p>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 18 }}>
-              <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8× Salesforce Certifications</span>
-            </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginBottom: 0 }}>
-              I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.
-            </p>
-          </div>
-        </div>
-      </Section>
-
       {/* ── BEFORE / AFTER ── */}
       <Section style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.20) 0%, #151319 38%, #151319 62%, rgba(34,197,94,0.18) 100%)" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
@@ -618,6 +597,27 @@ export default function SalesPage() {
           { name: "Marcus T.", role: "Sr. Admin · Healthcare", quote: "I've been an admin for 6 years and never touched a terminal. Did the setup and had my first flow deployed before lunch.", accent: "#8B5CF6" },
           { name: "Priya R.", role: "RevOps Lead · FinTech", quote: "Showed my VP the before and after. We cancelled the Agentforce eval the same week.", accent: "#0176D3" },
         ]} />
+      </Section>
+
+      {/* ── INSTRUCTOR (Meet your course instructor) — 30/70 split ── */}
+      <Section style={{ background: COLORS.bg }} maxWidth={960}>
+        <div className="amit-note-grid">
+          <div className="amit-note-image">
+            <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" />
+          </div>
+          <div>
+            <SectionLabel>Meet your course instructor</SectionLabel>
+            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 800, color: COLORS.textPrimary, marginBottom: 6, letterSpacing: -0.4 }}>Amit</h3>
+            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: COLORS.orange, marginBottom: 10, letterSpacing: 0.3 }}>8× Salesforce Certified · GTM Engineer · AI Tools Builder</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 18 }}>
+              <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8× Salesforce Certifications</span>
+            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginBottom: 0 }}>
+              I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.
+            </p>
+          </div>
+        </div>
       </Section>
 
       {/* ── BONUSES (single bundle card) ── */}
