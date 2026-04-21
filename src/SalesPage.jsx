@@ -732,6 +732,7 @@ export default function SalesPage() {
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             {[
+              { label: "Blog", href: "/blog" },
               { label: "Terms", href: "/terms" },
               { label: "Privacy", href: "/privacy" },
               { label: "Refund Policy", href: "/refund" },
@@ -1122,6 +1123,7 @@ function HamburgerMenu() {
     { label: "Reviews", href: "#reviews" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
+    { label: "Blog", href: "/blog" },
   ];
 
   const onLink = () => setOpen(false);
