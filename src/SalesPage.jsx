@@ -248,9 +248,15 @@ function GlobalStyles() {
       .amit-note-image { border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
       .amit-note-image img { width: 100%; height: auto; aspect-ratio: 1/1; object-fit: cover; display: block; }
 
-      /* Benioff section 50/50 split */
-      .benioff-grid { display:grid; grid-template-columns:1fr; gap:36px; align-items:center; }
-      @media (min-width: 860px) { .benioff-grid { grid-template-columns: 1fr 1fr; gap:48px; } }
+      /* Benioff section 50/50 split
+         Mobile: portrait stacks ABOVE the text (DOM order has text first for a11y/SEO,
+         so we flip with CSS order on narrow screens). */
+      .benioff-grid { display:grid; grid-template-columns:1fr; gap:32px; align-items:center; }
+      .benioff-grid > :nth-child(2) { order: -1; }
+      @media (min-width: 860px) {
+        .benioff-grid { grid-template-columns: 1fr 1fr; gap:48px; }
+        .benioff-grid > :nth-child(2) { order: 0; }
+      }
       .benioff-portrait { position: relative; border-radius: 14px; overflow: hidden; background: radial-gradient(ellipse at 50% 60%, #0a0a0f 0%, #000 85%); aspect-ratio: 16/10; box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(218,119,86,0.25); }
       .benioff-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; filter: url(#benioff-duotone) contrast(1.12) brightness(1.05); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(ellipse 75% 85% at 50% 52%, #000 55%, transparent 92%); mask-image: radial-gradient(ellipse 75% 85% at 50% 52%, #000 55%, transparent 92%); }
       .benioff-portrait::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0, rgba(0,0,0,0.28) 1px, transparent 1px, transparent 3px); mix-blend-mode: multiply; }
@@ -287,6 +293,28 @@ function GlobalStyles() {
       input[type="range"].roi-slider:active::-webkit-slider-thumb { animation-play-state: paused; }
       @keyframes roiHintBlink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
       .roi-hint-blink { animation: roiHintBlink 1.8s ease-in-out infinite; }
+
+      /* Bonus bundle — mobile-friendly row layout */
+      .bonus-card { padding: 36px 36px 28px; }
+      .bonus-row { display: flex; align-items: center; gap: 20px; padding: 22px 0; }
+      .bonus-icon { flex-shrink: 0; width: 52px; height: 52px; border-radius: 12px; background: ${COLORS.surface2}; border: 1px solid ${COLORS.border}; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+      .bonus-content { flex: 1; min-width: 0; }
+      .bonus-price-col { flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+      .bonus-sticker { position: absolute; top: -26px; right: -6px; width: 108px; height: 108px; border-radius: 50%; background: linear-gradient(135deg, ${COLORS.orange}, #C4613F); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; z-index: 2; transform: rotate(-8deg); box-shadow: 0 12px 32px rgba(218,119,86,0.35); animation: pulseGlow 2.4s ease-in-out infinite; }
+      .bonus-total { margin-top: 20px; padding: 16px 20px; background: linear-gradient(90deg, rgba(218,119,86,0.18), rgba(218,119,86,0.05)); border: 1px solid ${COLORS.borderHover}; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+      @media (max-width: 640px) {
+        .bonus-card { padding: 54px 18px 22px; }
+        .bonus-row { flex-wrap: wrap; gap: 12px; padding: 18px 0; }
+        .bonus-icon { width: 42px; height: 42px; font-size: 20px; border-radius: 10px; }
+        .bonus-content { flex: 1 1 calc(100% - 54px); }
+        .bonus-price-col { flex-basis: 100%; justify-content: flex-end; margin-top: 2px; padding-left: 54px; }
+        .bonus-sticker { width: 76px; height: 76px; top: -16px; right: 8px; transform: rotate(-6deg); }
+        .bonus-sticker .bonus-sticker-amount { font-size: 17px !important; }
+        .bonus-sticker .bonus-sticker-label { font-size: 9px !important; }
+        .bonus-total { padding: 14px 16px; }
+        .bonus-total-right { flex-basis: 100%; text-align: left; }
+      }
     `}</style>
   );
 }
@@ -978,36 +1006,16 @@ function BonusBundle({ items }) {
   return (
     <div ref={ref} style={{ maxWidth: 820, margin: "0 auto", position: "relative" }}>
       {/* pulsing FREE sticker */}
-      <div style={{
-        position: "absolute",
-        top: -26,
-        right: -6,
-        width: 108,
-        height: 108,
-        borderRadius: "50%",
-        background: `linear-gradient(135deg, ${COLORS.orange}, #C4613F)`,
-        color: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'Bricolage Grotesque', sans-serif",
-        fontWeight: 800,
-        zIndex: 2,
-        transform: "rotate(-8deg)",
-        boxShadow: "0 12px 32px rgba(218,119,86,0.35)",
-        animation: "pulseGlow 2.4s ease-in-out infinite",
-      }}>
-        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginBottom: 2 }}>BUNDLE</div>
-        <div style={{ fontSize: 24, lineHeight: 1 }}>${total}</div>
-        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginTop: 2 }}>FREE</div>
+      <div className="bonus-sticker">
+        <div className="bonus-sticker-label" style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginBottom: 2 }}>BUNDLE</div>
+        <div className="bonus-sticker-amount" style={{ fontSize: 24, lineHeight: 1 }}>${total}</div>
+        <div className="bonus-sticker-label" style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginTop: 2 }}>FREE</div>
       </div>
 
-      <div style={{
+      <div className="bonus-card" style={{
         background: "linear-gradient(180deg, #15151D, #0d0d13)",
         border: `1px solid ${COLORS.border}`,
         borderRadius: 20,
-        padding: "36px 36px 28px",
         position: "relative",
         overflow: "hidden",
       }}>
@@ -1022,30 +1030,16 @@ function BonusBundle({ items }) {
           {items.map((it, i) => (
             <div
               key={i}
+              className="bonus-row"
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 20,
-                padding: "22px 0",
                 borderBottom: i < items.length - 1 ? `1px dashed ${COLORS.border}` : "none",
                 opacity: visible ? 1 : 0,
                 animation: visible ? `unlockIn 0.6s ease ${i * 0.15}s both` : "none",
               }}
             >
-              <div style={{
-                flexShrink: 0,
-                width: 52,
-                height: 52,
-                borderRadius: 12,
-                background: COLORS.surface2,
-                border: `1px solid ${COLORS.border}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-              }}>{it.icon}</div>
+              <div className="bonus-icon">{it.icon}</div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="bonus-content">
                 <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted }}>0{i + 1}</span>
                   <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: "#fff", margin: 0 }}>{it.title}</h3>
@@ -1053,12 +1047,7 @@ function BonusBundle({ items }) {
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, margin: 0 }}>{it.desc}</p>
               </div>
 
-              <div style={{
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-              }}>
+              <div className="bonus-price-col">
                 <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 20, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>
                   ${it.value}
                 </span>
@@ -1068,24 +1057,13 @@ function BonusBundle({ items }) {
           ))}
 
           {/* total strip */}
-          <div style={{
-            marginTop: 20,
-            padding: "16px 20px",
-            background: `linear-gradient(90deg, rgba(218,119,86,0.18), rgba(218,119,86,0.05))`,
-            border: `1px solid ${COLORS.borderHover}`,
-            borderRadius: 12,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 12,
-          }}>
+          <div className="bonus-total">
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, letterSpacing: 0.3 }}>
               Total bundle value
             </span>
-            <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>FREE</span>
+            <span className="bonus-total-right" style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(22px, 5vw, 28px)", fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 6vw, 32px)", fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>FREE</span>
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textSecondary }}>with enrollment</span>
             </span>
           </div>
