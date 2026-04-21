@@ -264,19 +264,25 @@ function GlobalStyles() {
         .math-row .math-value { text-align: left !important; }
       }
 
-      /* Pricing card: animated gradient border + lifted shadow */
-      @keyframes pricingBorderRotate { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-      .pricing-card-wrap { position: relative; border-radius: 20px; padding: 2px; background: linear-gradient(120deg, #DA7756 0%, #FFB347 20%, #DA7756 40%, #0176D3 60%, #DA7756 80%, #FFB347 100%); background-size: 300% 300%; animation: pricingBorderRotate 8s ease infinite; box-shadow: 0 40px 90px rgba(0,0,0,0.6), 0 16px 40px rgba(218,119,86,0.22), 0 0 0 1px rgba(218,119,86,0.15); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-      .pricing-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 50px 110px rgba(0,0,0,0.65), 0 24px 55px rgba(218,119,86,0.32), 0 0 0 1px rgba(218,119,86,0.25); }
-      .pricing-card-inner { background: ${COLORS.surface2}; border-radius: 18px; overflow: hidden; position: relative; }
+      /* Pricing card: heavy lifted shadow (no animated border) */
+      .pricing-card-wrap { position: relative; border-radius: 18px; box-shadow: 0 40px 90px rgba(0,0,0,0.6), 0 18px 45px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.22); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      .pricing-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 52px 110px rgba(0,0,0,0.68), 0 26px 60px rgba(218,119,86,0.28), 0 0 0 1px rgba(218,119,86,0.35); }
+      .pricing-card-inner { background: ${COLORS.surface2}; border: 2px solid ${COLORS.orange}; border-radius: 18px; overflow: hidden; position: relative; }
 
-      /* ROI calculator — pulsing slider thumbs so the drag affordance reads */
+      /* Animated gradient ring around the ENROLL NOW button */
+      @keyframes enrollBorderSpin { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @keyframes enrollSheen { 0% { transform: translateX(-120%) skewX(-18deg); } 100% { transform: translateX(260%) skewX(-18deg); } }
+      .enroll-cta-wrap { position: relative; border-radius: 12px; padding: 2.5px; background: linear-gradient(120deg, #DA7756 0%, #FFB347 22%, #FFF 42%, #0176D3 62%, #DA7756 82%, #FFB347 100%); background-size: 300% 300%; animation: enrollBorderSpin 4.5s linear infinite; box-shadow: 0 12px 36px rgba(218,119,86,0.35), 0 2px 8px rgba(218,119,86,0.3); }
+      .enroll-cta-wrap > * { border-radius: 10px !important; }
+      .enroll-cta-wrap .enroll-sheen { position: absolute; top: 0; bottom: 0; width: 40%; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%); pointer-events: none; animation: enrollSheen 2.8s ease-in-out infinite; border-radius: 10px; }
+
+      /* ROI calculator — pulsing slider thumbs (prominent) */
       @keyframes roiThumbPulse {
-        0%, 100% { box-shadow: 0 0 0 4px rgba(218,119,86,0.22), 0 0 0 0 rgba(218,119,86,0); }
-        50%      { box-shadow: 0 0 0 6px rgba(218,119,86,0.35), 0 0 0 16px rgba(218,119,86,0.08); }
+        0%, 100% { box-shadow: 0 0 0 5px rgba(218,119,86,0.45), 0 0 0 0 rgba(218,119,86,0.55), 0 0 14px rgba(218,119,86,0.5); }
+        50%      { box-shadow: 0 0 0 9px rgba(218,119,86,0.55), 0 0 0 26px rgba(218,119,86,0), 0 0 22px rgba(218,119,86,0.8); }
       }
-      input[type="range"].roi-slider::-webkit-slider-thumb { animation: roiThumbPulse 1.9s ease-in-out infinite; }
-      input[type="range"].roi-slider::-moz-range-thumb { animation: roiThumbPulse 1.9s ease-in-out infinite; }
+      input[type="range"].roi-slider::-webkit-slider-thumb { animation: roiThumbPulse 1.6s ease-in-out infinite; }
+      input[type="range"].roi-slider::-moz-range-thumb { animation: roiThumbPulse 1.6s ease-in-out infinite; }
       input[type="range"].roi-slider:focus::-webkit-slider-thumb,
       input[type="range"].roi-slider:active::-webkit-slider-thumb { animation-play-state: paused; }
       @keyframes roiHintBlink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
@@ -587,7 +593,7 @@ export default function SalesPage() {
         </div>
         <BonusBundle items={[
           { icon: "📄", title: "CLAUDE.md Starter Template", desc: "The exact config file I use to connect Claude Code to my Salesforce org. Copy, paste, go.", value: 29 },
-          { icon: "💬", title: "Prompt Library", desc: "20+ tested prompts for Flows, fields, validation rules, Apex, and more. Ready to use.", value: 49 },
+          { icon: "🛠️", title: "Claude Code Skill Pack for Salesforce", desc: "A pre-built set of slash-command skills for the 10 most common admin tasks — Flow generator, field migrator, validation-rule writer, Apex-test generator, Aura → LWC migrator. Drop them in your project and invoke with one command.", value: 149 },
           { icon: "🤝", title: "Private Community Access", desc: "A members-only Slack where admins share prompts, debug live, and trade what's working. Lifetime seat.", value: 299 },
         ]} />
       </Section>
@@ -753,7 +759,12 @@ export default function SalesPage() {
                 </div>
               </div>
 
-              <CTAButton large full>ENROLL NOW - $97</CTAButton>
+              <div className="enroll-cta-wrap">
+                <div style={{ position: "relative", overflow: "hidden", borderRadius: 10 }}>
+                  <CTAButton large full>ENROLL NOW - $97</CTAButton>
+                  <span className="enroll-sheen" aria-hidden="true" />
+                </div>
+              </div>
 
               {/* Secure checkout trust row */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 16 }}>

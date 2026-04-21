@@ -34,8 +34,8 @@ Any future copy, ad, email, meta tag, or schema should pull from this list. If a
 ### Bonuses
 
 - **CLAUDE.md Starter Template** (value: $29)  
-- **Prompt Library** — 20+ tested prompts for Flows, fields, validation rules, Apex (value: $49)  
-- **Access to private Claude community**
+- **Claude Code Skill Pack for Salesforce** — pre-built slash-command skills for the 10 most common admin tasks: Flow generator, field migrator, validation-rule writer, Apex-test generator, Aura → LWC migrator (value: $149)  
+- **Access to private Claude community** (value: $299)
 
 ### Disclaimer (include near checkout and in footer)
 
