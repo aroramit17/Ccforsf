@@ -53,7 +53,7 @@ export default function BlogLayout({ children }) {
               <a key={item.href} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(26,24,21,0.5)', textDecoration: 'none' }}>{item.label}</a>
             ))}
           </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(26,24,21,0.35)' }}>© 2026 AI with Amit</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(26,24,21,0.35)' }}>© 2026 CC for SF</span>
         </div>
       </footer>
     </div>

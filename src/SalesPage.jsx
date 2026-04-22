@@ -221,41 +221,51 @@ function GlobalStyles() {
         input[type="range"].roi-slider::-webkit-slider-thumb { width: 28px; height: 28px; box-shadow: 0 0 0 4px rgba(218,119,86,0.22); }
         input[type="range"].roi-slider::-moz-range-thumb { width: 28px; height: 28px; }
       }
-      /* Feature showcase — cloud-shaped tabs (Salesforce Cloud nod), big panel below */
-      .feat-tabs-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 20px; }
-      @media (min-width: 600px) { .feat-tabs-row { grid-template-columns: repeat(6, 1fr); gap: 8px; } }
+      /* Feature showcase — flat modern tabs with line icons */
+      .feat-tabs-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+      @media (min-width: 600px) { .feat-tabs-row { grid-template-columns: repeat(6, 1fr); gap: 10px; } }
       .feat-tab {
         position: relative;
-        aspect-ratio: 4 / 3;
-        background: transparent;
-        border: none; padding: 0;
+        aspect-ratio: 1 / 0.85;
+        background: ${COLORS.surface};
+        border: 1px solid ${COLORS.border};
+        border-radius: 14px;
+        padding: 0;
         cursor: pointer; font-family: inherit;
-        color: ${COLORS.textPrimary};
-        transition: transform 0.25s ease, filter 0.25s ease;
+        color: ${COLORS.textMuted};
+        transition: transform 0.25s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, color 0.2s ease;
       }
-      .feat-tab:hover { transform: translateY(-2px); }
-      .feat-tab.is-active { transform: translateY(-2px); filter: drop-shadow(0 8px 22px rgba(218,119,86,0.35)); }
-      .feat-cloud-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-      .feat-cloud-fill { fill: ${COLORS.surface}; transition: fill 0.25s ease, stroke 0.25s ease, stroke-opacity 0.25s ease; stroke: rgba(26,24,21,0.1); stroke-width: 1; }
-      .feat-tab:hover .feat-cloud-fill { fill: ${COLORS.surface2}; stroke-opacity: 0.25; }
-      .feat-tab.is-active .feat-cloud-fill { fill: ${COLORS.surface2}; stroke: ${COLORS.orange}; stroke-opacity: 0.55; stroke-width: 1.5; }
+      .feat-tab:hover {
+        transform: translateY(-2px);
+        border-color: rgba(26,24,21,0.18);
+        color: ${COLORS.textSecondary};
+        box-shadow: 0 8px 20px rgba(26,24,21,0.06);
+      }
+      .feat-tab.is-active {
+        transform: translateY(-2px);
+        background: ${COLORS.surface};
+        border-color: ${COLORS.orange};
+        color: ${COLORS.orange};
+        box-shadow: 0 10px 28px rgba(218,119,86,0.22), 0 0 0 1px ${COLORS.orange};
+      }
       .feat-tab-inner {
-        position: relative; z-index: 1;
+        position: relative;
         width: 100%; height: 100%;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        gap: 4px; padding: 4px 6px 10px;
+        gap: 10px; padding: 10px 8px;
       }
       .feat-tab-label {
         font-family: 'JetBrains Mono', monospace;
-        font-size: clamp(10px, 1.7vw, 12px);
-        font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
+        font-size: clamp(10px, 1.6vw, 11.5px);
+        font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
         color: ${COLORS.textSecondary};
         transition: color 0.2s ease;
         white-space: nowrap;
       }
       .feat-tab.is-active .feat-tab-label { color: ${COLORS.orange}; }
-      .feat-tab-icon { font-size: clamp(22px, 4vw, 28px); line-height: 1; opacity: 0.68; transition: opacity 0.2s ease, transform 0.2s ease; }
-      .feat-tab:hover .feat-tab-icon, .feat-tab.is-active .feat-tab-icon { opacity: 1; transform: scale(1.06); }
+      .feat-tab-icon { display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
+      .feat-tab-icon svg { width: clamp(20px, 3vw, 24px); height: clamp(20px, 3vw, 24px); stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .feat-tab:hover .feat-tab-icon, .feat-tab.is-active .feat-tab-icon { transform: scale(1.05); }
       .feat-panel { width: 100%; }
       .feat-caption { margin-top: 24px; max-width: 720px; }
       @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
@@ -388,7 +398,6 @@ function GlobalStyles() {
 /* ══════════════════════════ MAIN PAGE ══════════════════════════ */
 export default function SalesPage() {
   const [scrollY, setScrollY] = useState(0);
-  const [showUrgency, setShowUrgency] = useState(true);
 
   useEffect(() => {
     const h = () => setScrollY(window.scrollY);
@@ -406,18 +415,8 @@ export default function SalesPage() {
       />
       <GlobalStyles />
 
-      {/* ── URGENCY BAR ── */}
-      {showUrgency && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, background: COLORS.orange, padding: "10px 20px", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#fff", textAlign: "center" }}>
-            Launch pricing: <span style={{ textDecoration: "line-through", opacity: 0.7 }}>$197</span> → <strong>$97</strong> — one-time, lifetime access. Price goes up soon.
-          </span>
-          <button onClick={() => setShowUrgency(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", fontSize: 16, marginLeft: 12, padding: "0 4px" }}>×</button>
-        </div>
-      )}
-
       {/* ── NAV ── */}
-      <nav style={{ position: "fixed", top: showUrgency ? 37 : 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(246,242,234,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(246,242,234,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", height: 56 }}>
           <a href="#top" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: "none" }}>
             <span style={{ color: COLORS.orange }}>cc</span>
@@ -432,7 +431,7 @@ export default function SalesPage() {
       </nav>
 
       {/* ── HERO ── */}
-      <section id="top" style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
+      <section id="top" style={{ padding: "110px 20px 56px", position: "relative", overflow: "hidden" }}>
         {/* single soft orange glow, top center */}
         <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.10) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
 
@@ -483,7 +482,7 @@ export default function SalesPage() {
       <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "40px 20px" }}>
         <div className="stats-strip">
           {[
-            ["$100/mo", "Claude Max plan"],
+            ["Claude Code", "Your only tool"],
             ["5 min", "To your first Flow"],
             ["0 lines", "Of code to write"],
           ].map(([num, label], i) => (
@@ -684,7 +683,12 @@ export default function SalesPage() {
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>WITH CLAUDE CODE</div>
             {[["Claude subscription", "$100/mo · Max plan"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
               <div key={i} className="math-row" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary, display: "inline-flex", alignItems: "center" }}>
+                  {k}
+                  {k === "Claude subscription" && (
+                    <InfoTip text="Not just for Salesforce. Claude Code also handles any codebase — writing, research, automation, analysis, and a lot more. One subscription, everywhere." />
+                  )}
+                </span>
                 <span className="math-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: COLORS.orange, textAlign: "right" }}>{v}</span>
               </div>
             ))}
@@ -900,7 +904,7 @@ export default function SalesPage() {
               <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(26,24,21,0.5)", textDecoration: "none" }}>{item.label}</a>
             ))}
           </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(26,24,21,0.35)" }}>© 2026 AI with Amit</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(26,24,21,0.35)" }}>© 2026 CC for SF</span>
         </div>
       </footer>
 
@@ -1333,10 +1337,48 @@ function HamburgerMenu() {
 }
 
 /* ── Feature showcase (interactive tabs) ── */
-// Single classic cloud silhouette with a flat bottom — Salesforce Cloud nod.
-// ViewBox 0 0 160 100. Closing the path with Z returns to the start point
-// via a straight line, which becomes the cloud's flat bottom.
-const CLOUD_PATH = "M 38 82 C 18 82, 10 66, 24 58 C 14 40, 42 28, 56 42 C 58 22, 94 22, 96 44 C 106 28, 136 32, 134 54 C 154 56, 152 82, 132 82 Z";
+// Monochrome line icons for the feature tabs. Each is a small SVG keyed by
+// FEATURES[i].short. Stroke color is inherited from the button's color so the
+// active-state CSS rule tints them orange automatically.
+const ICONS = {
+  Setup: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" /></svg>
+  ),
+  Fields: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="4" rx="1" />
+      <rect x="3" y="10" width="18" height="4" rx="1" />
+      <rect x="3" y="16" width="18" height="4" rx="1" />
+    </svg>
+  ),
+  Flows: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="5" r="2.5" />
+      <circle cx="5" cy="18" r="2.5" />
+      <circle cx="19" cy="18" r="2.5" />
+      <path d="M10.5 6.7 6.3 16M13.5 6.7l4.2 9.3" />
+    </svg>
+  ),
+  Apex: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 4c-3 0-4 2-4 4v2c0 1.5-1 2-2 2 1 0 2 .5 2 2v2c0 2 1 4 4 4" />
+      <path d="M15 4c3 0 4 2 4 4v2c0 1.5 1 2 2 2-1 0-2 .5-2 2v2c0 2-1 4-4 4" />
+    </svg>
+  ),
+  Debug: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <ellipse cx="12" cy="13" rx="5" ry="6" />
+      <path d="M9 4.5c.4-1 1.6-1.5 3-1.5s2.6.5 3 1.5" />
+      <path d="M7 9H4M17 9h3M7 13H3M17 13h4M7 17l-3 2M17 17l3 2" />
+    </svg>
+  ),
+  Prompts: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="14" rx="2" />
+      <path d="M8 10l3 2-3 2M13 14h4" />
+    </svg>
+  ),
+};
 
 const FEATURES = [
   {
@@ -1462,7 +1504,7 @@ function FeatureShowcase() {
 
   return (
     <div>
-      {/* Tab row — a single flat-bottom cloud silhouette per tab (Salesforce Cloud nod) */}
+      {/* Tab row — flat modern tabs with monochrome line icons */}
       <div className="feat-tabs-row" role="tablist" aria-label="What you get">
         {FEATURES.map((f, i) => {
           const on = i === active;
@@ -1476,12 +1518,9 @@ function FeatureShowcase() {
               aria-pressed={on}
               aria-label={f.title}
             >
-              <svg className="feat-cloud-svg" viewBox="0 0 160 100" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
-                <path className="feat-cloud-fill" d={CLOUD_PATH} />
-              </svg>
               <span className="feat-tab-inner">
+                <span className="feat-tab-icon" aria-hidden="true">{ICONS[f.short]}</span>
                 <span className="feat-tab-label">{f.short}</span>
-                <span className="feat-tab-icon" aria-hidden="true">{f.icon}</span>
               </span>
             </button>
           );
@@ -1501,6 +1540,65 @@ function FeatureShowcase() {
         </p>
       </div>
     </div>
+  );
+}
+
+/* ── Small inline (i) tooltip — hover on desktop, tap to toggle on mobile ── */
+function InfoTip({ text }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span style={{ position: "relative", display: "inline-flex", marginLeft: 6, verticalAlign: "middle" }}>
+      <button
+        type="button"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={(e) => { e.preventDefault(); setOpen((o) => !o); }}
+        aria-label="More info"
+        style={{
+          width: 16, height: 16, borderRadius: "50%",
+          border: `1px solid ${COLORS.border}`,
+          background: COLORS.surface2,
+          color: COLORS.textMuted,
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 10.5, fontWeight: 700,
+          lineHeight: 1, padding: 0,
+          cursor: "pointer",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+        }}
+      >i</button>
+      {open && (
+        <span
+          role="tooltip"
+          style={{
+            position: "absolute",
+            bottom: "calc(100% + 10px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "max-content",
+            maxWidth: 260,
+            padding: "10px 12px",
+            background: "#1A1815",
+            color: "#F6F2EA",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12.5,
+            lineHeight: 1.5,
+            fontWeight: 500,
+            letterSpacing: 0,
+            textTransform: "none",
+            borderRadius: 8,
+            boxShadow: "0 8px 24px rgba(26,24,21,0.22)",
+            zIndex: 20,
+            whiteSpace: "normal",
+            pointerEvents: "none",
+          }}
+        >
+          {text}
+          <span aria-hidden="true" style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%) rotate(45deg)", width: 8, height: 8, background: "#1A1815" }} />
+        </span>
+      )}
+    </span>
   );
 }
 
