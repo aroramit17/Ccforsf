@@ -1,21 +1,21 @@
 const COLORS = {
   orange: '#DA7756',
   sfBlue: '#0176D3',
-  bg: '#0a0a0a',
-  textPrimary: '#f0f0f0',
-  textSecondary: '#a0a0a0',
-  border: 'rgba(255,255,255,0.08)',
+  bg: '#F6F2EA',
+  textPrimary: '#1A1815',
+  textSecondary: '#5A5348',
+  border: 'rgba(26,24,21,0.09)',
 }
 
 function BrandMark() {
   return (
     <a href="/" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: 'none' }}>
       <span style={{ color: COLORS.orange }}>cc</span>
-      <span style={{ color: 'rgba(255,255,255,0.25)' }}>_</span>
-      <span style={{ color: 'rgba(255,255,255,0.5)' }}>for</span>
-      <span style={{ color: 'rgba(255,255,255,0.25)' }}>_</span>
+      <span style={{ color: 'rgba(26,24,21,0.3)' }}>_</span>
+      <span style={{ color: 'rgba(26,24,21,0.55)' }}>for</span>
+      <span style={{ color: 'rgba(26,24,21,0.3)' }}>_</span>
       <span style={{ color: COLORS.sfBlue }}>sf</span>
-      <span style={{ color: 'rgba(255,255,255,0.18)' }}>__c</span>
+      <span style={{ color: 'rgba(26,24,21,0.22)' }}>__c</span>
     </a>
   )
 }
@@ -26,7 +26,7 @@ export default function BlogLayout({ children }) {
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, padding: '0 20px', background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${COLORS.border}` }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, padding: '0 20px', background: 'rgba(246,242,234,0.92)', backdropFilter: 'blur(16px)', borderBottom: `1px solid ${COLORS.border}` }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 56 }}>
           <BrandMark />
           <div style={{ display: 'flex', gap: 22, alignItems: 'center' }}>
@@ -50,10 +50,10 @@ export default function BlogLayout({ children }) {
               { label: 'Privacy', href: '/privacy' },
               { label: 'Refund Policy', href: '/refund' },
             ].map((item) => (
-              <a key={item.href} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>{item.label}</a>
+              <a key={item.href} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(26,24,21,0.5)', textDecoration: 'none' }}>{item.label}</a>
             ))}
           </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.12)' }}>© 2026 AI with Amit</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(26,24,21,0.35)' }}>© 2026 AI with Amit</span>
         </div>
       </footer>
     </div>

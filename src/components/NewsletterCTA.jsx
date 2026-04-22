@@ -3,10 +3,10 @@ import { useState } from 'react'
 const COLORS = {
   orange: '#DA7756',
   orangeHover: '#C4613F',
-  surface2: '#1a1a1a',
-  textPrimary: '#f0f0f0',
-  textSecondary: '#a0a0a0',
-  border: 'rgba(255,255,255,0.08)',
+  surface2: '#FAF6EC',
+  textPrimary: '#1A1815',
+  textSecondary: '#5A5348',
+  border: 'rgba(26,24,21,0.09)',
 }
 
 export default function NewsletterCTA() {

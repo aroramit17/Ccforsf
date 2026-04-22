@@ -73,15 +73,20 @@ const COLORS = {
   sfBlue: "#0176D3",
   green: "#22C55E",
   gold: "#FFB347",
-  bg: "#0a0a0a",
-  surface: "#111111",
-  surface2: "#1a1a1a",
-  surface3: "#222222",
-  textPrimary: "#f0f0f0",
-  textSecondary: "#a0a0a0",
-  textMuted: "#666666",
-  border: "rgba(255,255,255,0.08)",
-  borderHover: "rgba(218,119,86,0.4)",
+  // Light theme — cream page, clean white cards, near-black warm text.
+  bg: "#F6F2EA",
+  surface: "#FFFFFF",
+  surface2: "#FAF6EC",
+  surface3: "#EFE9DC",
+  textPrimary: "#1A1815",
+  textSecondary: "#5A5348",
+  textMuted: "#8A8272",
+  border: "rgba(26,24,21,0.09)",
+  borderHover: "rgba(218,119,86,0.45)",
+  // Terminal bg kept for the code/terminal UI islands (feature showcase, code display)
+  terminalBg: "#0E0E14",
+  terminalBorder: "rgba(255,255,255,0.08)",
+  terminalText: "#E2E8F0",
 };
 
 /* ── hooks ── */
@@ -195,7 +200,7 @@ function GlobalStyles() {
       input[type="range"].roi-slider {
         -webkit-appearance: none; appearance: none;
         width: 100%; height: 6px; border-radius: 3px;
-        background: rgba(255,255,255,0.08); outline: none; cursor: pointer;
+        background: rgba(26,24,21,0.12); outline: none; cursor: pointer;
       }
       input[type="range"].roi-slider::-webkit-slider-thumb {
         -webkit-appearance: none; appearance: none;
@@ -231,8 +236,8 @@ function GlobalStyles() {
       .feat-tab:hover { transform: translateY(-2px); }
       .feat-tab.is-active { transform: translateY(-2px); filter: drop-shadow(0 8px 22px rgba(218,119,86,0.35)); }
       .feat-cloud-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-      .feat-cloud-fill { fill: ${COLORS.surface}; transition: fill 0.25s ease, stroke 0.25s ease, stroke-opacity 0.25s ease; stroke: rgba(255,255,255,0.08); stroke-width: 1; }
-      .feat-tab:hover .feat-cloud-fill { fill: ${COLORS.surface2}; stroke-opacity: 0.18; }
+      .feat-cloud-fill { fill: ${COLORS.surface}; transition: fill 0.25s ease, stroke 0.25s ease, stroke-opacity 0.25s ease; stroke: rgba(26,24,21,0.1); stroke-width: 1; }
+      .feat-tab:hover .feat-cloud-fill { fill: ${COLORS.surface2}; stroke-opacity: 0.25; }
       .feat-tab.is-active .feat-cloud-fill { fill: ${COLORS.surface2}; stroke: ${COLORS.orange}; stroke-opacity: 0.55; stroke-width: 1.5; }
       .feat-tab-inner {
         position: relative; z-index: 1;
@@ -265,7 +270,7 @@ function GlobalStyles() {
       /* Amit "meet your course instructor" 30/70 split with watermark title */
       .amit-note-grid { display:grid; grid-template-columns:1fr; gap:24px; align-items:start; position: relative; }
       @media (min-width: 720px) { .amit-note-grid { grid-template-columns: minmax(180px, 28%) 1fr; gap:40px; align-items:center; } }
-      .amit-note-image { position: relative; z-index: 2; border-radius: 20px; overflow: hidden; border: 2px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+      .amit-note-image { position: relative; z-index: 2; border-radius: 20px; overflow: hidden; border: 2px solid rgba(26,24,21,0.1); box-shadow: 0 20px 50px rgba(26,24,21,0.12); }
       .amit-note-image img { width: 100%; height: auto; aspect-ratio: 1/1; object-fit: cover; display: block; }
       /* Large faded display text floating behind/next to the portrait */
       .instructor-watermark {
@@ -286,7 +291,7 @@ function GlobalStyles() {
           left: 50%;
           transform: translateX(-50%);
           font-size: clamp(40px, 13vw, 72px);
-          color: rgba(255,255,255,0.18);
+          color: rgba(26,24,21,0.09);
           white-space: normal;
           text-align: center;
           line-height: 0.92;
@@ -298,7 +303,7 @@ function GlobalStyles() {
           left: 20%;
           transform: translateY(-50%);
           font-size: clamp(72px, 11vw, 136px);
-          color: rgba(255,255,255,0.14);
+          color: rgba(26,24,21,0.08);
         }
       }
 
@@ -325,8 +330,8 @@ function GlobalStyles() {
       }
 
       /* Pricing card: heavy lifted shadow (no animated border) */
-      .pricing-card-wrap { position: relative; border-radius: 18px; box-shadow: 0 40px 90px rgba(0,0,0,0.6), 0 18px 45px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.22); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-      .pricing-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 52px 110px rgba(0,0,0,0.68), 0 26px 60px rgba(218,119,86,0.28), 0 0 0 1px rgba(218,119,86,0.35); }
+      .pricing-card-wrap { position: relative; border-radius: 18px; box-shadow: 0 30px 70px rgba(26,24,21,0.14), 0 14px 36px rgba(218,119,86,0.22), 0 0 0 1px rgba(218,119,86,0.22); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      .pricing-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 42px 96px rgba(26,24,21,0.18), 0 24px 52px rgba(218,119,86,0.32), 0 0 0 1px rgba(218,119,86,0.38); }
       .pricing-card-inner { background: ${COLORS.surface2}; border: 2px solid ${COLORS.orange}; border-radius: 18px; overflow: hidden; position: relative; }
 
       /* Animated gradient ring around the ENROLL NOW button */
@@ -407,20 +412,20 @@ export default function SalesPage() {
           <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#fff", textAlign: "center" }}>
             Launch pricing: <span style={{ textDecoration: "line-through", opacity: 0.7 }}>$197</span> → <strong>$97</strong> — one-time, lifetime access. Price goes up soon.
           </span>
-          <button onClick={() => setShowUrgency(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 16, marginLeft: 12, padding: "0 4px" }}>×</button>
+          <button onClick={() => setShowUrgency(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", fontSize: 16, marginLeft: 12, padding: "0 4px" }}>×</button>
         </div>
       )}
 
       {/* ── NAV ── */}
-      <nav style={{ position: "fixed", top: showUrgency ? 37 : 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(10,10,10,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
+      <nav style={{ position: "fixed", top: showUrgency ? 37 : 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(246,242,234,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", height: 56 }}>
           <a href="#top" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: "none" }}>
             <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.5)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
+            <span style={{ color: "rgba(26,24,21,0.3)" }}>_</span>
+            <span style={{ color: "rgba(26,24,21,0.55)" }}>for</span>
+            <span style={{ color: "rgba(26,24,21,0.3)" }}>_</span>
             <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.18)" }}>__c</span>
+            <span style={{ color: "rgba(26,24,21,0.22)" }}>__c</span>
           </a>
           <HamburgerMenu />
         </div>
@@ -442,12 +447,12 @@ export default function SalesPage() {
                 </span>
               </div>
 
-              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(40px, 7.2vw, 78px)", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.0, marginBottom: 24, letterSpacing: -2.5 }}>
+              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(40px, 7.2vw, 78px)", fontWeight: 700, color: COLORS.textPrimary, lineHeight: 1.0, marginBottom: 24, letterSpacing: -2.5 }}>
                 What if your next Flow was one prompt away?
               </h1>
 
               <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2vw, 20px)", color: COLORS.textSecondary, lineHeight: 1.55, maxWidth: 540, marginBottom: 36 }}>
-                The modern workflow for Salesforce Admins. Ship Flows, fields, validation rules, and Apex <strong style={{ color: COLORS.textPrimary, fontWeight: 600 }}>10× faster</strong> — straight from your terminal.
+                Ship Flows, fields, validation rules, and Apex <strong style={{ color: COLORS.textPrimary, fontWeight: 600 }}>10× faster</strong>. All from your terminal.
               </p>
 
               {/* primary CTA */}
@@ -523,7 +528,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── HEADLESS FUTURE (Benioff proof) — 50/50 split ── */}
-      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.25), transparent 55%), linear-gradient(180deg, #0d1320 0%, #0a0a0f 100%)" }} maxWidth={1100}>
+      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.08), transparent 55%), linear-gradient(180deg, #EDE7DC 0%, #F6F2EA 100%)" }} maxWidth={1100}>
         {/* inline SVG filter defs used by the portrait (orange duotone) */}
         <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }} aria-hidden="true">
           <defs>
@@ -608,7 +613,7 @@ export default function SalesPage() {
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>What You Get</SectionLabel>
           <H2 center>Everything you need to start using Claude Code with Salesforce.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textMuted, marginTop: 8 }}>Click a module on the left. Watch it run.</p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textMuted, marginTop: 8 }}>Tap a module. Watch it run.</p>
         </div>
         <FeatureShowcase />
       </Section>
@@ -738,7 +743,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── PRICING CARD ── */}
-      <Section id="pricing" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,119,86,0.32), transparent 55%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(1,118,211,0.22), transparent 55%), #0d0d1a" }}>
+      <Section id="pricing" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,119,86,0.14), transparent 55%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(1,118,211,0.08), transparent 55%), #F6F2EA" }}>
         <div style={{ maxWidth: 500, margin: "0 auto" }}>
           <div className="pricing-card-wrap">
             <div className="pricing-card-inner">
@@ -755,7 +760,7 @@ export default function SalesPage() {
               <div style={{ textAlign: "center", marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 8 }}>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 22, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
-                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 52, fontWeight: 800, color: "#fff", letterSpacing: -3 }}>$97</span>
+                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 52, fontWeight: 800, color: COLORS.textPrimary, letterSpacing: -3 }}>$97</span>
                 </div>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>One-time payment · Lifetime access</span>
               </div>
@@ -863,7 +868,7 @@ export default function SalesPage() {
       <section style={{ padding: "80px 20px", position: "relative", overflow: "hidden", textAlign: "center", background: COLORS.surface }}>
         <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: `radial-gradient(circle, rgba(218,119,86,0.1) 0%, transparent 60%)`, borderRadius: "50%", filter: "blur(80px)" }} />
         <div style={{ maxWidth: 600, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.12, marginBottom: 16, letterSpacing: -0.5 }}>
+          <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: COLORS.textPrimary, lineHeight: 1.12, marginBottom: 16, letterSpacing: -0.5 }}>
             Stop clicking.<br />Start prompting.
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.textSecondary, lineHeight: 1.6, marginBottom: 32 }}>
@@ -878,11 +883,11 @@ export default function SalesPage() {
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700 }}>
             <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.35)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
+            <span style={{ color: "rgba(26,24,21,0.28)" }}>_</span>
+            <span style={{ color: "rgba(26,24,21,0.45)" }}>for</span>
+            <span style={{ color: "rgba(26,24,21,0.28)" }}>_</span>
             <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.12)" }}>__c</span>
+            <span style={{ color: "rgba(26,24,21,0.18)" }}>__c</span>
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             {[
@@ -892,10 +897,10 @@ export default function SalesPage() {
               { label: "Privacy", href: "/privacy" },
               { label: "Refund Policy", href: "/refund" },
             ].map((item, i) => (
-              <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{item.label}</a>
+              <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(26,24,21,0.5)", textDecoration: "none" }}>{item.label}</a>
             ))}
           </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.12)" }}>© 2026 AI with Amit</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(26,24,21,0.35)" }}>© 2026 AI with Amit</span>
         </div>
       </footer>
 
@@ -1033,7 +1038,7 @@ function BonusBundle({ items }) {
       </div>
 
       <div className="bonus-card" style={{
-        background: "linear-gradient(180deg, #15151D, #0d0d13)",
+        background: "linear-gradient(180deg, #FFFFFF, #FAF6EC)",
         border: `1px solid ${COLORS.border}`,
         borderRadius: 20,
         position: "relative",
@@ -1060,7 +1065,7 @@ function BonusBundle({ items }) {
               <div className="bonus-icon">0{i + 1}</div>
 
               <div className="bonus-content">
-                <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(15px, 4vw, 17px)", fontWeight: 700, color: "#fff", margin: "0 0 6px", lineHeight: 1.3, letterSpacing: -0.1 }}>
+                <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(15px, 4vw, 17px)", fontWeight: 700, color: COLORS.textPrimary, margin: "0 0 6px", lineHeight: 1.3, letterSpacing: -0.1 }}>
                   {it.title}
                 </h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, margin: 0 }}>{it.desc}</p>
@@ -1137,7 +1142,7 @@ function TestimonialCarousel({ items }) {
         <div style={{ display: "flex", gap: 2, marginBottom: 18 }}>
           {[...Array(5)].map((_, s) => (<span key={s} style={{ color: COLORS.gold, fontSize: 16 }}>★</span>))}
         </div>
-        <blockquote style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: 1.45, color: "#fff", margin: 0, marginBottom: 24, fontWeight: 500, letterSpacing: -0.3 }}>
+        <blockquote style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: 1.45, color: COLORS.textPrimary, margin: 0, marginBottom: 24, fontWeight: 500, letterSpacing: -0.3 }}>
           "{t.quote}"
         </blockquote>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -1158,7 +1163,7 @@ function TestimonialCarousel({ items }) {
               key={n}
               onClick={() => pick(n)}
               aria-label={`Go to testimonial ${n + 1}`}
-              style={{ width: n === i ? 28 : 8, height: 8, padding: 0, borderRadius: 4, border: "none", background: n === i ? COLORS.orange : "rgba(255,255,255,0.15)", cursor: "pointer", transition: "width 0.3s, background 0.3s" }}
+              style={{ width: n === i ? 28 : 8, height: 8, padding: 0, borderRadius: 4, border: "none", background: n === i ? COLORS.orange : "rgba(26,24,21,0.15)", cursor: "pointer", transition: "width 0.3s, background 0.3s" }}
             />
           ))}
         </div>
@@ -1230,7 +1235,7 @@ function HamburgerMenu() {
           width: 40,
           height: 40,
           border: `1px solid ${COLORS.border}`,
-          background: open ? COLORS.surface2 : "rgba(255,255,255,0.03)",
+          background: open ? COLORS.surface2 : "rgba(26,24,21,0.04)",
           borderRadius: 8,
           cursor: "pointer",
           display: "flex",
@@ -1265,13 +1270,13 @@ function HamburgerMenu() {
             top: "calc(100% + 12px)",
             right: 0,
             minWidth: 240,
-            background: "rgba(14,14,18,0.96)",
+            background: "rgba(255,252,246,0.97)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
             border: `1px solid ${COLORS.border}`,
             borderRadius: 12,
             padding: 8,
-            boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            boxShadow: "0 20px 60px rgba(26,24,21,0.14)",
             animation: "menuOpen 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
             transformOrigin: "top right",
           }}
@@ -1526,9 +1531,9 @@ function ROICalculator() {
         </p>
       </div>
 
-      <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+      <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(26,24,21,0.08)" }}>
         {/* Calculator-style header bar */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#0a0a0a", border: `1px solid ${COLORS.border}`, borderRadius: 10, marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: COLORS.surface3, border: `1px solid ${COLORS.border}`, borderRadius: 10, marginBottom: 22 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.green, boxShadow: `0 0 8px ${COLORS.green}` }} />
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textSecondary, letterSpacing: 2 }}>ROI.CALC</span>
@@ -1588,7 +1593,7 @@ function MetricRow({ label, value, big, highlight }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "8px 0" }}>
       <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: highlight ? COLORS.textPrimary : COLORS.textSecondary, fontWeight: highlight ? 600 : 400 }}>{label}</span>
-      <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: highlight ? 22 : (big ? 26 : 16), fontWeight: highlight || big ? 800 : 700, color: highlight ? COLORS.orange : (big ? "#fff" : COLORS.textPrimary), letterSpacing: big || highlight ? -0.5 : 0 }}>{value}</span>
+      <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: highlight ? 22 : (big ? 26 : 16), fontWeight: highlight || big ? 800 : 700, color: highlight ? COLORS.orange : COLORS.textPrimary, letterSpacing: big || highlight ? -0.5 : 0 }}>{value}</span>
     </div>
   );
 }
