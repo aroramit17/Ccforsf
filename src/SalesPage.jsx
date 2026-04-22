@@ -440,9 +440,9 @@ export default function SalesPage() {
               </div>
             </div>
 
-            {/* RIGHT: animated terminal */}
+            {/* RIGHT: orbit graphic — you/Claude Code in the middle, the work around you */}
             <div className="hero-right" style={{ animation: "fadeUp 0.7s ease 0.3s both" }}>
-              <HeroVideo />
+              <HeroOrbit />
             </div>
           </div>
         </div>
@@ -1699,55 +1699,147 @@ function TweetStat({ icon, value }) {
 }
 
 /* ── hero video (clickable thumbnail — wire to Loom/Wistia src when ready) ── */
-function HeroVideo() {
-  return (
-    <div style={{ width: "100%", maxWidth: 560 }}>
-      <a
-        href="#demo"
-        aria-label="Watch full demo"
-        style={{
-          display: "block",
-          position: "relative",
-          borderRadius: 14,
-          overflow: "hidden",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.1)",
-          border: `1px solid ${COLORS.border}`,
-          aspectRatio: "16 / 9",
-          background: "linear-gradient(135deg, #1E1E2E 0%, #0E0E14 100%)",
-          textDecoration: "none",
-          cursor: "pointer",
-        }}
-      >
-        {/* subtle grid overlay */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(218,119,86,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(218,119,86,0.04) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-        {/* glow */}
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 320, height: 320, background: `radial-gradient(circle, rgba(218,119,86,0.22) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(30px)" }} />
+/* ── Hero orbit graphic (mastra-inspired)
+ * Central play button = "You, the admin"
+ * Claude Code badge = the "head" attached above
+ * 8 Salesforce primitives orbit around, connected via dotted bezier paths.
+ * Clicking the center still plays the demo video via #demo anchor.
+ */
+function HeroOrbit() {
+  // SVG units. Viewbox is 0 0 600 600.
+  const C = 300;
+  const R = 232;
 
-        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 20 }}>
-          <div style={{
-            width: 82,
-            height: 82,
-            borderRadius: "50%",
-            background: COLORS.orange,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: `0 12px 40px ${COLORS.orangeGlow}`,
-            animation: "pulseGlow 2.4s ease-in-out infinite",
-          }}>
-            <svg width="28" height="32" viewBox="0 0 28 32" fill="#fff" aria-hidden="true" style={{ marginLeft: 4 }}>
-              <path d="M26 14.268L2 .536v30.928L26 17.732a2 2 0 0 0 0-3.464z" />
-            </svg>
-          </div>
-          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(16px, 2vw, 19px)", fontWeight: 700, color: "#fff", marginBottom: 6 }}>
-              Watch: Full Flow built in under 5 minutes
-            </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textSecondary, letterSpacing: 0.5 }}>
-              0:60 · Real Salesforce org demo
-            </div>
-          </div>
-        </div>
+  // 8 admin primitives. Colors span the brand palette + tasteful accents.
+  const nodes = [
+    { angle:   0, label: "SOQL",        color: "#0176D3" }, // top
+    { angle:  45, label: "LWC",         color: "#8B5CF6" },
+    { angle:  90, label: "Flows",       color: "#DA7756" }, // right
+    { angle: 135, label: "Fields",      color: "#22C55E" },
+    { angle: 180, label: "Validation",  color: "#FFB347" }, // bottom
+    { angle: 225, label: "Apex",        color: "#EF4444" },
+    { angle: 270, label: "Permissions", color: "#06B6D4" }, // left
+    { angle: 315, label: "Layouts",     color: "#EC4899" },
+  ];
+
+  // Bezier from (C, C) to a point on the orbit circle with a perpendicular
+  // offset to make it feel organic rather than a straight ray.
+  const pathFor = (angleDeg) => {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    const ex = C + R * Math.cos(rad);
+    const ey = C + R * Math.sin(rad);
+    // Perpendicular unit vector (rotated 90° from radial direction)
+    const px = -Math.sin(rad);
+    const py =  Math.cos(rad);
+    // Two control points, offset slightly on opposite sides of the line
+    const cp1x = C + (ex - C) * 0.30 + px * 38;
+    const cp1y = C + (ey - C) * 0.30 + py * 38;
+    const cp2x = C + (ex - C) * 0.70 - px * 32;
+    const cp2y = C + (ey - C) * 0.70 - py * 32;
+    return { d: `M ${C} ${C} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${ex} ${ey}`, ex, ey };
+  };
+
+  return (
+    <div className="hero-orbit">
+      <style>{`
+        @keyframes orbitDash { to { stroke-dashoffset: -40; } }
+        .hero-orbit { position: relative; width: 100%; max-width: 560px; aspect-ratio: 1 / 1; margin: 0 auto; }
+        .hero-orbit svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+        .orbit-path { animation: orbitDash 6s linear infinite; }
+        .orbit-pill { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+        .orbit-center {
+          position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+          display: flex; flex-direction: column; align-items: center; gap: 10px;
+          text-decoration: none; z-index: 2;
+        }
+        .orbit-head {
+          background: ${COLORS.orange}; color: #fff;
+          padding: 5px 12px; border-radius: 100px;
+          font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+          white-space: nowrap; box-shadow: 0 6px 18px rgba(218,119,86,0.45);
+          position: relative;
+        }
+        .orbit-head::after {
+          content: ""; position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%);
+          width: 2px; height: 8px; background: ${COLORS.orange}; opacity: 0.55;
+        }
+        .orbit-play {
+          width: 96px; height: 96px; border-radius: 50%;
+          background: ${COLORS.orange};
+          display: flex; align-items: center; justify-content: center;
+          box-shadow: 0 12px 40px rgba(218,119,86,0.4), 0 0 0 10px rgba(218,119,86,0.12), 0 0 0 22px rgba(218,119,86,0.05);
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .orbit-center:hover .orbit-play { transform: scale(1.05); box-shadow: 0 16px 48px rgba(218,119,86,0.55), 0 0 0 10px rgba(218,119,86,0.18), 0 0 0 26px rgba(218,119,86,0.08); }
+        .orbit-you {
+          font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+          color: ${COLORS.textSecondary}; white-space: nowrap; margin-top: 4px;
+        }
+      `}</style>
+
+      <svg viewBox="0 0 600 600" aria-hidden="true">
+        <defs>
+          {/* soft radial halo behind the center */}
+          <radialGradient id="orbit-halo" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(218,119,86,0.22)" />
+            <stop offset="55%" stopColor="rgba(218,119,86,0.05)" />
+            <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+          </radialGradient>
+        </defs>
+        <circle cx={C} cy={C} r={R + 80} fill="url(#orbit-halo)" />
+
+        {nodes.map((n, i) => {
+          const { d, ex, ey } = pathFor(n.angle);
+          const w = n.label.length > 6 ? 108 : 86;
+          const h = 34;
+          return (
+            <g key={n.label}>
+              <path
+                className="orbit-path"
+                d={d}
+                fill="none"
+                stroke={n.color}
+                strokeOpacity="0.55"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeDasharray="2 7"
+                style={{ animationDelay: `${-i * 0.4}s` }}
+              />
+              <rect
+                x={ex - w / 2}
+                y={ey - h / 2}
+                width={w}
+                height={h}
+                rx={h / 2}
+                fill="#0a0a0a"
+                stroke={n.color}
+                strokeOpacity="0.75"
+                strokeWidth="1.5"
+                strokeDasharray="2 5"
+              />
+              <text
+                x={ex}
+                y={ey + 1}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill={n.color}
+                className="orbit-pill"
+              >
+                {n.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      <a href="#demo" className="orbit-center" aria-label="Watch full demo — full Flow built in under 5 minutes">
+        <span className="orbit-head">Claude Code</span>
+        <span className="orbit-play">
+          <svg width="30" height="34" viewBox="0 0 28 32" fill="#fff" aria-hidden="true" style={{ marginLeft: 4 }}>
+            <path d="M26 14.268L2 .536v30.928L26 17.732a2 2 0 0 0 0-3.464z" />
+          </svg>
+        </span>
+        <span className="orbit-you">You, the admin</span>
       </a>
     </div>
   );
