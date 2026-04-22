@@ -102,25 +102,25 @@ function useInView(threshold = 0.12) {
 }
 
 /* ── reusable atoms ── */
-function Section({ children, id, style = {}, maxWidth = 900 }) {
+function Section({ children, id, style = {}, maxWidth = 960 }) {
   const [ref, visible] = useInView(0.06);
   return (
-    <section ref={ref} id={id} style={{ padding: "80px 20px", transition: "opacity 0.7s ease, transform 0.7s ease", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(30px)", position: "relative", ...style }}>
+    <section ref={ref} id={id} className="sp-section" style={{ transition: "opacity 0.7s ease, transform 0.7s ease", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(30px)", position: "relative", ...style }}>
       <div style={{ maxWidth, margin: "0 auto" }}>{children}</div>
     </section>
   );
 }
 
 function SectionLabel({ children }) {
-  return <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 2.5, color: COLORS.orange, textTransform: "uppercase", marginBottom: 10 }}>{children}</div>;
+  return <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 500, letterSpacing: 2, color: COLORS.textMuted, textTransform: "uppercase", marginBottom: 16 }}>{children}</div>;
 }
 
 function H2({ children, center, light, className }) {
-  return <h2 className={className} style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: light ? COLORS.textPrimary : COLORS.textPrimary, lineHeight: 1.15, marginBottom: 16, textAlign: center ? "center" : "left", letterSpacing: -0.5 }}>{children}</h2>;
+  return <h2 className={className} style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(32px, 6vw, 58px)", fontWeight: 700, color: COLORS.textPrimary, lineHeight: 1.05, marginBottom: 20, textAlign: center ? "center" : "left", letterSpacing: -1.5 }}>{children}</h2>;
 }
 
 function SubText({ children, center }) {
-  return <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.7, color: COLORS.textSecondary, marginBottom: 16, textAlign: center ? "center" : "left" }}>{children}</p>;
+  return <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, lineHeight: 1.65, color: COLORS.textSecondary, marginBottom: 18, textAlign: center ? "center" : "left", maxWidth: 640 }}>{children}</p>;
 }
 
 function CTAButton({ children, large, full, onClick }) {
@@ -176,6 +176,11 @@ function GlobalStyles() {
       @keyframes caretBlink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
       * { margin:0; padding:0; box-sizing:border-box; }
       body { background:${COLORS.bg}; }
+
+      /* Section rhythm inspired by mastra.ai — generous whitespace at scale */
+      .sp-section { padding: 88px 20px; }
+      @media (min-width: 720px) { .sp-section { padding: 120px 28px; } }
+      @media (min-width: 1100px) { .sp-section { padding: 140px 32px; } }
       ::selection { background:${COLORS.orange}; color:#fff; }
       .hero-grid { display:grid; grid-template-columns:1fr; gap:48px; align-items:center; }
       .hero-left { text-align:center; display:flex; flex-direction:column; align-items:center; }
@@ -404,20 +409,19 @@ export default function SalesPage() {
           <div className="hero-grid">
             {/* LEFT: copy + CTA */}
             <div className="hero-left">
-              {/* badge */}
-              <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 20 }}>
-                <span style={{ color: COLORS.green, fontSize: 8, animation: "blink 1.4s infinite" }}>●</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE for SALESFORCE</span>
+              {/* quiet pre-headline */}
+              <div style={{ animation: "fadeUp 0.5s ease both", marginBottom: 22 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: 2, color: COLORS.textMuted, textTransform: "uppercase" }}>
+                  Claude Code × Salesforce
+                </span>
               </div>
 
-              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(32px, 5.4vw, 52px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.05, marginBottom: 20, letterSpacing: -1 }}>
-                What if your next Flow
-                <br />
-                <span style={{ color: COLORS.orange }}>was one prompt away?</span>
+              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(40px, 7.2vw, 78px)", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.0, marginBottom: 24, letterSpacing: -2.5 }}>
+                What if your next Flow was one prompt away?
               </h1>
 
-              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(15px, 2vw, 18px)", color: COLORS.textSecondary, lineHeight: 1.55, maxWidth: 480, marginBottom: 28 }}>
-                Claude Code × Salesforce. Ship Flows, fields, and Apex <strong style={{ color: COLORS.textPrimary }}>10× faster</strong> — straight from your terminal.
+              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2vw, 20px)", color: COLORS.textSecondary, lineHeight: 1.55, maxWidth: 540, marginBottom: 36 }}>
+                The modern workflow for Salesforce Admins. Ship Flows, fields, validation rules, and Apex <strong style={{ color: COLORS.textPrimary, fontWeight: 600 }}>10× faster</strong> — straight from your terminal.
               </p>
 
               {/* primary CTA */}
@@ -444,16 +448,16 @@ export default function SalesPage() {
         </div>
       </section>
 
-      {/* ── STATS STRIP ── */}
-      <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "0 16px" }}>
+      {/* ── STATS STRIP — quiet, no dividers, whitespace separates ── */}
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "40px 20px" }}>
         <div className="stats-strip">
           {[
             ["$20/mo", "Claude Code cost"],
             ["5 min", "To your first Flow"],
             ["0 lines", "Of code to write"],
           ].map(([num, label], i) => (
-            <div key={i} className="stats-cell" style={{ borderRight: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
-              <div className="stats-num" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, color: COLORS.orange }}>{num}</div>
+            <div key={i} className="stats-cell">
+              <div className="stats-num" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, color: COLORS.textPrimary, letterSpacing: -1 }}>{num}</div>
               <div className="stats-label" style={{ fontFamily: "'DM Sans', sans-serif", color: COLORS.textMuted }}>{label}</div>
             </div>
           ))}
@@ -463,7 +467,6 @@ export default function SalesPage() {
       {/* ── PROBLEM (3×2 grid) ── */}
       <Section id="problem" style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <SectionLabel>The Problem</SectionLabel>
           <H2 center>You know Salesforce. You just can't move fast enough.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
@@ -480,20 +483,17 @@ export default function SalesPage() {
         </div>
       </Section>
 
-      {/* ── AGITATE ── */}
-      <Section style={{ background: COLORS.surface }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <SectionLabel>Sound Familiar?</SectionLabel>
-          <H2>I used to be scared of Flows.</H2>
-          <SubText>Real talk. Flows terrified me. The canvas, the decision elements, the loops. I'd stare at it for 20 minutes and still not know where to start.</SubText>
-          <SubText>Then LLMs came along and I thought okay, this changes everything. And it did help. I could ask ChatGPT how to build a flow and get step-by-step directions.</SubText>
-          <SubText>But here's the thing nobody talks about. Reading those directions, building it click by click, troubleshooting when something broke... that still took hours. I was getting the right answers. I just couldn't move fast enough to implement them.</SubText>
-          <div style={{ background: COLORS.surface2, borderRadius: 12, padding: "24px 28px", borderLeft: `3px solid ${COLORS.orange}`, marginTop: 28 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.7, color: COLORS.textPrimary, margin: 0, fontWeight: 500 }}>
-              Now I just tell Claude to build the flow. It goes into my org, creates it, and deploys it. All I do is go check that it works. What used to take me an afternoon takes 5 minutes.
-            </p>
-          </div>
+      {/* ── AGITATE — editorial single-column, quote-forward ── */}
+      <Section style={{ background: COLORS.surface }} maxWidth={760}>
+        <H2>I used to be scared of Flows.</H2>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, lineHeight: 1.75, color: COLORS.textSecondary, marginTop: 24 }}>
+          <p style={{ marginBottom: 20 }}>Real talk. Flows terrified me. The canvas, the decision elements, the loops. I'd stare at it for 20 minutes and still not know where to start.</p>
+          <p style={{ marginBottom: 20 }}>Then LLMs came along and I thought okay, this changes everything. And it did help. I could ask ChatGPT how to build a flow and get step-by-step directions.</p>
+          <p style={{ marginBottom: 0 }}>But here's the thing nobody talks about. Reading those directions, building it click by click, troubleshooting when something broke… that still took hours. I was getting the right answers. I just couldn't move fast enough to implement them.</p>
         </div>
+        <blockquote style={{ marginTop: 48, paddingLeft: 24, borderLeft: `2px solid ${COLORS.orange}`, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(22px, 3.2vw, 30px)", fontWeight: 600, lineHeight: 1.3, color: COLORS.textPrimary, letterSpacing: -0.5 }}>
+          Now I just tell Claude to build the flow. It goes into my org, creates it, and deploys it. All I do is go check that it works. What used to take me an afternoon takes 5 minutes.
+        </blockquote>
       </Section>
 
       {/* ── HEADLESS FUTURE (Benioff proof) — 50/50 split ── */}
@@ -546,7 +546,6 @@ export default function SalesPage() {
       {/* ── BEFORE / AFTER ── */}
       <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>What Changes</SectionLabel>
           <H2 center>Things you'll stop doing.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
@@ -591,7 +590,6 @@ export default function SalesPage() {
       {/* ── SOCIAL PROOF ── */}
       <Section id="reviews" style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>Early Reactions</SectionLabel>
           <H2 center>What people are saying.</H2>
         </div>
         <TestimonialCarousel items={[
@@ -639,7 +637,6 @@ export default function SalesPage() {
       {/* ── THE MATH ── */}
       <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>The Math</SectionLabel>
           <H2 center>You're already paying more than this in wasted time.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
@@ -675,7 +672,6 @@ export default function SalesPage() {
             padding: "28px 30px",
             boxShadow: "0 8px 28px rgba(34,197,94,0.06)",
           }}>
-            <SectionLabel>Perfect For</SectionLabel>
             <H2>This is for you if…</H2>
             <div style={{ marginTop: 14 }}>
               <CheckItem>You're a Salesforce admin who knows the platform but wants to move faster</CheckItem>
