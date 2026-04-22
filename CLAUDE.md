@@ -25,7 +25,7 @@ Any future copy, ad, email, meta tag, or schema should pull from this list. If a
 | Format | **Total number of modules and total course time is TBD** |
 | Access | Lifetime access to the course |
 | Checkout | Thrivecart (but students don’t need to know that) |
-| Tool dependency | Claude Pro subscription at $20/month (Claude Max is highly recommended) |
+| Tool dependency | **Claude Max subscription ($100/month, required)** — Anthropic moved Claude Code access into the Max plan in 2026. The old Pro tier is no longer sufficient. |
 | SF license required | None beyond the existing Enterprise / Unlimited / Developer edition |
 | Works with | Salesforce DX projects |
 

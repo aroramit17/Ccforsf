@@ -4,8 +4,8 @@ import WaitlistModal, { openWaitlist } from "./components/WaitlistModal.jsx";
 
 const FAQS = [
   { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
-  { q: "What do I need to get started?", a: "A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
-  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." },
+  { q: "What do I need to get started?", a: "A Claude Max subscription ($100/month — Anthropic moved Claude Code access into the Max plan) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
+  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on the Claude Max plan from Anthropic ($100/month — where Claude Code now lives) and connects directly to your org. No Salesforce add-on license needed." },
   { q: "How long do I have access?", a: "Lifetime. Watch it once, come back anytime. All future updates are included." },
   { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
   { q: "Is this safe for my production org?", a: "Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
@@ -282,22 +282,23 @@ function GlobalStyles() {
       }
       @media (max-width: 719px) {
         .instructor-watermark {
-          top: 14%;
-          right: 6%;
-          font-size: clamp(32px, 12vw, 56px);
-          color: rgba(255,255,255,0.12);
-          mix-blend-mode: overlay;
+          top: 6%;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: clamp(40px, 13vw, 72px);
+          color: rgba(255,255,255,0.18);
           white-space: normal;
-          text-align: right;
+          text-align: center;
+          line-height: 0.92;
         }
       }
       @media (min-width: 720px) {
         .instructor-watermark {
           top: 50%;
-          left: 24%;
+          left: 20%;
           transform: translateY(-50%);
-          font-size: clamp(54px, 8.5vw, 104px);
-          color: rgba(255,255,255,0.055);
+          font-size: clamp(72px, 11vw, 136px);
+          color: rgba(255,255,255,0.14);
         }
       }
 
@@ -477,7 +478,7 @@ export default function SalesPage() {
       <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "40px 20px" }}>
         <div className="stats-strip">
           {[
-            ["$20/mo", "Claude Code cost"],
+            ["$100/mo", "Claude Max plan"],
             ["5 min", "To your first Flow"],
             ["0 lines", "Of code to write"],
           ].map(([num, label], i) => (
@@ -676,7 +677,7 @@ export default function SalesPage() {
           </div>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `2px solid ${COLORS.borderHover}`, boxShadow: `0 8px 40px rgba(218,119,86,0.06)` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>WITH CLAUDE CODE</div>
-            {[["Claude subscription", "$20/mo · Max recommended"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
+            {[["Claude subscription", "$100/mo · Max plan"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
               <div key={i} className="math-row" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
                 <span className="math-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: COLORS.orange, textAlign: "right" }}>{v}</span>
@@ -1327,23 +1328,10 @@ function HamburgerMenu() {
 }
 
 /* ── Feature showcase (interactive tabs) ── */
-// Each cloud is a set of overlapping circles. When filled with the same color
-// and rendered inside a single <svg>, they merge visually into a cloud
-// silhouette. ViewBox is 0 0 160 120 across all six for consistent scaling.
-const CLOUD_SHAPES = [
-  // 1 — classic 3-bump
-  [{cx:38, cy:78, r:26}, {cx:80, cy:54, r:36}, {cx:124, cy:78, r:28}],
-  // 2 — wide 4-bump, flatter
-  [{cx:30, cy:82, r:22}, {cx:62, cy:58, r:28}, {cx:100, cy:58, r:30}, {cx:134, cy:82, r:24}],
-  // 3 — puffy 5-bump
-  [{cx:30, cy:82, r:22}, {cx:58, cy:62, r:24}, {cx:82, cy:46, r:30}, {cx:108, cy:62, r:26}, {cx:134, cy:82, r:22}],
-  // 4 — tall center
-  [{cx:38, cy:82, r:24}, {cx:80, cy:42, r:40}, {cx:124, cy:82, r:26}],
-  // 5 — right-leaning asymmetric
-  [{cx:34, cy:80, r:22}, {cx:62, cy:62, r:26}, {cx:100, cy:48, r:34}, {cx:130, cy:78, r:24}],
-  // 6 — left-leaning asymmetric
-  [{cx:30, cy:78, r:24}, {cx:62, cy:46, r:34}, {cx:100, cy:62, r:26}, {cx:128, cy:82, r:22}],
-];
+// Single classic cloud silhouette with a flat bottom — Salesforce Cloud nod.
+// ViewBox 0 0 160 100. Closing the path with Z returns to the start point
+// via a straight line, which becomes the cloud's flat bottom.
+const CLOUD_PATH = "M 38 82 C 18 82, 10 66, 24 58 C 14 40, 42 28, 56 42 C 58 22, 94 22, 96 44 C 106 28, 136 32, 134 54 C 154 56, 152 82, 132 82 Z";
 
 const FEATURES = [
   {
@@ -1469,11 +1457,10 @@ function FeatureShowcase() {
 
   return (
     <div>
-      {/* Tab row — cloud-shaped tabs (Salesforce Cloud), label over icon */}
+      {/* Tab row — a single flat-bottom cloud silhouette per tab (Salesforce Cloud nod) */}
       <div className="feat-tabs-row" role="tablist" aria-label="What you get">
         {FEATURES.map((f, i) => {
           const on = i === active;
-          const cloud = CLOUD_SHAPES[i % CLOUD_SHAPES.length];
           return (
             <button
               key={i}
@@ -1484,11 +1471,8 @@ function FeatureShowcase() {
               aria-pressed={on}
               aria-label={f.title}
             >
-              <svg className="feat-cloud-svg" viewBox="0 0 160 120" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
-                {/* Each circle gets the same fill+stroke; together they render as one cloud silhouette. */}
-                {cloud.map((c, ci) => (
-                  <circle key={ci} className="feat-cloud-fill" cx={c.cx} cy={c.cy} r={c.r} />
-                ))}
+              <svg className="feat-cloud-svg" viewBox="0 0 160 100" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+                <path className="feat-cloud-fill" d={CLOUD_PATH} />
               </svg>
               <span className="feat-tab-inner">
                 <span className="feat-tab-label">{f.short}</span>
