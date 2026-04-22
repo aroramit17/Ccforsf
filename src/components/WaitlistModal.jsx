@@ -67,12 +67,16 @@ export default function WaitlistModal() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, role }),
       })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data?.error || 'Something went wrong')
+      let data = null
+      try { data = await res.json() } catch { /* non-JSON response */ }
+      if (!res.ok) {
+        if (data?.error) throw new Error(data.error)
+        throw new Error(`Unexpected server response (HTTP ${res.status}). Please try again or email support@ccforsf.com.`)
+      }
       setStatus('success')
     } catch (err) {
       setStatus('error')
-      setErrMsg(err.message || 'Network error')
+      setErrMsg(err.message || 'Network error. Check your connection and try again.')
     }
   }
 
