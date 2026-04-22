@@ -216,29 +216,41 @@ function GlobalStyles() {
         input[type="range"].roi-slider::-webkit-slider-thumb { width: 28px; height: 28px; box-shadow: 0 0 0 4px rgba(218,119,86,0.22); }
         input[type="range"].roi-slider::-moz-range-thumb { width: 28px; height: 28px; }
       }
-      /* Feature showcase: mastra-style icon tabs across the top, big content panel below, caption beneath */
-      .feat-tabs-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
-      @media (min-width: 600px) { .feat-tabs-row { grid-template-columns: repeat(6, 1fr); gap: 12px; } }
+      /* Feature showcase — cloud-shaped tabs (Salesforce Cloud nod), big panel below */
+      .feat-tabs-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 20px; }
+      @media (min-width: 600px) { .feat-tabs-row { grid-template-columns: repeat(6, 1fr); gap: 8px; } }
       .feat-tab {
-        display: flex; align-items: center; justify-content: center;
-        aspect-ratio: 1 / 1;
-        background: ${COLORS.surface};
-        border: 1px solid ${COLORS.border};
-        border-radius: 16px;
+        position: relative;
+        aspect-ratio: 4 / 3;
+        background: transparent;
+        border: none; padding: 0;
+        cursor: pointer; font-family: inherit;
         color: ${COLORS.textPrimary};
-        cursor: pointer; font-family: inherit; padding: 0;
-        transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.25s ease, filter 0.25s ease;
       }
-      .feat-tab:hover { border-color: rgba(255,255,255,0.18); background: ${COLORS.surface2}; }
-      .feat-tab.is-active {
-        background: ${COLORS.surface2};
-        border-color: ${COLORS.borderHover};
-        box-shadow: 0 8px 28px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.35) inset;
-        transform: translateY(-2px);
+      .feat-tab:hover { transform: translateY(-2px); }
+      .feat-tab.is-active { transform: translateY(-2px); filter: drop-shadow(0 8px 22px rgba(218,119,86,0.35)); }
+      .feat-cloud-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+      .feat-cloud-fill { fill: ${COLORS.surface}; transition: fill 0.25s ease, stroke 0.25s ease, stroke-opacity 0.25s ease; stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+      .feat-tab:hover .feat-cloud-fill { fill: ${COLORS.surface2}; stroke-opacity: 0.18; }
+      .feat-tab.is-active .feat-cloud-fill { fill: ${COLORS.surface2}; stroke: ${COLORS.orange}; stroke-opacity: 0.55; stroke-width: 1.5; }
+      .feat-tab-inner {
+        position: relative; z-index: 1;
+        width: 100%; height: 100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 4px; padding: 4px 6px 10px;
       }
-      .feat-tab-icon { font-size: 26px; line-height: 1; opacity: 0.62; transition: opacity 0.2s ease, transform 0.2s ease; }
-      .feat-tab.is-active .feat-tab-icon { opacity: 1; transform: scale(1.08); }
-      @media (min-width: 600px) { .feat-tab-icon { font-size: 30px; } }
+      .feat-tab-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(10px, 1.7vw, 12px);
+        font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
+        color: ${COLORS.textSecondary};
+        transition: color 0.2s ease;
+        white-space: nowrap;
+      }
+      .feat-tab.is-active .feat-tab-label { color: ${COLORS.orange}; }
+      .feat-tab-icon { font-size: clamp(22px, 4vw, 28px); line-height: 1; opacity: 0.68; transition: opacity 0.2s ease, transform 0.2s ease; }
+      .feat-tab:hover .feat-tab-icon, .feat-tab.is-active .feat-tab-icon { opacity: 1; transform: scale(1.06); }
       .feat-panel { width: 100%; }
       .feat-caption { margin-top: 24px; max-width: 720px; }
       @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
@@ -1315,9 +1327,27 @@ function HamburgerMenu() {
 }
 
 /* ── Feature showcase (interactive tabs) ── */
+// Each cloud is a set of overlapping circles. When filled with the same color
+// and rendered inside a single <svg>, they merge visually into a cloud
+// silhouette. ViewBox is 0 0 160 120 across all six for consistent scaling.
+const CLOUD_SHAPES = [
+  // 1 — classic 3-bump
+  [{cx:38, cy:78, r:26}, {cx:80, cy:54, r:36}, {cx:124, cy:78, r:28}],
+  // 2 — wide 4-bump, flatter
+  [{cx:30, cy:82, r:22}, {cx:62, cy:58, r:28}, {cx:100, cy:58, r:30}, {cx:134, cy:82, r:24}],
+  // 3 — puffy 5-bump
+  [{cx:30, cy:82, r:22}, {cx:58, cy:62, r:24}, {cx:82, cy:46, r:30}, {cx:108, cy:62, r:26}, {cx:134, cy:82, r:22}],
+  // 4 — tall center
+  [{cx:38, cy:82, r:24}, {cx:80, cy:42, r:40}, {cx:124, cy:82, r:26}],
+  // 5 — right-leaning asymmetric
+  [{cx:34, cy:80, r:22}, {cx:62, cy:62, r:26}, {cx:100, cy:48, r:34}, {cx:130, cy:78, r:24}],
+  // 6 — left-leaning asymmetric
+  [{cx:30, cy:78, r:24}, {cx:62, cy:46, r:34}, {cx:100, cy:62, r:26}, {cx:128, cy:82, r:22}],
+];
+
 const FEATURES = [
   {
-    icon: "⚡",
+    icon: "⚡", short: "Setup",
     title: "Zero to connected in minutes",
     desc: "Install Claude Code and connect it to your Salesforce org. No terminal experience required.",
     scene: [
@@ -1330,7 +1360,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "🏗️",
+    icon: "🏗️", short: "Fields",
     title: "Fields, layouts, permissions",
     desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt.",
     scene: [
@@ -1343,7 +1373,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "🔄",
+    icon: "🔄", short: "Flows",
     title: "Flows from plain English",
     desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org.",
     scene: [
@@ -1356,7 +1386,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "📝",
+    icon: "📝", short: "Apex",
     title: "Validation rules & Apex",
     desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code.",
     scene: [
@@ -1370,7 +1400,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "🐛",
+    icon: "🐛", short: "Debug",
     title: "When AI gets it wrong",
     desc: "It will. Here's the process to debug and get Claude back on track when it misfires.",
     scene: [
@@ -1383,7 +1413,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "📋",
+    icon: "📋", short: "Prompts",
     title: "Real prompts you can steal",
     desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping.",
     scene: [
@@ -1439,10 +1469,11 @@ function FeatureShowcase() {
 
   return (
     <div>
-      {/* Tab row — icon-only cards */}
+      {/* Tab row — cloud-shaped tabs (Salesforce Cloud), label over icon */}
       <div className="feat-tabs-row" role="tablist" aria-label="What you get">
         {FEATURES.map((f, i) => {
           const on = i === active;
+          const cloud = CLOUD_SHAPES[i % CLOUD_SHAPES.length];
           return (
             <button
               key={i}
@@ -1453,7 +1484,16 @@ function FeatureShowcase() {
               aria-pressed={on}
               aria-label={f.title}
             >
-              <span className="feat-tab-icon" aria-hidden="true">{f.icon}</span>
+              <svg className="feat-cloud-svg" viewBox="0 0 160 120" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+                {/* Each circle gets the same fill+stroke; together they render as one cloud silhouette. */}
+                {cloud.map((c, ci) => (
+                  <circle key={ci} className="feat-cloud-fill" cx={c.cx} cy={c.cy} r={c.r} />
+                ))}
+              </svg>
+              <span className="feat-tab-inner">
+                <span className="feat-tab-label">{f.short}</span>
+                <span className="feat-tab-icon" aria-hidden="true">{f.icon}</span>
+              </span>
             </button>
           );
         })}
