@@ -216,18 +216,31 @@ function GlobalStyles() {
         input[type="range"].roi-slider::-webkit-slider-thumb { width: 28px; height: 28px; box-shadow: 0 0 0 4px rgba(218,119,86,0.22); }
         input[type="range"].roi-slider::-moz-range-thumb { width: 28px; height: 28px; }
       }
-      .feat-tabs { display:grid; grid-template-columns:1fr; gap:20px; }
-      @media (min-width: 920px) { .feat-tabs { grid-template-columns: minmax(320px, 0.9fr) 1.1fr; gap:28px; } }
-      .feat-row { transition: background 0.25s, border-color 0.25s, transform 0.2s; cursor: pointer; }
-      .feat-row:hover { transform: translateX(4px); }
-      /* On desktop: dedicated terminal column visible; inline terminal hidden.
-         On mobile: inline terminal renders right below the active row. */
-      .feat-terminal-inline { display:block; margin: 6px 0 12px; }
-      .feat-terminal-desktop { display:none; }
-      @media (min-width: 920px) {
-        .feat-terminal-inline { display:none; }
-        .feat-terminal-desktop { display:block; }
+      /* Feature showcase: mastra-style icon tabs across the top, big content panel below, caption beneath */
+      .feat-tabs-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
+      @media (min-width: 600px) { .feat-tabs-row { grid-template-columns: repeat(6, 1fr); gap: 12px; } }
+      .feat-tab {
+        display: flex; align-items: center; justify-content: center;
+        aspect-ratio: 1 / 1;
+        background: ${COLORS.surface};
+        border: 1px solid ${COLORS.border};
+        border-radius: 16px;
+        color: ${COLORS.textPrimary};
+        cursor: pointer; font-family: inherit; padding: 0;
+        transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
       }
+      .feat-tab:hover { border-color: rgba(255,255,255,0.18); background: ${COLORS.surface2}; }
+      .feat-tab.is-active {
+        background: ${COLORS.surface2};
+        border-color: ${COLORS.borderHover};
+        box-shadow: 0 8px 28px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.35) inset;
+        transform: translateY(-2px);
+      }
+      .feat-tab-icon { font-size: 26px; line-height: 1; opacity: 0.62; transition: opacity 0.2s ease, transform 0.2s ease; }
+      .feat-tab.is-active .feat-tab-icon { opacity: 1; transform: scale(1.08); }
+      @media (min-width: 600px) { .feat-tab-icon { font-size: 30px; } }
+      .feat-panel { width: 100%; }
+      .feat-caption { margin-top: 24px; max-width: 720px; }
       @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
       @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(218,119,86,0.4); } 50% { box-shadow: 0 0 0 14px rgba(218,119,86,0); } }
       @keyframes unlockIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -1401,95 +1414,62 @@ function FeatureShowcase() {
   const feat = FEATURES[active];
 
   const renderTerminal = () => (
-    <div style={{ height: "fit-content" }}>
-      <div style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
-        <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
-          <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
-          <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
-          <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
-        </div>
-        <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 260 }}>
-          {feat.scene.map((ln, i) => (
-            <div key={i} style={{
-              opacity: 0,
-              color: ln.c || COLORS.textSecondary,
-              whiteSpace: "pre-wrap",
-              animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
-            }}>
-              {ln.t}
-              {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
-            </div>
-          ))}
-        </div>
+    <div className="feat-panel" style={{ background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
+      <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
       </div>
-      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
-        {FEATURES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => handlePick(i)}
-            aria-label={`Show feature ${i + 1}`}
-            style={{
-              width: i === active ? 24 : 8,
-              height: 8,
-              padding: 0,
-              borderRadius: 4,
-              border: "none",
-              background: i === active ? COLORS.orange : "rgba(255,255,255,0.15)",
-              cursor: "pointer",
-              transition: "width 0.3s, background 0.3s",
-            }}
-          />
+      <div key={active} style={{ padding: "24px 26px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 280 }}>
+        {feat.scene.map((ln, i) => (
+          <div key={i} style={{
+            opacity: 0,
+            color: ln.c || COLORS.textSecondary,
+            whiteSpace: "pre-wrap",
+            animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
+          }}>
+            {ln.t}
+            {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
+          </div>
         ))}
       </div>
     </div>
   );
 
   return (
-    <div className="feat-tabs">
-      {/* LEFT: tab list (on mobile, terminal renders inline below the active row) */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div>
+      {/* Tab row — icon-only cards */}
+      <div className="feat-tabs-row" role="tablist" aria-label="What you get">
         {FEATURES.map((f, i) => {
           const on = i === active;
           return (
-            <React.Fragment key={i}>
-              <button
-                className="feat-row"
-                onClick={() => handlePick(i)}
-                style={{
-                  display: "flex",
-                  gap: 14,
-                  alignItems: "flex-start",
-                  padding: "16px 18px",
-                  background: on ? "linear-gradient(90deg, rgba(218,119,86,0.14), rgba(218,119,86,0.04))" : COLORS.surface,
-                  border: `1px solid ${on ? COLORS.borderHover : COLORS.border}`,
-                  borderLeft: `3px solid ${on ? COLORS.orange : "transparent"}`,
-                  borderRadius: 10,
-                  textAlign: "left",
-                  cursor: "pointer",
-                  color: COLORS.textPrimary,
-                  fontFamily: "inherit",
-                }}
-              >
-                <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 1, color: on ? COLORS.orange : "rgba(255,255,255,0.3)", marginTop: 3, transition: "color 0.2s" }}>{String(i + 1).padStart(2, "0")}</span>
-                <span style={{ flex: 1 }}>
-                  <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4, letterSpacing: -0.2 }}>{f.title}</span>
-                  <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.55 }}>{f.desc}</span>
-                </span>
-              </button>
-              {on && (
-                <div className="feat-terminal-inline">
-                  {renderTerminal()}
-                </div>
-              )}
-            </React.Fragment>
+            <button
+              key={i}
+              className={`feat-tab${on ? " is-active" : ""}`}
+              onClick={() => handlePick(i)}
+              role="tab"
+              aria-selected={on}
+              aria-pressed={on}
+              aria-label={f.title}
+            >
+              <span className="feat-tab-icon" aria-hidden="true">{f.icon}</span>
+            </button>
           );
         })}
       </div>
 
-      {/* RIGHT: live terminal demo (desktop only) */}
-      <div className="feat-terminal-desktop" style={{ alignSelf: "start" }}>
-        {renderTerminal()}
+      {/* Content panel (active tab's terminal) */}
+      {renderTerminal()}
+
+      {/* Caption beneath the panel */}
+      <div key={`cap-${active}`} className="feat-caption" style={{ animation: "carouselSlide 0.45s ease both" }}>
+        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(20px, 3.2vw, 26px)", fontWeight: 700, color: COLORS.textPrimary, letterSpacing: -0.3, lineHeight: 1.2, marginBottom: 8 }}>
+          {feat.title}
+        </h3>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(14.5px, 1.8vw, 16px)", color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>
+          {feat.desc}
+        </p>
       </div>
     </div>
   );
