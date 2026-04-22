@@ -333,6 +333,7 @@ Always commit per-task. Never bundle unrelated changes.
 - [ ] **Waitlist DB setup in Vercel** (required for `/api/waitlist` to work): in Vercel dashboard → Storage → Create Postgres (Neon) database → link to this project. `POSTGRES_URL` env var auto-injects. The function at `api/waitlist.js` lazily creates the `waitlist(id, name, email, role, created_at)` table on first call.  
 - [ ] Add real testimonials to replace the placeholder Sarah/Marcus/Priya quotes OR clearly mark them as illustrative — FTC matters  
 - [x] Privacy, Terms, and Refund pages shipped at `/privacy`, `/terms`, `/refund` (footer links wired)
+- [x] `public/llms.txt` shipped — LLM-friendly index per [llmstxt.org](https://llmstxt.org/). Update it whenever a page, blog post, or product fact changes (same cadence as `sitemap.xml`). `robots.txt` points to it.
 
 ---
 
