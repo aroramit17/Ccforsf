@@ -98,8 +98,9 @@ export default function WaitlistModal() {
       <style>{`
         @keyframes waitlistFadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes waitlistPop { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .waitlist-input { width: 100%; padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14.5px; background: #0a0a0a; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.textPrimary}; outline: none; transition: border-color 0.15s; }
-        .waitlist-input:focus { border-color: ${COLORS.orange}; }
+        .waitlist-input { width: 100%; padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14.5px; background: ${COLORS.bg}; border: 1px solid ${COLORS.border}; border-radius: 8px; color: ${COLORS.textPrimary}; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+        .waitlist-input:hover { border-color: rgba(26,24,21,0.2); }
+        .waitlist-input:focus { border-color: ${COLORS.orange}; box-shadow: 0 0 0 3px rgba(218,119,86,0.15); background: #FFFFFF; }
         .waitlist-input::placeholder { color: ${COLORS.textMuted}; }
       `}</style>
       <div
