@@ -148,6 +148,22 @@ Use the `COLORS` token object. Do not introduce new hex codes. Do not swap fonts
 
 No GA, no Segment, no heatmap tools get dropped in without a one-line confirmation. If one is added, it must respect DNT and defer-load.
 
+### Rule 7 — QA every change before committing + pushing
+
+"It builds successfully" is not QA. "It renders correctly" is QA. Before any commit is pushed:
+
+- **Visual / style / copy changes**: run `npm run build`, then open the affected page in a browser and confirm the change renders as intended — contrast, layout, spacing, word choice, responsive behavior on both desktop and mobile widths.
+- **Functional changes**: exercise the flow end-to-end (submit the form and verify the DB write, click through the modal, refresh and test from a clean state).
+- **CLI-only sessions where a browser isn't available**: explicitly reason about color pairings in every CSS edit. For every `color:` property you touch, identify the background it sits on and verify contrast. Low-contrast text is the most common bug that ships unnoticed. Also `grep` the built HTML in `dist/` for key strings to confirm they're present.
+
+**Past incidents this rule is for:**
+
+- Waitlist modal inputs rendered black-on-black after the dark → light theme flip — text color was correctly flipped, input `background` was left hardcoded dark.
+- Blog post code blocks rendered black-on-black — `.post-body pre code` inherited the inline-code text color instead of the `<pre>` element's light color.
+- 500 server error on the waitlist form shown as "Something went wrong" — the fallback message fired because the response body wasn't JSON.
+
+In each case, the code compiled, the build succeeded, and the bug shipped. Every one would have been caught in 30 seconds of visual review.
+
 ---
 
 ## 5\. Structured data (JSON-LD) — per page type

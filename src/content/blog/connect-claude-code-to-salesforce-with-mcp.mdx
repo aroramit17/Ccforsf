@@ -1,6 +1,6 @@
 ---
-title: "Connect Claude Code to your Salesforce org with MCP"
-description: "The six-phase setup: Node + SF CLI + Claude Max + the Salesforce DX MCP server + a single .mcp.json file. 15 minutes from zero to your first prompt."
+title: "Connect Claude Code to your Salesforce org with MCP (VS Code setup)"
+description: "The six-phase setup: Node + SF CLI + Claude Max + the Salesforce DX MCP server + a single .mcp.json file. 15 minutes from zero to your first prompt in VS Code."
 date: 2026-04-23
 author: Amit
 heroImage: /amit-headshot.png
@@ -19,23 +19,36 @@ Get these four things in place first:
 - **Node.js 18+** (check with `node --version`)
 - **Salesforce CLI**: `npm install -g @salesforce/cli`
 - **Claude Max subscription** ($100/month). Anthropic moved Claude Code access into the Max plan in 2026 — the old Pro tier doesn't include it anymore.
-- **An IDE** — this post uses IntelliJ with Illuminated Cloud 2. The MCP config works the same way with VS Code + Salesforce Extension Pack, Cursor, or any editor.
+- **VS Code + the Salesforce Extension Pack**. Open VS Code, go to the Extensions tab (Cmd/Ctrl+Shift+X), search for **"Salesforce Extension Pack"** (published by Salesforce), and install it. This bundles Apex support, SOQL, DX project tooling, and the Org Browser all in one.
 
 None of these are optional. If you're missing any, the later phases will fail in confusing ways.
 
-## Phase 2 — Create your SFDX project
+> **Using a different IDE?** The MCP config is the same in IntelliJ + Illuminated Cloud 2, Cursor, or Zed. Skip VS Code-specific commands in Phase 2 and create the DX project however your editor prefers — everything from Phase 3 onward is identical.
 
-In IntelliJ: **File → New → Project → Illuminated Cloud SFDX**. Name the project and add an org connection. Your browser opens to authenticate against the Salesforce org you want to use. Once you authenticate, IntelliJ downloads and indexes your org's metadata.
+## Phase 2 — Create your SFDX project (VS Code)
 
-If you're on VS Code instead, run:
+Open VS Code. Hit **Cmd/Ctrl+Shift+P** to bring up the Command Palette, type **SFDX: Create Project**, and pick the **Standard** template. Name the project (something like `my-sf-project`) and choose a folder. VS Code scaffolds the DX project and opens it.
+
+Now authenticate against your Salesforce org. Easiest path — Command Palette again:
+
+**SFDX: Authorize an Org** → pick *Production* (or *Sandbox*) → give it an alias like `dev-org` → your browser opens, you log in, VS Code registers the org.
+
+Equivalent CLI commands (if you prefer terminal):
 
 ```bash
-sf project generate --name my-project
-cd my-project
 sf org login web --alias dev-org
+sf config set target-org=dev-org
 ```
 
-Either way, the goal is a Salesforce DX project folder with `sfdx-project.json` at the root and a valid org alias you can reference later.
+Confirm the org is wired up:
+
+```bash
+sf org display --target-org dev-org
+```
+
+You should see your org's Instance URL, User Id, and Connected Status: `Connected`.
+
+You now have a Salesforce DX project folder with `sfdx-project.json` at the root, a default org alias, and VS Code indexing your metadata via the Org Browser sidebar.
 
 ## Phase 3 — Install Claude Code
 
