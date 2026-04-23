@@ -19,6 +19,7 @@ Key facts:
 
 ## Blog posts
 
+- [Connect Claude Code to your Salesforce org with MCP](https://ccforsf.com/blog/connect-claude-code-to-salesforce-with-mcp): Six-phase setup guide for wiring Claude Code to a Salesforce org via the Salesforce DX MCP server — prerequisites, .mcp.json config, verification, and multi-org patterns.
 - [Salesforce is shipping an AI that watches you. Here's why admins still need Claude Code.](https://ccforsf.com/blog/agent-albert-and-claude-code): Analysis of Salesforce's Agent Albert announcement and why admins still need Claude Code as a builder's tool.
 - [Build Agentforce agents without hand-writing Agent Script](https://ccforsf.com/blog/agentforce-with-claude-code): How to describe an Agentforce agent in English and let Claude Code generate and deploy the .ascript file.
 - [Claude Code vs Agentforce: when to use which](https://ccforsf.com/blog/claude-code-vs-agentforce): Decision framework comparing Anthropic's Claude Code CLI with Salesforce's Agentforce platform.
