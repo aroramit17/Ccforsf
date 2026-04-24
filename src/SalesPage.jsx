@@ -430,61 +430,165 @@ export default function SalesPage() {
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section id="top" style={{ padding: "110px 20px 56px", position: "relative", overflow: "hidden", background: "#000" }}>
-        {/* cinematic background video */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, pointerEvents: "none" }}
-        >
-          <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
-        </video>
-        {/* readability overlay: darken video + subtle orange tint + vignette */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.75) 100%)", zIndex: 1, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.18) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)", zIndex: 1, pointerEvents: "none" }} />
+      {/* ── HERO ── cinematic moon-destruction scene */}
+      <section id="top" style={{ minHeight: "100vh", padding: "120px 20px 80px", position: "relative", overflow: "hidden", background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* cinematic background video (Bunny Stream iframe) */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <iframe
+            src="https://iframe.mediadelivery.net/embed/636222/7d835234-5b03-48d8-be49-f60023b3d004?autoplay=true&loop=true&muted=true&preload=true&responsive=true"
+            loading="lazy"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen={false}
+            title="Hero background"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "max(177.78vh, 100vw)",
+              height: "max(56.25vw, 100vh)",
+              transform: "translate(-50%, -50%) scale(1.05)",
+              border: "none",
+              pointerEvents: "none",
+              transformOrigin: "center center",
+              transition: "transform 0.4s ease-out",
+              filter: "grayscale(0.25) contrast(1.05)",
+            }}
+          />
+        </div>
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <div className="hero-grid">
-            {/* LEFT: copy + CTA */}
-            <div className="hero-left">
-              {/* quiet pre-headline */}
-              <div style={{ animation: "fadeUp 0.5s ease both", marginBottom: 22 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: 2, color: "rgba(255,255,255,0.65)", textTransform: "uppercase" }}>
-                  Claude Code × Salesforce
-                </span>
+        {/* atmospheric readability layers: vignette + dark gradient + soft warm haze */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.92) 100%)", zIndex: 1, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0.95) 100%)", zIndex: 1, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "12%", left: "50%", transform: "translateX(-50%)", width: 720, height: 720, background: `radial-gradient(circle, rgba(218,119,86,0.10) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(80px)", zIndex: 1, pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 980, margin: "0 auto", position: "relative", zIndex: 2, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {/* tag pill */}
+          <div style={{ animation: "fadeUp 0.6s ease both" }}>
+            <span style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 16px",
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.18)",
+              background: "rgba(255,255,255,0.04)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 12,
+              fontWeight: 500,
+              letterSpacing: 1.6,
+              color: "rgba(255,255,255,0.78)",
+              textTransform: "uppercase",
+              marginBottom: 32,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.orange, boxShadow: `0 0 12px ${COLORS.orange}` }} />
+              Claude Code × Salesforce
+            </span>
+          </div>
+
+          {/* headline */}
+          <h1 style={{
+            animation: "fadeUp 0.7s ease both",
+            animationDelay: "0.12s",
+            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontSize: "clamp(44px, 8vw, 88px)",
+            fontWeight: 700,
+            color: "#FFFFFF",
+            lineHeight: 1.02,
+            marginBottom: 28,
+            letterSpacing: -3,
+            textShadow: "0 4px 40px rgba(0,0,0,0.6)",
+            maxWidth: 920,
+          }}>
+            What if your next Flow was one prompt away?
+          </h1>
+
+          {/* subtitle */}
+          <p style={{
+            animation: "fadeUp 0.7s ease both",
+            animationDelay: "0.22s",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "clamp(16px, 1.6vw, 20px)",
+            color: "rgba(255,255,255,0.72)",
+            lineHeight: 1.55,
+            maxWidth: 640,
+            marginBottom: 44,
+            textShadow: "0 2px 20px rgba(0,0,0,0.5)",
+          }}>
+            Ship Flows, fields, validation rules, and Apex <strong style={{ color: "#FFFFFF", fontWeight: 600 }}>10× faster</strong> — straight from your terminal. No clicks. No code by hand.
+          </p>
+
+          {/* CTAs */}
+          <div style={{
+            animation: "fadeUp 0.7s ease both",
+            animationDelay: "0.32s",
+            display: "flex",
+            gap: 14,
+            flexWrap: "wrap",
+            justifyContent: "center",
+            marginBottom: 36,
+          }}>
+            <button
+              onClick={openWaitlist}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 12px 40px ${COLORS.orangeGlow || "rgba(218,119,86,0.45)"}`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 6px 24px rgba(218,119,86,0.3)`; }}
+              style={{
+                padding: "18px 36px",
+                background: COLORS.orange,
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: 999,
+                fontSize: 16,
+                fontWeight: 700,
+                fontFamily: "'DM Sans', sans-serif",
+                cursor: "pointer",
+                transition: "all 0.25s ease",
+                boxShadow: `0 6px 24px rgba(218,119,86,0.3)`,
+                letterSpacing: 0.3,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              Join the waitlist <span style={{ fontSize: 18 }}>→</span>
+            </button>
+
+            <a
+              href="#pricing"
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)"; }}
+              style={{
+                padding: "17px 32px",
+                background: "rgba(255,255,255,0.04)",
+                color: "#FFFFFF",
+                border: "1px solid rgba(255,255,255,0.22)",
+                borderRadius: 999,
+                fontSize: 16,
+                fontWeight: 600,
+                fontFamily: "'DM Sans', sans-serif",
+                cursor: "pointer",
+                transition: "all 0.25s ease",
+                textDecoration: "none",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                letterSpacing: 0.3,
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              See pricing
+            </a>
+          </div>
+
+          {/* trust row */}
+          <div style={{ animation: "fadeUp 0.7s ease both", animationDelay: "0.42s", display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
+            {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.65)" }}>{t}</span>
               </div>
-
-              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(40px, 7.2vw, 78px)", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.0, marginBottom: 24, letterSpacing: -2.5, textShadow: "0 2px 24px rgba(0,0,0,0.4)" }}>
-                What if your next Flow was one prompt away?
-              </h1>
-
-              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2vw, 20px)", color: "rgba(255,255,255,0.82)", lineHeight: 1.55, maxWidth: 540, marginBottom: 36, textShadow: "0 1px 12px rgba(0,0,0,0.35)" }}>
-                Ship Flows, fields, validation rules, and Apex <strong style={{ color: "#FFFFFF", fontWeight: 600 }}>10× faster</strong>. All from your terminal.
-              </p>
-
-              {/* primary CTA */}
-              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", marginBottom: 18, width: "100%", maxWidth: 440 }}>
-                <CTAButton large full onClick={openWaitlist}>Join the waitlist</CTAButton>
-              </div>
-
-              {/* trust row */}
-              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.4s", display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "inherit" }}>
-                {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{t}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* RIGHT: orbit graphic — you/Claude Code in the middle, the work around you */}
-            <div className="hero-right" style={{ animation: "fadeUp 0.7s ease 0.3s both" }}>
-              <HeroOrbit />
-            </div>
+            ))}
           </div>
         </div>
       </section>
