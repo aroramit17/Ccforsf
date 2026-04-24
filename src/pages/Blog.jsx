@@ -4,10 +4,10 @@ import { getAllPosts } from '../lib/posts.js'
 
 const COLORS = {
   orange: '#DA7756',
-  textPrimary: '#f0f0f0',
-  textSecondary: '#a0a0a0',
-  textMuted: '#666666',
-  border: 'rgba(255,255,255,0.08)',
+  textPrimary: '#1A1815',
+  textSecondary: '#5A5348',
+  textMuted: '#8A8272',
+  border: 'rgba(26,24,21,0.09)',
 }
 
 function formatDate(d) {

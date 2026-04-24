@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
+import WaitlistModal, { openWaitlist } from "./components/WaitlistModal.jsx";
 
 const FAQS = [
   { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
-  { q: "What do I need to get started?", a: "A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
-  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." },
+  { q: "What do I need to get started?", a: "A Claude Max subscription ($100/month — Anthropic moved Claude Code access into the Max plan) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
+  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on the Claude Max plan from Anthropic ($100/month — where Claude Code now lives) and connects directly to your org. No Salesforce add-on license needed." },
   { q: "How long do I have access?", a: "Lifetime. Watch it once, come back anytime. All future updates are included." },
   { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
   { q: "Is this safe for my production org?", a: "Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
@@ -72,15 +73,20 @@ const COLORS = {
   sfBlue: "#0176D3",
   green: "#22C55E",
   gold: "#FFB347",
-  bg: "#0a0a0a",
-  surface: "#111111",
-  surface2: "#1a1a1a",
-  surface3: "#222222",
-  textPrimary: "#f0f0f0",
-  textSecondary: "#a0a0a0",
-  textMuted: "#666666",
-  border: "rgba(255,255,255,0.08)",
-  borderHover: "rgba(218,119,86,0.4)",
+  // Light theme — cream page, clean white cards, near-black warm text.
+  bg: "#F6F2EA",
+  surface: "#FFFFFF",
+  surface2: "#FAF6EC",
+  surface3: "#EFE9DC",
+  textPrimary: "#1A1815",
+  textSecondary: "#5A5348",
+  textMuted: "#8A8272",
+  border: "rgba(26,24,21,0.09)",
+  borderHover: "rgba(218,119,86,0.45)",
+  // Terminal bg kept for the code/terminal UI islands (feature showcase, code display)
+  terminalBg: "#0E0E14",
+  terminalBorder: "rgba(255,255,255,0.08)",
+  terminalText: "#E2E8F0",
 };
 
 /* ── hooks ── */
@@ -101,25 +107,25 @@ function useInView(threshold = 0.12) {
 }
 
 /* ── reusable atoms ── */
-function Section({ children, id, style = {}, maxWidth = 900 }) {
+function Section({ children, id, style = {}, maxWidth = 960 }) {
   const [ref, visible] = useInView(0.06);
   return (
-    <section ref={ref} id={id} style={{ padding: "80px 20px", transition: "opacity 0.7s ease, transform 0.7s ease", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(30px)", position: "relative", ...style }}>
+    <section ref={ref} id={id} className="sp-section" style={{ transition: "opacity 0.7s ease, transform 0.7s ease", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(30px)", position: "relative", ...style }}>
       <div style={{ maxWidth, margin: "0 auto" }}>{children}</div>
     </section>
   );
 }
 
 function SectionLabel({ children }) {
-  return <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 2.5, color: COLORS.orange, textTransform: "uppercase", marginBottom: 10 }}>{children}</div>;
+  return <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 500, letterSpacing: 2, color: COLORS.textMuted, textTransform: "uppercase", marginBottom: 16 }}>{children}</div>;
 }
 
 function H2({ children, center, light, className }) {
-  return <h2 className={className} style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: light ? COLORS.textPrimary : COLORS.textPrimary, lineHeight: 1.15, marginBottom: 16, textAlign: center ? "center" : "left", letterSpacing: -0.5 }}>{children}</h2>;
+  return <h2 className={className} style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(32px, 6vw, 58px)", fontWeight: 700, color: COLORS.textPrimary, lineHeight: 1.05, marginBottom: 20, textAlign: center ? "center" : "left", letterSpacing: -1.5 }}>{children}</h2>;
 }
 
 function SubText({ children, center }) {
-  return <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.7, color: COLORS.textSecondary, marginBottom: 16, textAlign: center ? "center" : "left" }}>{children}</p>;
+  return <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, lineHeight: 1.65, color: COLORS.textSecondary, marginBottom: 18, textAlign: center ? "center" : "left", maxWidth: 640 }}>{children}</p>;
 }
 
 function CTAButton({ children, large, full, onClick }) {
@@ -164,7 +170,6 @@ function GlobalStyles() {
   return (
     <style>{`
       @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-      @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
       @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
       @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
       @keyframes sceneReveal {
@@ -176,6 +181,11 @@ function GlobalStyles() {
       @keyframes caretBlink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
       * { margin:0; padding:0; box-sizing:border-box; }
       body { background:${COLORS.bg}; }
+
+      /* Section rhythm inspired by mastra.ai — generous whitespace at scale */
+      .sp-section { padding: 88px 20px; }
+      @media (min-width: 720px) { .sp-section { padding: 120px 28px; } }
+      @media (min-width: 1100px) { .sp-section { padding: 140px 32px; } }
       ::selection { background:${COLORS.orange}; color:#fff; }
       .hero-grid { display:grid; grid-template-columns:1fr; gap:48px; align-items:center; }
       .hero-left { text-align:center; display:flex; flex-direction:column; align-items:center; }
@@ -190,7 +200,7 @@ function GlobalStyles() {
       input[type="range"].roi-slider {
         -webkit-appearance: none; appearance: none;
         width: 100%; height: 6px; border-radius: 3px;
-        background: rgba(255,255,255,0.08); outline: none; cursor: pointer;
+        background: rgba(26,24,21,0.12); outline: none; cursor: pointer;
       }
       input[type="range"].roi-slider::-webkit-slider-thumb {
         -webkit-appearance: none; appearance: none;
@@ -211,20 +221,53 @@ function GlobalStyles() {
         input[type="range"].roi-slider::-webkit-slider-thumb { width: 28px; height: 28px; box-shadow: 0 0 0 4px rgba(218,119,86,0.22); }
         input[type="range"].roi-slider::-moz-range-thumb { width: 28px; height: 28px; }
       }
-      @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-      .gradient-headline {
-        background: linear-gradient(90deg, #FFFFFF 0%, ${COLORS.orange} 35%, ${COLORS.sfBlue} 65%, #FFFFFF 100%);
-        background-size: 300% 100%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-        animation: gradientShift 7s ease infinite;
+      /* Feature showcase — flat modern tabs with line icons */
+      .feat-tabs-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+      @media (min-width: 600px) { .feat-tabs-row { grid-template-columns: repeat(6, 1fr); gap: 10px; } }
+      .feat-tab {
+        position: relative;
+        aspect-ratio: 1 / 0.85;
+        background: ${COLORS.surface};
+        border: 1px solid ${COLORS.border};
+        border-radius: 14px;
+        padding: 0;
+        cursor: pointer; font-family: inherit;
+        color: ${COLORS.textMuted};
+        transition: transform 0.25s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, color 0.2s ease;
       }
-      .feat-tabs { display:grid; grid-template-columns:1fr; gap:20px; }
-      @media (min-width: 920px) { .feat-tabs { grid-template-columns: minmax(320px, 0.9fr) 1.1fr; gap:28px; } }
-      .feat-row { transition: background 0.25s, border-color 0.25s, transform 0.2s; cursor: pointer; }
-      .feat-row:hover { transform: translateX(4px); }
+      .feat-tab:hover {
+        transform: translateY(-2px);
+        border-color: rgba(26,24,21,0.18);
+        color: ${COLORS.textSecondary};
+        box-shadow: 0 8px 20px rgba(26,24,21,0.06);
+      }
+      .feat-tab.is-active {
+        transform: translateY(-2px);
+        background: ${COLORS.surface};
+        border-color: ${COLORS.orange};
+        color: ${COLORS.orange};
+        box-shadow: 0 10px 28px rgba(218,119,86,0.22), 0 0 0 1px ${COLORS.orange};
+      }
+      .feat-tab-inner {
+        position: relative;
+        width: 100%; height: 100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 10px; padding: 10px 8px;
+      }
+      .feat-tab-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: clamp(10px, 1.6vw, 11.5px);
+        font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+        color: ${COLORS.textSecondary};
+        transition: color 0.2s ease;
+        white-space: nowrap;
+      }
+      .feat-tab.is-active .feat-tab-label { color: ${COLORS.orange}; }
+      .feat-tab-icon { display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
+      .feat-tab-icon svg { width: clamp(20px, 3vw, 24px); height: clamp(20px, 3vw, 24px); stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .feat-tab:hover .feat-tab-icon, .feat-tab.is-active .feat-tab-icon { transform: scale(1.05); }
+      .feat-panel { width: 100%; }
+      .feat-caption { margin-top: 24px; max-width: 720px; }
       @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
       @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(218,119,86,0.4); } 50% { box-shadow: 0 0 0 14px rgba(218,119,86,0); } }
       @keyframes unlockIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -233,6 +276,121 @@ function GlobalStyles() {
       @keyframes menuOpen { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
       .fit-grid { display:grid; grid-template-columns:1fr; gap:20px; }
       @media (min-width: 820px) { .fit-grid { grid-template-columns: 1.45fr 1fr; gap:28px; align-items:start; } }
+
+      /* Amit "meet your course instructor" 30/70 split with watermark title */
+      .amit-note-grid { display:grid; grid-template-columns:1fr; gap:24px; align-items:start; position: relative; }
+      @media (min-width: 720px) { .amit-note-grid { grid-template-columns: minmax(180px, 28%) 1fr; gap:40px; align-items:center; } }
+      .amit-note-image { position: relative; z-index: 2; border-radius: 20px; overflow: hidden; border: 2px solid rgba(26,24,21,0.1); box-shadow: 0 20px 50px rgba(26,24,21,0.12); }
+      .amit-note-image img { width: 100%; height: auto; aspect-ratio: 1/1; object-fit: cover; display: block; }
+      /* Large faded display text floating behind/next to the portrait */
+      .instructor-watermark {
+        position: absolute;
+        font-family: 'Bricolage Grotesque', sans-serif;
+        font-weight: 800;
+        line-height: 0.88;
+        letter-spacing: -3px;
+        text-transform: uppercase;
+        pointer-events: none;
+        user-select: none;
+        z-index: 1;
+        white-space: nowrap;
+      }
+      @media (max-width: 719px) {
+        .instructor-watermark {
+          top: 6%;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: clamp(40px, 13vw, 72px);
+          color: rgba(26,24,21,0.09);
+          white-space: normal;
+          text-align: center;
+          line-height: 0.92;
+        }
+      }
+      @media (min-width: 720px) {
+        .instructor-watermark {
+          top: 50%;
+          left: 20%;
+          transform: translateY(-50%);
+          font-size: clamp(72px, 11vw, 136px);
+          color: rgba(26,24,21,0.08);
+        }
+      }
+
+      /* Benioff section 50/50 split
+         Mobile: portrait stacks ABOVE the text (DOM order has text first for a11y/SEO,
+         so we flip with CSS order on narrow screens). */
+      .benioff-grid { display:grid; grid-template-columns:1fr; gap:32px; align-items:center; }
+      .benioff-grid > :nth-child(2) { order: -1; }
+      @media (min-width: 860px) {
+        .benioff-grid { grid-template-columns: 1fr 1fr; gap:48px; }
+        .benioff-grid > :nth-child(2) { order: 0; }
+      }
+      .benioff-portrait { position: relative; border-radius: 14px; overflow: hidden; background: radial-gradient(ellipse at 50% 60%, #0a0a0f 0%, #000 85%); aspect-ratio: 16/10; box-shadow: 0 30px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(218,119,86,0.25); }
+      .benioff-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; filter: url(#benioff-duotone) contrast(1.12) brightness(1.05); mix-blend-mode: screen; -webkit-mask-image: radial-gradient(ellipse 75% 85% at 50% 52%, #000 55%, transparent 92%); mask-image: radial-gradient(ellipse 75% 85% at 50% 52%, #000 55%, transparent 92%); }
+      .benioff-portrait::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.28) 0, rgba(0,0,0,0.28) 1px, transparent 1px, transparent 3px); mix-blend-mode: multiply; }
+      .benioff-portrait::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 30%, rgba(218,119,86,0.18) 0%, transparent 55%); }
+      .benioff-caption { position: absolute; bottom: 10px; left: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(218,119,86,0.85); letter-spacing: 1.2px; text-transform: uppercase; pointer-events: none; }
+
+      /* The Math rows — stack value under label on narrow widths */
+      .math-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; flex-wrap: wrap; gap: 2px; }
+      @media (max-width: 520px) {
+        .math-row { flex-direction: column; align-items: flex-start; }
+        .math-row .math-value { text-align: left !important; }
+      }
+
+      /* Pricing card: heavy lifted shadow (no animated border) */
+      .pricing-card-wrap { position: relative; border-radius: 18px; box-shadow: 0 30px 70px rgba(26,24,21,0.14), 0 14px 36px rgba(218,119,86,0.22), 0 0 0 1px rgba(218,119,86,0.22); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      .pricing-card-wrap:hover { transform: translateY(-4px); box-shadow: 0 42px 96px rgba(26,24,21,0.18), 0 24px 52px rgba(218,119,86,0.32), 0 0 0 1px rgba(218,119,86,0.38); }
+      .pricing-card-inner { background: ${COLORS.surface2}; border: 2px solid ${COLORS.orange}; border-radius: 18px; overflow: hidden; position: relative; }
+
+      /* Animated gradient ring around the ENROLL NOW button */
+      @keyframes enrollBorderSpin { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @keyframes enrollSheen { 0% { transform: translateX(-120%) skewX(-18deg); } 100% { transform: translateX(260%) skewX(-18deg); } }
+      .enroll-cta-wrap { position: relative; border-radius: 12px; padding: 2.5px; background: linear-gradient(120deg, #DA7756 0%, #FFB347 22%, #FFF 42%, #0176D3 62%, #DA7756 82%, #FFB347 100%); background-size: 300% 300%; animation: enrollBorderSpin 4.5s linear infinite; box-shadow: 0 12px 36px rgba(218,119,86,0.35), 0 2px 8px rgba(218,119,86,0.3); }
+      .enroll-cta-wrap > * { border-radius: 10px !important; }
+      .enroll-cta-wrap .enroll-sheen { position: absolute; top: 0; bottom: 0; width: 40%; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%); pointer-events: none; animation: enrollSheen 2.8s ease-in-out infinite; border-radius: 10px; }
+
+      /* ROI calculator — pulsing slider thumbs (prominent) */
+      @keyframes roiThumbPulse {
+        0%, 100% { box-shadow: 0 0 0 5px rgba(218,119,86,0.45), 0 0 0 0 rgba(218,119,86,0.55), 0 0 14px rgba(218,119,86,0.5); }
+        50%      { box-shadow: 0 0 0 9px rgba(218,119,86,0.55), 0 0 0 26px rgba(218,119,86,0), 0 0 22px rgba(218,119,86,0.8); }
+      }
+      input[type="range"].roi-slider::-webkit-slider-thumb { animation: roiThumbPulse 1.6s ease-in-out infinite; }
+      input[type="range"].roi-slider::-moz-range-thumb { animation: roiThumbPulse 1.6s ease-in-out infinite; }
+      input[type="range"].roi-slider:focus::-webkit-slider-thumb,
+      input[type="range"].roi-slider:active::-webkit-slider-thumb { animation-play-state: paused; }
+      @keyframes roiHintBlink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+      .roi-hint-blink { animation: roiHintBlink 1.8s ease-in-out infinite; }
+
+      /* Stats strip — tight on mobile so labels don't wrap awkwardly */
+      .stats-strip { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+      .stats-cell { padding: 24px 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+      .stats-num { font-size: clamp(20px, 5.5vw, 28px); line-height: 1.1; letter-spacing: -0.5px; }
+      .stats-label { font-size: clamp(11px, 2.6vw, 13px); line-height: 1.35; }
+      @media (min-width: 640px) { .stats-cell { padding: 28px 20px; } }
+
+      /* Bonus bundle — mobile-friendly row layout */
+      .bonus-card { padding: 36px 36px 28px; }
+      .bonus-row { display: flex; align-items: flex-start; gap: 20px; padding: 22px 0; }
+      .bonus-icon { flex-shrink: 0; width: 52px; height: 52px; border-radius: 10px; background: ${COLORS.surface2}; border: 1px solid ${COLORS.border}; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: ${COLORS.orange}; letter-spacing: 1px; }
+      .bonus-content { flex: 1; min-width: 0; }
+      .bonus-price-col { flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+      .bonus-sticker { position: absolute; top: -26px; right: -6px; width: 108px; height: 108px; border-radius: 50%; background: linear-gradient(135deg, ${COLORS.orange}, #C4613F); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; z-index: 2; transform: rotate(-8deg); box-shadow: 0 12px 32px rgba(218,119,86,0.35); }
+      .bonus-total { margin-top: 20px; padding: 16px 20px; background: linear-gradient(90deg, rgba(218,119,86,0.18), rgba(218,119,86,0.05)); border: 1px solid ${COLORS.borderHover}; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+      @media (max-width: 640px) {
+        .bonus-card { padding: 54px 18px 22px; }
+        .bonus-row { flex-wrap: wrap; gap: 12px; padding: 18px 0; }
+        .bonus-icon { width: 42px; height: 42px; font-size: 20px; border-radius: 10px; }
+        .bonus-content { flex: 1 1 calc(100% - 54px); }
+        .bonus-price-col { flex-basis: 100%; justify-content: flex-end; margin-top: 2px; padding-left: 54px; }
+        .bonus-sticker { width: 76px; height: 76px; top: -16px; right: 8px; transform: rotate(-6deg); }
+        .bonus-sticker .bonus-sticker-amount { font-size: 17px !important; }
+        .bonus-sticker .bonus-sticker-label { font-size: 9px !important; }
+        .bonus-total { padding: 14px 16px; }
+        .bonus-total-right { flex-basis: 100%; text-align: left; }
+      }
     `}</style>
   );
 }
@@ -240,7 +398,6 @@ function GlobalStyles() {
 /* ══════════════════════════ MAIN PAGE ══════════════════════════ */
 export default function SalesPage() {
   const [scrollY, setScrollY] = useState(0);
-  const [showUrgency, setShowUrgency] = useState(true);
 
   useEffect(() => {
     const h = () => setScrollY(window.scrollY);
@@ -258,192 +415,282 @@ export default function SalesPage() {
       />
       <GlobalStyles />
 
-      {/* ── URGENCY BAR ── */}
-      {showUrgency && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, background: COLORS.orange, padding: "10px 20px", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#fff", textAlign: "center" }}>
-            Launch pricing: <span style={{ textDecoration: "line-through", opacity: 0.7 }}>$197</span> → <strong>$97</strong> — one-time, lifetime access. Price goes up soon.
-          </span>
-          <button onClick={() => setShowUrgency(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 16, marginLeft: 12, padding: "0 4px" }}>×</button>
-        </div>
-      )}
-
       {/* ── NAV ── */}
-      <nav style={{ position: "fixed", top: showUrgency ? 37 : 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(10,10,10,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(246,242,234,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", height: 56 }}>
           <a href="#top" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: "none" }}>
             <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.5)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.3)" : "rgba(255,255,255,0.4)" }}>_</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.55)" : "rgba(255,255,255,0.7)" }}>for</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.3)" : "rgba(255,255,255,0.4)" }}>_</span>
             <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.18)" }}>__c</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.22)" : "rgba(255,255,255,0.3)" }}>__c</span>
           </a>
-          <HamburgerMenu />
+          <HamburgerMenu onDark={scrollY <= 50} />
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section id="top" style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
-        {/* noise texture */}
-        <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: "128px 128px" }} />
-        {/* glow orbs */}
-        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.12) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)" }} />
-        <div style={{ position: "absolute", top: "40%", right: "-10%", width: 300, height: 300, background: `radial-gradient(circle, rgba(1,118,211,0.1) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(50px)" }} />
+      {/* ── HERO ── cinematic moon-destruction scene */}
+      <section id="top" style={{ minHeight: "100vh", padding: "120px 20px 80px", position: "relative", overflow: "hidden", background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* cinematic background video (Bunny Stream iframe) */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <iframe
+            src="https://iframe.mediadelivery.net/embed/636222/7d835234-5b03-48d8-be49-f60023b3d004?autoplay=true&loop=true&muted=true&preload=true&responsive=true"
+            loading="lazy"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen={false}
+            title="Hero background"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              width: "max(177.78vh, 100vw)",
+              height: "max(56.25vw, 100vh)",
+              transform: "translate(-50%, -50%) scale(1.05)",
+              border: "none",
+              pointerEvents: "none",
+              transformOrigin: "center center",
+              transition: "transform 0.4s ease-out",
+              filter: "grayscale(0.25) contrast(1.05)",
+            }}
+          />
+        </div>
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <div className="hero-grid">
-            {/* LEFT: copy + CTA */}
-            <div className="hero-left">
-              {/* badge */}
-              <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 20 }}>
-                <span style={{ color: COLORS.green, fontSize: 8, animation: "blink 1.4s infinite" }}>●</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE for SALESFORCE</span>
+        {/* atmospheric readability layers: vignette + dark gradient + soft warm haze */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.92) 100%)", zIndex: 1, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0.95) 100%)", zIndex: 1, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "12%", left: "50%", transform: "translateX(-50%)", width: 720, height: 720, background: `radial-gradient(circle, rgba(218,119,86,0.10) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(80px)", zIndex: 1, pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 980, margin: "0 auto", position: "relative", zIndex: 2, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {/* tag pill */}
+          <div style={{ animation: "fadeUp 0.6s ease both" }}>
+            <span style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 16px",
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.18)",
+              background: "rgba(255,255,255,0.04)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 12,
+              fontWeight: 500,
+              letterSpacing: 1.6,
+              color: "rgba(255,255,255,0.78)",
+              textTransform: "uppercase",
+              marginBottom: 32,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.orange, boxShadow: `0 0 12px ${COLORS.orange}` }} />
+              Claude Code × Salesforce
+            </span>
+          </div>
+
+          {/* headline */}
+          <h1 style={{
+            animation: "fadeUp 0.7s ease both",
+            animationDelay: "0.12s",
+            fontFamily: "'Bricolage Grotesque', sans-serif",
+            fontSize: "clamp(44px, 8vw, 88px)",
+            fontWeight: 700,
+            color: "#FFFFFF",
+            lineHeight: 1.02,
+            marginBottom: 28,
+            letterSpacing: -3,
+            textShadow: "0 4px 40px rgba(0,0,0,0.6)",
+            maxWidth: 920,
+          }}>
+            What if your next Flow was one prompt away?
+          </h1>
+
+          {/* subtitle */}
+          <p style={{
+            animation: "fadeUp 0.7s ease both",
+            animationDelay: "0.22s",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "clamp(16px, 1.6vw, 20px)",
+            color: "rgba(255,255,255,0.72)",
+            lineHeight: 1.55,
+            maxWidth: 640,
+            marginBottom: 44,
+            textShadow: "0 2px 20px rgba(0,0,0,0.5)",
+          }}>
+            Ship Flows, fields, validation rules, and Apex <strong style={{ color: "#FFFFFF", fontWeight: 600 }}>10× faster</strong> — straight from your terminal. No clicks. No code by hand.
+          </p>
+
+          {/* CTAs */}
+          <div style={{
+            animation: "fadeUp 0.7s ease both",
+            animationDelay: "0.32s",
+            display: "flex",
+            gap: 14,
+            flexWrap: "wrap",
+            justifyContent: "center",
+            marginBottom: 36,
+          }}>
+            <button
+              onClick={openWaitlist}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 12px 40px ${COLORS.orangeGlow || "rgba(218,119,86,0.45)"}`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 6px 24px rgba(218,119,86,0.3)`; }}
+              style={{
+                padding: "18px 36px",
+                background: COLORS.orange,
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: 999,
+                fontSize: 16,
+                fontWeight: 700,
+                fontFamily: "'DM Sans', sans-serif",
+                cursor: "pointer",
+                transition: "all 0.25s ease",
+                boxShadow: `0 6px 24px rgba(218,119,86,0.3)`,
+                letterSpacing: 0.3,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              Join the waitlist <span style={{ fontSize: 18 }}>→</span>
+            </button>
+
+            <a
+              href="#pricing"
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)"; }}
+              style={{
+                padding: "17px 32px",
+                background: "rgba(255,255,255,0.04)",
+                color: "#FFFFFF",
+                border: "1px solid rgba(255,255,255,0.22)",
+                borderRadius: 999,
+                fontSize: 16,
+                fontWeight: 600,
+                fontFamily: "'DM Sans', sans-serif",
+                cursor: "pointer",
+                transition: "all 0.25s ease",
+                textDecoration: "none",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                letterSpacing: 0.3,
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              See pricing
+            </a>
+          </div>
+
+          {/* trust row */}
+          <div style={{ animation: "fadeUp 0.7s ease both", animationDelay: "0.42s", display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
+            {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.65)" }}>{t}</span>
               </div>
-
-              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(32px, 5.4vw, 52px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.05, marginBottom: 20, letterSpacing: -1 }}>
-                What if your next Flow
-                <br />
-                <span style={{ color: COLORS.orange }}>was one prompt away?</span>
-              </h1>
-
-              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(15px, 2vw, 18px)", color: COLORS.textSecondary, lineHeight: 1.55, maxWidth: 480, marginBottom: 28 }}>
-                Claude Code × Salesforce. Ship Flows, fields, and Apex <strong style={{ color: COLORS.textPrimary }}>10× faster</strong> — straight from your terminal.
-              </p>
-
-              {/* primary CTA */}
-              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", marginBottom: 18, width: "100%", maxWidth: 440 }}>
-                <CTAButton large full>Get Instant Access — $97</CTAButton>
-              </div>
-
-              {/* trust row */}
-              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.4s", display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "inherit" }}>
-                {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{t}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* RIGHT: animated terminal */}
-            <div className="hero-right" style={{ animation: "fadeUp 0.7s ease 0.3s both" }}>
-              <HeroVideo />
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── STATS STRIP ── */}
-      <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "0 20px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
+      {/* ── STATS STRIP — quiet, no dividers, whitespace separates ── */}
+      <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "40px 20px" }}>
+        <div className="stats-strip">
           {[
-            ["$20/mo", "Claude Code cost"],
-            ["5 min", "To deploy your first Flow"],
-            ["0 lines", "Of code you need to write"],
+            ["Claude Code", "Your only tool"],
+            ["5 min", "To your first Flow"],
+            ["0 lines", "Of code to write"],
           ].map(([num, label], i) => (
-            <div key={i} style={{ padding: "28px 20px", textAlign: "center", borderRight: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
-              <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.orange, marginBottom: 4 }}>{num}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── TOOLS MARQUEE ── */}
-      <div style={{ padding: "40px 0", overflow: "hidden", position: "relative" }}>
-        {/* fade edges */}
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(90deg, ${COLORS.bg}, transparent)`, zIndex: 2 }} />
-        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(270deg, ${COLORS.bg}, transparent)`, zIndex: 2 }} />
-        <div style={{ display: "flex", animation: "marquee 30s linear infinite", width: "max-content" }}>
-          {[...Array(2)].map((_, setIdx) => (
-            <div key={setIdx} style={{ display: "flex", gap: 12, paddingRight: 12 }}>
-              {["Flows", "Apex Triggers", "Validation Rules", "Custom Fields", "Permission Sets", "Page Layouts", "LWC", "SOQL Queries", "Quick Actions", "Record-Triggered Flows", "Screen Flows", "Approval Processes"].map((tool, i) => (
-                <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: "10px 20px", whiteSpace: "nowrap", display: "flex", alignItems: "center", height: 42 }}>
-                  {tool}
-                </div>
-              ))}
+            <div key={i} className="stats-cell">
+              <div className="stats-num" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, color: COLORS.textPrimary, letterSpacing: -1 }}>{num}</div>
+              <div className="stats-label" style={{ fontFamily: "'DM Sans', sans-serif", color: COLORS.textMuted }}>{label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── PROBLEM (3×2 grid) ── */}
-      <Section id="problem" style={{ background: "radial-gradient(ellipse 80% 70% at 10% 10%, rgba(218,119,86,0.22), transparent 55%), radial-gradient(ellipse 60% 60% at 92% 95%, rgba(1,118,211,0.16), transparent 55%), #0a0a0a" }}>
+      <Section id="problem" style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <SectionLabel>The Problem</SectionLabel>
           <H2 center>You know Salesforce. You just can't move fast enough.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
           {[
-            { icon: "🖱️", title: "15 clicks. One field.", desc: "Create the field. Add it to the layout. Update the permission set. Assign the profile. Test in sandbox. Push to prod. You wanted a picklist. You got an afternoon." },
-            { icon: "⏳", title: "Stuck in Jira ticket purgatory", desc: "You know the business logic cold. But you're writing tickets, pinging devs, and waiting two weeks for a change you could describe in two sentences." },
-            { icon: "🔀", title: "Staring at the Flow canvas", desc: "You know what it should do. But elements, loops, and decision trees turn a 10-minute idea into a 3-hour build — plus the debugging when something breaks in UAT." },
-            { icon: "🔍", title: "Googling validation syntax", desc: "ISPICKVAL or TEXT? AND or &&? You know the logic. You're losing 20 minutes every time to syntax you'll forget again next week." },
-            { icon: "📈", title: "Your backlog is getting worse", desc: "Leadership keeps asking what's taking so long. Every sprint ends with more added than shipped. The AI-fluent admin next door is shipping twice as fast." },
-            { icon: "🤖", title: "AI already changed the job", desc: "Agentforce. Einstein Copilot. Anthropic MCP. Admins who can talk to their org in plain English are about to leap past the ones still hunting through Setup menus." },
+            { title: "15 clicks. One field.", desc: "Create the field. Add it to the layout. Update the permission set. Assign the profile. Test in sandbox. Push to prod. You wanted a picklist. You got an afternoon." },
+            { title: "Stuck in Jira ticket purgatory", desc: "You know the business logic cold. But you're writing tickets, pinging devs, and waiting two weeks for a change you could describe in two sentences." },
+            { title: "Staring at the Flow canvas", desc: "You know what it should do. But elements, loops, and decision trees turn a 10-minute idea into a 3-hour build — plus the debugging when something breaks in UAT." },
+            { title: "Googling validation syntax", desc: "ISPICKVAL or TEXT? AND or &&? You know the logic. You're losing 20 minutes every time to syntax you'll forget again next week." },
+            { title: "Your backlog is getting worse", desc: "Leadership keeps asking what's taking so long. Every sprint ends with more added than shipped. The AI-fluent admin next door is shipping twice as fast." },
+            { title: "AI already changed the job", desc: "Agentforce. Einstein Copilot. Anthropic MCP. Admins who can talk to their org in plain English are about to leap past the ones still hunting through Setup menus." },
           ].map((item, i) => (
-            <ProblemCard key={i} {...item} />
+            <ProblemCard key={i} i={i} {...item} />
           ))}
         </div>
       </Section>
 
-      {/* ── AGITATE ── */}
-      <Section style={{ background: COLORS.surface }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <SectionLabel>Sound Familiar?</SectionLabel>
-          <H2>I used to be scared of Flows.</H2>
-          <SubText>Real talk. Flows terrified me. The canvas, the decision elements, the loops. I'd stare at it for 20 minutes and still not know where to start.</SubText>
-          <SubText>Then LLMs came along and I thought okay, this changes everything. And it did help. I could ask ChatGPT how to build a flow and get step-by-step directions.</SubText>
-          <SubText>But here's the thing nobody talks about. Reading those directions, building it click by click, troubleshooting when something broke... that still took hours. I was getting the right answers. I just couldn't move fast enough to implement them.</SubText>
-          <div style={{ background: COLORS.surface2, borderRadius: 12, padding: "24px 28px", borderLeft: `3px solid ${COLORS.orange}`, marginTop: 28 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.7, color: COLORS.textPrimary, margin: 0, fontWeight: 500 }}>
-              Now I just tell Claude to build the flow. It goes into my org, creates it, and deploys it. All I do is go check that it works. What used to take me an afternoon takes 5 minutes.
+      {/* ── AGITATE — editorial single-column, quote-forward ── */}
+      <Section style={{ background: COLORS.surface }} maxWidth={760}>
+        <H2>I used to be scared of Flows.</H2>
+        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, lineHeight: 1.75, color: COLORS.textSecondary, marginTop: 24 }}>
+          <p style={{ marginBottom: 20 }}>Real talk. Flows terrified me. The canvas, the decision elements, the loops. I'd stare at it for 20 minutes and still not know where to start.</p>
+          <p style={{ marginBottom: 20 }}>Then LLMs came along and I thought okay, this changes everything. And it did help. I could ask ChatGPT how to build a flow and get step-by-step directions.</p>
+          <p style={{ marginBottom: 0 }}>But here's the thing nobody talks about. Reading those directions, building it click by click, troubleshooting when something broke… that still took hours. I was getting the right answers. I just couldn't move fast enough to implement them.</p>
+        </div>
+        <blockquote style={{ marginTop: 48, paddingLeft: 24, borderLeft: `2px solid ${COLORS.orange}`, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(22px, 3.2vw, 30px)", fontWeight: 600, lineHeight: 1.3, color: COLORS.textPrimary, letterSpacing: -0.5 }}>
+          Now I just tell Claude to build the flow. It goes into my org, creates it, and deploys it. All I do is go check that it works. What used to take me an afternoon takes 5 minutes.
+        </blockquote>
+      </Section>
+
+      {/* ── HEADLESS FUTURE (Benioff proof) — 50/50 split ── */}
+      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.08), transparent 55%), linear-gradient(180deg, #EDE7DC 0%, #F6F2EA 100%)" }} maxWidth={1100}>
+        {/* inline SVG filter defs used by the portrait (orange duotone) */}
+        <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }} aria-hidden="true">
+          <defs>
+            <filter id="benioff-duotone">
+              <feColorMatrix type="matrix" values="0.33 0.5 0.17 0 0  0.33 0.5 0.17 0 0  0.33 0.5 0.17 0 0  0 0 0 1 0" />
+              <feComponentTransfer>
+                <feFuncR tableValues="0.04 0.95" />
+                <feFuncG tableValues="0.02 0.55" />
+                <feFuncB tableValues="0.06 0.38" />
+              </feComponentTransfer>
+            </filter>
+          </defs>
+        </svg>
+
+        <div className="benioff-grid">
+          {/* LEFT: title + explanation */}
+          <div>
+            <SectionLabel>The future is headless</SectionLabel>
+            <H2>Salesforce is going headless.</H2>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginTop: 14 }}>
+              Benioff just announced <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> — every object, workflow, and Agentforce agent exposed as an API, MCP, and CLI. The browser is no longer the interface. The terminal is.
             </p>
-          </div>
-        </div>
-      </Section>
-
-      {/* ── HEADLESS FUTURE (Benioff proof) ── */}
-      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.25), transparent 55%), linear-gradient(180deg, #0d1320 0%, #0a0a0f 100%)" }}>
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <SectionLabel>The future is headless</SectionLabel>
-          <H2 center>If you can't run Salesforce from a terminal, you're already behind.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 640, margin: "12px auto 0" }}>
-            Benioff made it official: <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> exposes every object, workflow, and agent as an API, MCP, and CLI. The browser is no longer the interface. Admins who can't prompt their org are about to get lapped — this course is how you get ahead of it.
-          </p>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <BenioffTweet />
-        </div>
-      </Section>
-
-      {/* ── INSTRUCTOR (A Note From Amit) ── */}
-      <Section style={{ background: COLORS.bg }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ width: 88, height: 88, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: `2px solid ${COLORS.border}` }}>
-              <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginTop: 14 }}>
+              Here's what that means: every admin who only knows how to click through Setup is about to get lapped by admins who can prompt their org from the command line. The skill gap is opening right now.
+            </p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textPrimary, marginTop: 14, fontWeight: 500 }}>
+              This course is how you end up on the right side of it — while it's still early.
+            </p>
+            <div style={{ marginTop: 22, padding: "12px 16px", background: "rgba(1,118,211,0.08)", border: "1px solid rgba(1,118,211,0.25)", borderRadius: 10, display: "inline-block" }}>
+              <a href="https://x.com/Benioff/status/2044981547267395620" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.sfBlue, textDecoration: "none", letterSpacing: 0.5 }}>
+                → Read Benioff's full announcement
+              </a>
             </div>
-            <div style={{ flex: 1, minWidth: 240 }}>
-              <SectionLabel>A Note From Amit</SectionLabel>
-              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 4 }}>Amit</h3>
-              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.orange, marginBottom: 6 }}>8x Salesforce Certified · GTM Engineer · AI Tools Builder</p>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 16 }}>
-                <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8x Salesforce Certifications</span>
-              </div>
-              <SubText>I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.</SubText>
+          </div>
+
+          {/* RIGHT: terminal/ASCII Benioff portrait */}
+          <div>
+            <div className="benioff-portrait">
+              <img src="benioff.png" alt="Marc Benioff, CEO of Salesforce, announcing Headless 360" />
+              <div className="benioff-caption">marc_benioff.ceo@salesforce</div>
             </div>
           </div>
         </div>
       </Section>
 
       {/* ── BEFORE / AFTER ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.20) 0%, #151319 38%, #151319 62%, rgba(34,197,94,0.18) 100%)" }}>
+      <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>What Changes</SectionLabel>
           <H2 center>Things you'll stop doing.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
@@ -480,7 +727,7 @@ export default function SalesPage() {
         <div style={{ textAlign: "center", marginBottom: 40 }}>
           <SectionLabel>What You Get</SectionLabel>
           <H2 center>Everything you need to start using Claude Code with Salesforce.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textMuted, marginTop: 8 }}>Click a module on the left. Watch it run.</p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textMuted, marginTop: 8 }}>Tap a module. Watch it run.</p>
         </div>
         <FeatureShowcase />
       </Section>
@@ -488,7 +735,6 @@ export default function SalesPage() {
       {/* ── SOCIAL PROOF ── */}
       <Section id="reviews" style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>Early Reactions</SectionLabel>
           <H2 center>What people are saying.</H2>
         </div>
         <TestimonialCarousel items={[
@@ -498,41 +744,67 @@ export default function SalesPage() {
         ]} />
       </Section>
 
+      {/* ── INSTRUCTOR (Meet your course instructor) — 30/70 split with watermark ── */}
+      <Section style={{ background: COLORS.bg }} maxWidth={960}>
+        <div className="amit-note-grid">
+          <div className="instructor-watermark" aria-hidden="true">MEET THE<br />INSTRUCTOR</div>
+          <div className="amit-note-image">
+            <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" />
+          </div>
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <SectionLabel>Meet your course instructor</SectionLabel>
+            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 4vw, 34px)", fontWeight: 800, color: COLORS.textPrimary, marginBottom: 6, letterSpacing: -0.4 }}>Amit</h3>
+            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: COLORS.orange, marginBottom: 10, letterSpacing: 0.3 }}>8× Salesforce Certified · GTM Engineer · AI Tools Builder</p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 18 }}>
+              <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8× Salesforce Certifications</span>
+            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginBottom: 0 }}>
+              I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.
+            </p>
+          </div>
+        </div>
+      </Section>
+
       {/* ── BONUSES (single bundle card) ── */}
-      <Section style={{ background: "radial-gradient(ellipse 85% 55% at 50% -10%, rgba(218,119,86,0.30), transparent 55%), linear-gradient(180deg, #131320 0%, #0a0a0a 100%)" }}>
+      <Section style={{ background: COLORS.bg }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <SectionLabel>Bonuses</SectionLabel>
           <H2 center>Included free when you enroll today.</H2>
         </div>
         <BonusBundle items={[
           { icon: "📄", title: "CLAUDE.md Starter Template", desc: "The exact config file I use to connect Claude Code to my Salesforce org. Copy, paste, go.", value: 29 },
-          { icon: "💬", title: "Prompt Library", desc: "20+ tested prompts for Flows, fields, validation rules, Apex, and more. Ready to use.", value: 49 },
+          { icon: "🛠️", title: "Claude Code Skill Pack for Salesforce", desc: "A pre-built set of slash-command skills for the 10 most common admin tasks — Flow generator, field migrator, validation-rule writer, Apex-test generator, Aura → LWC migrator. Drop them in your project and invoke with one command.", value: 149 },
           { icon: "🤝", title: "Private Community Access", desc: "A members-only Slack where admins share prompts, debug live, and trade what's working. Lifetime seat.", value: 299 },
         ]} />
       </Section>
 
       {/* ── THE MATH ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(218,119,86,0.22) 0%, #151319 35%, #151319 65%, rgba(1,118,211,0.22) 100%)" }}>
+      <Section style={{ background: COLORS.surface }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>The Math</SectionLabel>
-          <H2 center className="gradient-headline">You're already paying more than this in wasted time.</H2>
+          <H2 center>You're already paying more than this in wasted time.</H2>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `1px solid ${COLORS.border}` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textMuted, letterSpacing: 1.5, marginBottom: 20 }}>THE OLD WAY</div>
             {[["Agentforce license", "$125-$550/mo"], ["Extra SF license needed?", "Yes"], ["Implementation partner", "$50K-$150K"], ["Time to first automation", "8-12 weeks"], ["Who owns it?", "IT + vendor"]].map(([k, v], i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}`, alignItems: "center" }}>
+              <div key={i} className="math-row" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 600, color: "#EF4444" }}>{v}</span>
+                <span className="math-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 600, color: "#EF4444", textAlign: "right" }}>{v}</span>
               </div>
             ))}
           </div>
           <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `2px solid ${COLORS.borderHover}`, boxShadow: `0 8px 40px rgba(218,119,86,0.06)` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>WITH CLAUDE CODE</div>
-            {[["Claude subscription", "$20/mo (Pro) · Max recommended"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}` }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 700, color: COLORS.orange }}>{v}</span>
+            {[["Claude subscription", "$100/mo · Max plan"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
+              <div key={i} className="math-row" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary, display: "inline-flex", alignItems: "center" }}>
+                  {k}
+                  {k === "Claude subscription" && (
+                    <InfoTip text="Not just for Salesforce. Claude Code also handles any codebase — writing, research, automation, analysis, and a lot more. One subscription, everywhere." />
+                  )}
+                </span>
+                <span className="math-value" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: COLORS.orange, textAlign: "right" }}>{v}</span>
               </div>
             ))}
           </div>
@@ -550,7 +822,6 @@ export default function SalesPage() {
             padding: "28px 30px",
             boxShadow: "0 8px 28px rgba(34,197,94,0.06)",
           }}>
-            <SectionLabel>Perfect For</SectionLabel>
             <H2>This is for you if…</H2>
             <div style={{ marginTop: 14 }}>
               <CheckItem>You're a Salesforce admin who knows the platform but wants to move faster</CheckItem>
@@ -582,7 +853,7 @@ export default function SalesPage() {
       </Section>
 
       {/* ── GUARANTEE ── */}
-      <Section style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.20), transparent 55%), #0a0a0a" }}>
+      <Section style={{ background: COLORS.bg }}>
         <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "40px 32px" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
           <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: COLORS.textPrimary, marginBottom: 12 }}>30-Day Risk-Free Guarantee</h3>
@@ -591,9 +862,10 @@ export default function SalesPage() {
       </Section>
 
       {/* ── PRICING CARD ── */}
-      <Section id="pricing" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,119,86,0.32), transparent 55%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(1,118,211,0.22), transparent 55%), #0d0d1a" }}>
+      <Section id="pricing" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,119,86,0.14), transparent 55%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(1,118,211,0.08), transparent 55%), #F6F2EA" }}>
         <div style={{ maxWidth: 500, margin: "0 auto" }}>
-          <div style={{ background: COLORS.surface2, borderRadius: 16, overflow: "hidden", border: `2px solid ${COLORS.orange}`, position: "relative" }}>
+          <div className="pricing-card-wrap">
+            <div className="pricing-card-inner">
             {/* orange glow */}
             <div style={{ position: "absolute", top: "-30%", left: "50%", transform: "translateX(-50%)", width: 400, height: 400, background: `radial-gradient(circle, rgba(218,119,86,0.08) 0%, transparent 60%)`, borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
 
@@ -607,7 +879,7 @@ export default function SalesPage() {
               <div style={{ textAlign: "center", marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 8 }}>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 22, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
-                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 52, fontWeight: 800, color: "#fff", letterSpacing: -3 }}>$97</span>
+                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 52, fontWeight: 800, color: COLORS.textPrimary, letterSpacing: -3 }}>$97</span>
                 </div>
                 <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>One-time payment · Lifetime access</span>
               </div>
@@ -671,7 +943,12 @@ export default function SalesPage() {
                 </div>
               </div>
 
-              <CTAButton large full>ENROLL NOW - $97</CTAButton>
+              <div className="enroll-cta-wrap">
+                <div style={{ position: "relative", overflow: "hidden", borderRadius: 10 }}>
+                  <CTAButton large full onClick={openWaitlist}>JOIN THE WAITLIST</CTAButton>
+                  <span className="enroll-sheen" aria-hidden="true" />
+                </div>
+              </div>
 
               {/* Secure checkout trust row */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 16 }}>
@@ -686,6 +963,7 @@ export default function SalesPage() {
                 <CardDiscover />
                 <CardApplePay />
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -709,13 +987,13 @@ export default function SalesPage() {
       <section style={{ padding: "80px 20px", position: "relative", overflow: "hidden", textAlign: "center", background: COLORS.surface }}>
         <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: `radial-gradient(circle, rgba(218,119,86,0.1) 0%, transparent 60%)`, borderRadius: "50%", filter: "blur(80px)" }} />
         <div style={{ maxWidth: 600, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.12, marginBottom: 16, letterSpacing: -0.5 }}>
+          <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: COLORS.textPrimary, lineHeight: 1.12, marginBottom: 16, letterSpacing: -0.5 }}>
             Stop clicking.<br />Start prompting.
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.textSecondary, lineHeight: 1.6, marginBottom: 32 }}>
             $97 one-time. Lifetime access. 30-day money-back guarantee.
           </p>
-          <CTAButton large>Get Instant Access - $97</CTAButton>
+          <CTAButton large onClick={openWaitlist}>Join the waitlist</CTAButton>
         </div>
       </section>
 
@@ -724,11 +1002,11 @@ export default function SalesPage() {
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700 }}>
             <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.35)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
+            <span style={{ color: "rgba(26,24,21,0.28)" }}>_</span>
+            <span style={{ color: "rgba(26,24,21,0.45)" }}>for</span>
+            <span style={{ color: "rgba(26,24,21,0.28)" }}>_</span>
             <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.12)" }}>__c</span>
+            <span style={{ color: "rgba(26,24,21,0.18)" }}>__c</span>
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             {[
@@ -738,47 +1016,35 @@ export default function SalesPage() {
               { label: "Privacy", href: "/privacy" },
               { label: "Refund Policy", href: "/refund" },
             ].map((item, i) => (
-              <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{item.label}</a>
+              <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(26,24,21,0.5)", textDecoration: "none" }}>{item.label}</a>
             ))}
           </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.12)" }}>© 2026 AI with Amit</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(26,24,21,0.35)" }}>© 2026 CC for SF</span>
         </div>
       </footer>
+
+      <WaitlistModal />
     </div>
   );
 }
 
 /* ══════════════════════════ SUB-COMPONENTS ══════════════════════════ */
 
-function ProblemCard({ icon, title, desc }) {
-  const [hover, setHover] = useState(false);
+function ProblemCard({ i, title, desc }) {
   return (
     <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={{
-        position: "relative",
-        background: hover
-          ? `radial-gradient(circle at top left, rgba(218,119,86,0.18) 0%, rgba(218,119,86,0.06) 40%, ${COLORS.surface} 90%)`
-          : `radial-gradient(circle at top left, rgba(218,119,86,0.10) 0%, rgba(218,119,86,0.02) 35%, ${COLORS.surface} 85%)`,
-        border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`,
-        borderRadius: 12,
-        padding: 24,
-        transition: "all 0.35s ease",
-        transform: hover ? "translateY(-3px)" : "translateY(0)",
-        boxShadow: hover
-          ? "0 16px 44px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.15) inset"
-          : "0 6px 18px rgba(218,119,86,0.06), 0 0 0 1px rgba(218,119,86,0.05) inset",
-        overflow: "hidden",
+        background: COLORS.surface,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: 10,
+        padding: "28px 24px",
       }}
     >
-      {/* soft orange glow pocket */}
-      <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 180, height: 180, background: `radial-gradient(circle, rgba(218,119,86,${hover ? 0.22 : 0.12}) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none", transition: "background 0.35s ease" }} />
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <div style={{ fontSize: 28, marginBottom: 14 }}>{icon}</div>
-        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{title}</h3>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, color: COLORS.orange, letterSpacing: 1, flexShrink: 0 }}>{String(i + 1).padStart(2, "0")}</span>
+        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 700, color: COLORS.textPrimary, margin: 0, letterSpacing: -0.3, lineHeight: 1.25 }}>{title}</h3>
       </div>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textSecondary, lineHeight: 1.65, margin: 0 }}>{desc}</p>
     </div>
   );
 }
@@ -884,36 +1150,16 @@ function BonusBundle({ items }) {
   return (
     <div ref={ref} style={{ maxWidth: 820, margin: "0 auto", position: "relative" }}>
       {/* pulsing FREE sticker */}
-      <div style={{
-        position: "absolute",
-        top: -26,
-        right: -6,
-        width: 108,
-        height: 108,
-        borderRadius: "50%",
-        background: `linear-gradient(135deg, ${COLORS.orange}, #C4613F)`,
-        color: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'Bricolage Grotesque', sans-serif",
-        fontWeight: 800,
-        zIndex: 2,
-        transform: "rotate(-8deg)",
-        boxShadow: "0 12px 32px rgba(218,119,86,0.35)",
-        animation: "pulseGlow 2.4s ease-in-out infinite",
-      }}>
-        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginBottom: 2 }}>BUNDLE</div>
-        <div style={{ fontSize: 24, lineHeight: 1 }}>${total}</div>
-        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginTop: 2 }}>FREE</div>
+      <div className="bonus-sticker">
+        <div className="bonus-sticker-label" style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginBottom: 2 }}>BUNDLE</div>
+        <div className="bonus-sticker-amount" style={{ fontSize: 24, lineHeight: 1 }}>${total}</div>
+        <div className="bonus-sticker-label" style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginTop: 2 }}>FREE</div>
       </div>
 
-      <div style={{
-        background: "linear-gradient(180deg, #15151D, #0d0d13)",
+      <div className="bonus-card" style={{
+        background: "linear-gradient(180deg, #FFFFFF, #FAF6EC)",
         border: `1px solid ${COLORS.border}`,
         borderRadius: 20,
-        padding: "36px 36px 28px",
         position: "relative",
         overflow: "hidden",
       }}>
@@ -928,43 +1174,23 @@ function BonusBundle({ items }) {
           {items.map((it, i) => (
             <div
               key={i}
+              className="bonus-row"
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 20,
-                padding: "22px 0",
                 borderBottom: i < items.length - 1 ? `1px dashed ${COLORS.border}` : "none",
                 opacity: visible ? 1 : 0,
                 animation: visible ? `unlockIn 0.6s ease ${i * 0.15}s both` : "none",
               }}
             >
-              <div style={{
-                flexShrink: 0,
-                width: 52,
-                height: 52,
-                borderRadius: 12,
-                background: COLORS.surface2,
-                border: `1px solid ${COLORS.border}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-              }}>{it.icon}</div>
+              <div className="bonus-icon">0{i + 1}</div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted }}>0{i + 1}</span>
-                  <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: "#fff", margin: 0 }}>{it.title}</h3>
-                </div>
+              <div className="bonus-content">
+                <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(15px, 4vw, 17px)", fontWeight: 700, color: COLORS.textPrimary, margin: "0 0 6px", lineHeight: 1.3, letterSpacing: -0.1 }}>
+                  {it.title}
+                </h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, margin: 0 }}>{it.desc}</p>
               </div>
 
-              <div style={{
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-              }}>
+              <div className="bonus-price-col">
                 <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 20, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>
                   ${it.value}
                 </span>
@@ -973,26 +1199,14 @@ function BonusBundle({ items }) {
             </div>
           ))}
 
-          {/* total strip */}
-          <div style={{
-            marginTop: 20,
-            padding: "16px 20px",
-            background: `linear-gradient(90deg, rgba(218,119,86,0.18), rgba(218,119,86,0.05))`,
-            border: `1px solid ${COLORS.borderHover}`,
-            borderRadius: 12,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 12,
-          }}>
+          {/* total strip — $total struck, FREE WITH ENROLLMENT is the hero */}
+          <div className="bonus-total">
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, letterSpacing: 0.3 }}>
               Total bundle value
             </span>
-            <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>FREE</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textSecondary }}>with enrollment</span>
+            <span className="bonus-total-right" style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(22px, 5.5vw, 30px)", fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(20px, 5.5vw, 28px)", fontWeight: 800, color: COLORS.orange, letterSpacing: -0.3, textTransform: "uppercase" }}>Free with enrollment</span>
             </span>
           </div>
         </div>
@@ -1047,7 +1261,7 @@ function TestimonialCarousel({ items }) {
         <div style={{ display: "flex", gap: 2, marginBottom: 18 }}>
           {[...Array(5)].map((_, s) => (<span key={s} style={{ color: COLORS.gold, fontSize: 16 }}>★</span>))}
         </div>
-        <blockquote style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: 1.45, color: "#fff", margin: 0, marginBottom: 24, fontWeight: 500, letterSpacing: -0.3 }}>
+        <blockquote style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: 1.45, color: COLORS.textPrimary, margin: 0, marginBottom: 24, fontWeight: 500, letterSpacing: -0.3 }}>
           "{t.quote}"
         </blockquote>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -1068,7 +1282,7 @@ function TestimonialCarousel({ items }) {
               key={n}
               onClick={() => pick(n)}
               aria-label={`Go to testimonial ${n + 1}`}
-              style={{ width: n === i ? 28 : 8, height: 8, padding: 0, borderRadius: 4, border: "none", background: n === i ? COLORS.orange : "rgba(255,255,255,0.15)", cursor: "pointer", transition: "width 0.3s, background 0.3s" }}
+              style={{ width: n === i ? 28 : 8, height: 8, padding: 0, borderRadius: 4, border: "none", background: n === i ? COLORS.orange : "rgba(26,24,21,0.15)", cursor: "pointer", transition: "width 0.3s, background 0.3s" }}
             />
           ))}
         </div>
@@ -1099,7 +1313,7 @@ function TestimonialCard({ name, role, quote }) {
 }
 
 /* ── Hamburger menu (smooth-scrolls to page sections) ── */
-function HamburgerMenu() {
+function HamburgerMenu({ onDark = false }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -1139,8 +1353,8 @@ function HamburgerMenu() {
         style={{
           width: 40,
           height: 40,
-          border: `1px solid ${COLORS.border}`,
-          background: open ? COLORS.surface2 : "rgba(255,255,255,0.03)",
+          border: `1px solid ${onDark && !open ? "rgba(255,255,255,0.18)" : COLORS.border}`,
+          background: open ? COLORS.surface2 : (onDark ? "rgba(255,255,255,0.08)" : "rgba(26,24,21,0.04)"),
           borderRadius: 8,
           cursor: "pointer",
           display: "flex",
@@ -1152,18 +1366,18 @@ function HamburgerMenu() {
         }}
       >
         <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "transform 0.25s, opacity 0.25s",
+          width: 18, height: 2, background: onDark && !open ? "#FFFFFF" : COLORS.textPrimary, borderRadius: 1,
+          transition: "transform 0.25s, opacity 0.25s, background 0.2s",
           transform: open ? "translateY(6px) rotate(45deg)" : "none",
         }} />
         <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "opacity 0.2s",
+          width: 18, height: 2, background: onDark && !open ? "#FFFFFF" : COLORS.textPrimary, borderRadius: 1,
+          transition: "opacity 0.2s, background 0.2s",
           opacity: open ? 0 : 1,
         }} />
         <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "transform 0.25s",
+          width: 18, height: 2, background: onDark && !open ? "#FFFFFF" : COLORS.textPrimary, borderRadius: 1,
+          transition: "transform 0.25s, background 0.2s",
           transform: open ? "translateY(-6px) rotate(-45deg)" : "none",
         }} />
       </button>
@@ -1175,13 +1389,13 @@ function HamburgerMenu() {
             top: "calc(100% + 12px)",
             right: 0,
             minWidth: 240,
-            background: "rgba(14,14,18,0.96)",
+            background: "rgba(255,252,246,0.97)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
             border: `1px solid ${COLORS.border}`,
             borderRadius: 12,
             padding: 8,
-            boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            boxShadow: "0 20px 60px rgba(26,24,21,0.14)",
             animation: "menuOpen 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
             transformOrigin: "top right",
           }}
@@ -1209,11 +1423,11 @@ function HamburgerMenu() {
             </a>
           ))}
           <div style={{ height: 1, background: COLORS.border, margin: "8px 6px" }} />
-          <a
-            href="#pricing"
-            onClick={onLink}
+          <button
+            onClick={() => { onLink(); openWaitlist(); }}
             style={{
               display: "block",
+              width: "calc(100% - 8px)",
               margin: "4px 4px 2px",
               padding: "12px 14px",
               fontFamily: "'DM Sans', sans-serif",
@@ -1222,14 +1436,15 @@ function HamburgerMenu() {
               color: "#fff",
               background: COLORS.orange,
               textAlign: "center",
-              textDecoration: "none",
+              border: "none",
+              cursor: "pointer",
               borderRadius: 8,
               letterSpacing: 0.3,
               boxShadow: "0 4px 16px rgba(218,119,86,0.3)",
             }}
           >
-            Get Access <span style={{ marginLeft: 4 }}>→</span>
-          </a>
+            Join the waitlist <span style={{ marginLeft: 4 }}>→</span>
+          </button>
         </div>
       )}
     </div>
@@ -1237,9 +1452,52 @@ function HamburgerMenu() {
 }
 
 /* ── Feature showcase (interactive tabs) ── */
+// Monochrome line icons for the feature tabs. Each is a small SVG keyed by
+// FEATURES[i].short. Stroke color is inherited from the button's color so the
+// active-state CSS rule tints them orange automatically.
+const ICONS = {
+  Setup: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" /></svg>
+  ),
+  Fields: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="4" rx="1" />
+      <rect x="3" y="10" width="18" height="4" rx="1" />
+      <rect x="3" y="16" width="18" height="4" rx="1" />
+    </svg>
+  ),
+  Flows: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="5" r="2.5" />
+      <circle cx="5" cy="18" r="2.5" />
+      <circle cx="19" cy="18" r="2.5" />
+      <path d="M10.5 6.7 6.3 16M13.5 6.7l4.2 9.3" />
+    </svg>
+  ),
+  Apex: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 4c-3 0-4 2-4 4v2c0 1.5-1 2-2 2 1 0 2 .5 2 2v2c0 2 1 4 4 4" />
+      <path d="M15 4c3 0 4 2 4 4v2c0 1.5 1 2 2 2-1 0-2 .5-2 2v2c0 2-1 4-4 4" />
+    </svg>
+  ),
+  Debug: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <ellipse cx="12" cy="13" rx="5" ry="6" />
+      <path d="M9 4.5c.4-1 1.6-1.5 3-1.5s2.6.5 3 1.5" />
+      <path d="M7 9H4M17 9h3M7 13H3M17 13h4M7 17l-3 2M17 17l3 2" />
+    </svg>
+  ),
+  Prompts: (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="14" rx="2" />
+      <path d="M8 10l3 2-3 2M13 14h4" />
+    </svg>
+  ),
+};
+
 const FEATURES = [
   {
-    icon: "⚡",
+    icon: "⚡", short: "Setup",
     title: "Zero to connected in minutes",
     desc: "Install Claude Code and connect it to your Salesforce org. No terminal experience required.",
     scene: [
@@ -1252,7 +1510,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "🏗️",
+    icon: "🏗️", short: "Fields",
     title: "Fields, layouts, permissions",
     desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt.",
     scene: [
@@ -1265,7 +1523,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "🔄",
+    icon: "🔄", short: "Flows",
     title: "Flows from plain English",
     desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org.",
     scene: [
@@ -1278,7 +1536,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "📝",
+    icon: "📝", short: "Apex",
     title: "Validation rules & Apex",
     desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code.",
     scene: [
@@ -1292,7 +1550,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "🐛",
+    icon: "🐛", short: "Debug",
     title: "When AI gets it wrong",
     desc: "It will. Here's the process to debug and get Claude back on track when it misfires.",
     scene: [
@@ -1305,7 +1563,7 @@ const FEATURES = [
     ],
   },
   {
-    icon: "📋",
+    icon: "📋", short: "Prompts",
     title: "Real prompts you can steal",
     desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping.",
     scene: [
@@ -1335,87 +1593,127 @@ function FeatureShowcase() {
 
   const feat = FEATURES[active];
 
+  const renderTerminal = () => (
+    <div className="feat-panel" style={{ background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
+      <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
+        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
+      </div>
+      <div key={active} style={{ padding: "24px 26px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 280 }}>
+        {feat.scene.map((ln, i) => (
+          <div key={i} style={{
+            opacity: 0,
+            color: ln.c || COLORS.textSecondary,
+            whiteSpace: "pre-wrap",
+            animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
+          }}>
+            {ln.t}
+            {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="feat-tabs">
-      {/* LEFT: tab list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div>
+      {/* Tab row — flat modern tabs with monochrome line icons */}
+      <div className="feat-tabs-row" role="tablist" aria-label="What you get">
         {FEATURES.map((f, i) => {
           const on = i === active;
           return (
             <button
               key={i}
-              className="feat-row"
+              className={`feat-tab${on ? " is-active" : ""}`}
               onClick={() => handlePick(i)}
-              style={{
-                display: "flex",
-                gap: 14,
-                alignItems: "flex-start",
-                padding: "16px 18px",
-                background: on ? "linear-gradient(90deg, rgba(218,119,86,0.14), rgba(218,119,86,0.04))" : COLORS.surface,
-                border: `1px solid ${on ? COLORS.borderHover : COLORS.border}`,
-                borderLeft: `3px solid ${on ? COLORS.orange : "transparent"}`,
-                borderRadius: 10,
-                textAlign: "left",
-                cursor: "pointer",
-                color: COLORS.textPrimary,
-                fontFamily: "inherit",
-              }}
+              role="tab"
+              aria-selected={on}
+              aria-pressed={on}
+              aria-label={f.title}
             >
-              <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1, filter: on ? "none" : "grayscale(0.3)", transition: "filter 0.2s" }}>{f.icon}</span>
-              <span style={{ flex: 1 }}>
-                <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15.5, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4 }}>{f.title}</span>
-                <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.5 }}>{f.desc}</span>
+              <span className="feat-tab-inner">
+                <span className="feat-tab-icon" aria-hidden="true">{ICONS[f.short]}</span>
+                <span className="feat-tab-label">{f.short}</span>
               </span>
-              <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: on ? COLORS.orange : "rgba(255,255,255,0.15)", marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span>
             </button>
           );
         })}
       </div>
 
-      {/* RIGHT: live terminal demo */}
-      <div style={{ height: "fit-content", alignSelf: "start" }}>
-        <div style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
-          <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
-          </div>
-          <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 260 }}>
-            {feat.scene.map((ln, i) => (
-              <div key={i} style={{
-                opacity: 0,
-                color: ln.c || COLORS.textSecondary,
-                whiteSpace: "pre-wrap",
-                animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
-              }}>
-                {ln.t}
-                {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
-          {FEATURES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => handlePick(i)}
-              aria-label={`Show feature ${i + 1}`}
-              style={{
-                width: i === active ? 24 : 8,
-                height: 8,
-                padding: 0,
-                borderRadius: 4,
-                border: "none",
-                background: i === active ? COLORS.orange : "rgba(255,255,255,0.15)",
-                cursor: "pointer",
-                transition: "width 0.3s, background 0.3s",
-              }}
-            />
-          ))}
-        </div>
+      {/* Content panel (active tab's terminal) */}
+      {renderTerminal()}
+
+      {/* Caption beneath the panel */}
+      <div key={`cap-${active}`} className="feat-caption" style={{ animation: "carouselSlide 0.45s ease both" }}>
+        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(20px, 3.2vw, 26px)", fontWeight: 700, color: COLORS.textPrimary, letterSpacing: -0.3, lineHeight: 1.2, marginBottom: 8 }}>
+          {feat.title}
+        </h3>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(14.5px, 1.8vw, 16px)", color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>
+          {feat.desc}
+        </p>
       </div>
     </div>
+  );
+}
+
+/* ── Small inline (i) tooltip — hover on desktop, tap to toggle on mobile ── */
+function InfoTip({ text }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span style={{ position: "relative", display: "inline-flex", marginLeft: 6, verticalAlign: "middle" }}>
+      <button
+        type="button"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={(e) => { e.preventDefault(); setOpen((o) => !o); }}
+        aria-label="More info"
+        style={{
+          width: 16, height: 16, borderRadius: "50%",
+          border: `1px solid ${COLORS.border}`,
+          background: COLORS.surface2,
+          color: COLORS.textMuted,
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 10.5, fontWeight: 700,
+          lineHeight: 1, padding: 0,
+          cursor: "pointer",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+        }}
+      >i</button>
+      {open && (
+        <span
+          role="tooltip"
+          style={{
+            position: "absolute",
+            bottom: "calc(100% + 10px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "max-content",
+            maxWidth: 260,
+            padding: "10px 12px",
+            background: "#1A1815",
+            color: "#F6F2EA",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12.5,
+            lineHeight: 1.5,
+            fontWeight: 500,
+            letterSpacing: 0,
+            textTransform: "none",
+            borderRadius: 8,
+            boxShadow: "0 8px 24px rgba(26,24,21,0.22)",
+            zIndex: 20,
+            whiteSpace: "normal",
+            pointerEvents: "none",
+          }}
+        >
+          {text}
+          <span aria-hidden="true" style={{ position: "absolute", bottom: -4, left: "50%", transform: "translateX(-50%) rotate(45deg)", width: 8, height: 8, background: "#1A1815" }} />
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -1439,14 +1737,25 @@ function ROICalculator() {
   return (
     <div>
       <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <SectionLabel>ROI Calculator</SectionLabel>
-        <H2 center>What 5 hours back per week is actually worth.</H2>
+        <SectionLabel>Return on Investment</SectionLabel>
+        <H2 center>Return on your investment.</H2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: COLORS.textSecondary, maxWidth: 560, margin: "10px auto 0", lineHeight: 1.55 }}>
           Drag the sliders. Watch the math move. The course pays for itself faster than you'd think.
         </p>
       </div>
 
-      <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+      <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(26,24,21,0.08)" }}>
+        {/* Calculator-style header bar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: COLORS.surface3, border: `1px solid ${COLORS.border}`, borderRadius: 10, marginBottom: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.green, boxShadow: `0 0 8px ${COLORS.green}` }} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textSecondary, letterSpacing: 2 }}>ROI.CALC</span>
+          </div>
+          <span className="roi-hint-blink" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.orange, letterSpacing: 1 }}>
+            ← DRAG TO ADJUST
+          </span>
+        </div>
+
         <div className="roi-grid">
           <div>
             <RoiSlider label="Your annual salary" value={salary} onChange={setSalary} min={40000} max={300000} step={5000} display={money(salary)} hint="US admin median is ~$110k–$140k per Salesforce Ben." />
@@ -1497,7 +1806,7 @@ function MetricRow({ label, value, big, highlight }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "8px 0" }}>
       <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: highlight ? COLORS.textPrimary : COLORS.textSecondary, fontWeight: highlight ? 600 : 400 }}>{label}</span>
-      <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: highlight ? 22 : (big ? 26 : 16), fontWeight: highlight || big ? 800 : 700, color: highlight ? COLORS.orange : (big ? "#fff" : COLORS.textPrimary), letterSpacing: big || highlight ? -0.5 : 0 }}>{value}</span>
+      <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: highlight ? 22 : (big ? 26 : 16), fontWeight: highlight || big ? 800 : 700, color: highlight ? COLORS.orange : COLORS.textPrimary, letterSpacing: big || highlight ? -0.5 : 0 }}>{value}</span>
     </div>
   );
 }
@@ -1612,55 +1921,147 @@ function TweetStat({ icon, value }) {
 }
 
 /* ── hero video (clickable thumbnail — wire to Loom/Wistia src when ready) ── */
-function HeroVideo() {
-  return (
-    <div style={{ width: "100%", maxWidth: 560 }}>
-      <a
-        href="#demo"
-        aria-label="Watch full demo"
-        style={{
-          display: "block",
-          position: "relative",
-          borderRadius: 14,
-          overflow: "hidden",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.1)",
-          border: `1px solid ${COLORS.border}`,
-          aspectRatio: "16 / 9",
-          background: "linear-gradient(135deg, #1E1E2E 0%, #0E0E14 100%)",
-          textDecoration: "none",
-          cursor: "pointer",
-        }}
-      >
-        {/* subtle grid overlay */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(218,119,86,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(218,119,86,0.04) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-        {/* glow */}
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 320, height: 320, background: `radial-gradient(circle, rgba(218,119,86,0.22) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(30px)" }} />
+/* ── Hero orbit graphic (mastra-inspired)
+ * Central play button = "You, the admin"
+ * Claude Code badge = the "head" attached above
+ * 8 Salesforce primitives orbit around, connected via dotted bezier paths.
+ * Clicking the center still plays the demo video via #demo anchor.
+ */
+function HeroOrbit() {
+  // SVG units. Viewbox is 0 0 600 600.
+  const C = 300;
+  const R = 232;
 
-        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 20 }}>
-          <div style={{
-            width: 82,
-            height: 82,
-            borderRadius: "50%",
-            background: COLORS.orange,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: `0 12px 40px ${COLORS.orangeGlow}`,
-            animation: "pulseGlow 2.4s ease-in-out infinite",
-          }}>
-            <svg width="28" height="32" viewBox="0 0 28 32" fill="#fff" aria-hidden="true" style={{ marginLeft: 4 }}>
-              <path d="M26 14.268L2 .536v30.928L26 17.732a2 2 0 0 0 0-3.464z" />
-            </svg>
-          </div>
-          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(16px, 2vw, 19px)", fontWeight: 700, color: "#fff", marginBottom: 6 }}>
-              Watch: Full Flow built in under 5 minutes
-            </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textSecondary, letterSpacing: 0.5 }}>
-              0:60 · Real Salesforce org demo
-            </div>
-          </div>
-        </div>
+  // 8 admin primitives. Colors span the brand palette + tasteful accents.
+  const nodes = [
+    { angle:   0, label: "SOQL",        color: "#0176D3" }, // top
+    { angle:  45, label: "LWC",         color: "#8B5CF6" },
+    { angle:  90, label: "Flows",       color: "#DA7756" }, // right
+    { angle: 135, label: "Fields",      color: "#22C55E" },
+    { angle: 180, label: "Validation",  color: "#FFB347" }, // bottom
+    { angle: 225, label: "Apex",        color: "#EF4444" },
+    { angle: 270, label: "Permissions", color: "#06B6D4" }, // left
+    { angle: 315, label: "Layouts",     color: "#EC4899" },
+  ];
+
+  // Bezier from (C, C) to a point on the orbit circle with a perpendicular
+  // offset to make it feel organic rather than a straight ray.
+  const pathFor = (angleDeg) => {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    const ex = C + R * Math.cos(rad);
+    const ey = C + R * Math.sin(rad);
+    // Perpendicular unit vector (rotated 90° from radial direction)
+    const px = -Math.sin(rad);
+    const py =  Math.cos(rad);
+    // Two control points, offset slightly on opposite sides of the line
+    const cp1x = C + (ex - C) * 0.30 + px * 38;
+    const cp1y = C + (ey - C) * 0.30 + py * 38;
+    const cp2x = C + (ex - C) * 0.70 - px * 32;
+    const cp2y = C + (ey - C) * 0.70 - py * 32;
+    return { d: `M ${C} ${C} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${ex} ${ey}`, ex, ey };
+  };
+
+  return (
+    <div className="hero-orbit">
+      <style>{`
+        @keyframes orbitDash { to { stroke-dashoffset: -40; } }
+        .hero-orbit { position: relative; width: 100%; max-width: 560px; aspect-ratio: 1 / 1; margin: 0 auto; }
+        .hero-orbit svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+        .orbit-path { animation: orbitDash 6s linear infinite; }
+        .orbit-pill { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+        .orbit-center {
+          position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+          display: flex; flex-direction: column; align-items: center; gap: 10px;
+          text-decoration: none; z-index: 2;
+        }
+        .orbit-head {
+          background: ${COLORS.orange}; color: #fff;
+          padding: 5px 12px; border-radius: 100px;
+          font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+          white-space: nowrap; box-shadow: 0 6px 18px rgba(218,119,86,0.45);
+          position: relative;
+        }
+        .orbit-head::after {
+          content: ""; position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%);
+          width: 2px; height: 8px; background: ${COLORS.orange}; opacity: 0.55;
+        }
+        .orbit-play {
+          width: 96px; height: 96px; border-radius: 50%;
+          background: ${COLORS.orange};
+          display: flex; align-items: center; justify-content: center;
+          box-shadow: 0 12px 40px rgba(218,119,86,0.4), 0 0 0 10px rgba(218,119,86,0.12), 0 0 0 22px rgba(218,119,86,0.05);
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .orbit-center:hover .orbit-play { transform: scale(1.05); box-shadow: 0 16px 48px rgba(218,119,86,0.55), 0 0 0 10px rgba(218,119,86,0.18), 0 0 0 26px rgba(218,119,86,0.08); }
+        .orbit-you {
+          font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+          color: ${COLORS.textSecondary}; white-space: nowrap; margin-top: 4px;
+        }
+      `}</style>
+
+      <svg viewBox="0 0 600 600" aria-hidden="true">
+        <defs>
+          {/* soft radial halo behind the center */}
+          <radialGradient id="orbit-halo" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(218,119,86,0.22)" />
+            <stop offset="55%" stopColor="rgba(218,119,86,0.05)" />
+            <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+          </radialGradient>
+        </defs>
+        <circle cx={C} cy={C} r={R + 80} fill="url(#orbit-halo)" />
+
+        {nodes.map((n, i) => {
+          const { d, ex, ey } = pathFor(n.angle);
+          const w = n.label.length > 6 ? 108 : 86;
+          const h = 34;
+          return (
+            <g key={n.label}>
+              <path
+                className="orbit-path"
+                d={d}
+                fill="none"
+                stroke={n.color}
+                strokeOpacity="0.55"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeDasharray="2 7"
+                style={{ animationDelay: `${-i * 0.4}s` }}
+              />
+              <rect
+                x={ex - w / 2}
+                y={ey - h / 2}
+                width={w}
+                height={h}
+                rx={h / 2}
+                fill="#0a0a0a"
+                stroke={n.color}
+                strokeOpacity="0.75"
+                strokeWidth="1.5"
+                strokeDasharray="2 5"
+              />
+              <text
+                x={ex}
+                y={ey + 1}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill={n.color}
+                className="orbit-pill"
+              >
+                {n.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      <a href="#demo" className="orbit-center" aria-label="Watch full demo — full Flow built in under 5 minutes">
+        <span className="orbit-head">Claude Code</span>
+        <span className="orbit-play">
+          <svg width="30" height="34" viewBox="0 0 28 32" fill="#fff" aria-hidden="true" style={{ marginLeft: 4 }}>
+            <path d="M26 14.268L2 .536v30.928L26 17.732a2 2 0 0 0 0-3.464z" />
+          </svg>
+        </span>
+        <span className="orbit-you">You, the admin</span>
       </a>
     </div>
   );

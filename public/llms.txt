@@ -1,0 +1,50 @@
+# CC for SF — Claude Code for Salesforce Admins
+
+> CC for SF is a hands-on mini-course that teaches Salesforce Admins how to use Claude Code (Anthropic's agentic CLI) to build Flows, custom fields, validation rules, and Apex — without clicking through Setup or writing code by hand. Created by Amit, 8× Salesforce Certified GTM Engineer.
+
+Key facts:
+
+- Price: $97 one-time, lifetime access. 30-day money-back guarantee.
+- Tool dependency: Claude Max subscription ($100/month) — Anthropic moved Claude Code access into the Max plan in 2026.
+- Audience: working Salesforce Admins who know the platform and want to ship faster. Not for existing Salesforce developers and not a cert-prep course.
+- Salesforce license: works with any org on Enterprise, Unlimited, or Developer edition. No Agentforce license needed.
+- Independence: not affiliated with or endorsed by Salesforce or Anthropic. Salesforce and Claude are trademarks of their respective companies.
+- Current status: pre-launch. Enrollment is via waitlist.
+
+## Core pages
+
+- [Homepage](https://ccforsf.com/): Course overview, modules, pricing, FAQ, and waitlist signup.
+- [About Amit](https://ccforsf.com/about): Instructor bio, credentials, and why the course exists.
+- [Blog](https://ccforsf.com/blog): Tutorials and field notes on using Claude Code with Salesforce.
+
+## Blog posts
+
+- [Connect Claude Code to your Salesforce org with MCP (VS Code setup)](https://ccforsf.com/blog/connect-claude-code-to-salesforce-with-mcp): Six-phase VS Code setup guide for wiring Claude Code to a Salesforce org via the Salesforce DX MCP server — prerequisites, .mcp.json config, verification, and multi-org patterns.
+- [Salesforce is shipping an AI that watches you. Here's why admins still need Claude Code.](https://ccforsf.com/blog/agent-albert-and-claude-code): Analysis of Salesforce's Agent Albert announcement and why admins still need Claude Code as a builder's tool.
+- [Build Agentforce agents without hand-writing Agent Script](https://ccforsf.com/blog/agentforce-with-claude-code): How to describe an Agentforce agent in English and let Claude Code generate and deploy the .ascript file.
+- [Claude Code vs Agentforce: when to use which](https://ccforsf.com/blog/claude-code-vs-agentforce): Decision framework comparing Anthropic's Claude Code CLI with Salesforce's Agentforce platform.
+- [AI for Salesforce Flows](https://ccforsf.com/blog/ai-for-salesforce-flows): The admin's guide to generating record-triggered, screen, and scheduled Flows with Claude Code.
+- [Migrating Aura components to LWC with Claude Code](https://ccforsf.com/blog/migrating-aura-to-lwc-with-claude-code): Using the Salesforce DX MCP tools to port Aura components to LWC in minutes.
+- [Validation rules with Claude Code](https://ccforsf.com/blog/validation-rules-with-claude-code): From plain-English rule description to deployed formula and error message.
+- [Your first CLAUDE.md for a Salesforce DX project](https://ccforsf.com/blog/your-first-claude-md-for-salesforce): The starter CLAUDE.md file every Salesforce DX project should ship with.
+
+## What the course covers
+
+- Zero to connected: installing Claude Code and connecting it to a Salesforce DX org.
+- Custom fields, page layouts, and permission sets from a single prompt.
+- Record-triggered, screen, and scheduled Flows from plain English.
+- Validation rules and Apex triggers — describe the logic, get working code.
+- Debugging: what to do when Claude gets it wrong.
+- The prompt library: 20+ copy-paste prompts the instructor uses in production.
+
+## Legal
+
+- [Privacy Policy](https://ccforsf.com/privacy): Data collection, cookies, analytics, GDPR rights.
+- [Terms of Service](https://ccforsf.com/terms): Licensing, course use, intellectual property, arbitration, liability limits.
+- [Refund Policy](https://ccforsf.com/refund): Details of the 30-day money-back guarantee.
+
+## Optional
+
+- [Support email](mailto:support@ccforsf.com): Questions about the course, refund requests, or press inquiries.
+- [Sitemap](https://ccforsf.com/sitemap.xml): XML sitemap of all indexable pages.
+- [robots.txt](https://ccforsf.com/robots.txt): Crawler directives for search engines and AI/answer-engine bots.

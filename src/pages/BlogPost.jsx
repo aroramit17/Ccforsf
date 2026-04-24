@@ -6,10 +6,10 @@ import { getAllSlugs, getPostBySlug } from '../lib/posts.js'
 
 const COLORS = {
   orange: '#DA7756',
-  textPrimary: '#f0f0f0',
-  textSecondary: '#a0a0a0',
-  textMuted: '#666666',
-  border: 'rgba(255,255,255,0.08)',
+  textPrimary: '#1A1815',
+  textSecondary: '#5A5348',
+  textMuted: '#8A8272',
+  border: 'rgba(26,24,21,0.09)',
 }
 
 function formatDate(d) {
@@ -72,9 +72,9 @@ export default function BlogPost() {
         .post-body strong { color: ${COLORS.textPrimary}; font-weight: 700; }
         .post-body ul, .post-body ol { margin: 0 0 20px; padding-left: 24px; color: ${COLORS.textPrimary}; }
         .post-body li { margin-bottom: 8px; }
-        .post-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; background: rgba(255,255,255,0.06); border: 1px solid ${COLORS.border}; padding: 2px 6px; border-radius: 4px; }
-        .post-body pre { font-family: 'JetBrains Mono', monospace; font-size: 14px; background: #111; border: 1px solid ${COLORS.border}; padding: 18px; border-radius: 10px; overflow-x: auto; margin: 0 0 24px; line-height: 1.55; }
-        .post-body pre code { background: none; border: none; padding: 0; }
+        .post-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; background: rgba(26,24,21,0.06); border: 1px solid ${COLORS.border}; padding: 2px 6px; border-radius: 4px; color: ${COLORS.textPrimary}; }
+        .post-body pre { font-family: 'JetBrains Mono', monospace; font-size: 14px; background: #0E0E14; color: #E2E8F0; border: 1px solid rgba(255,255,255,0.08); padding: 18px; border-radius: 10px; overflow-x: auto; margin: 0 0 24px; line-height: 1.55; }
+        .post-body pre code { background: none; border: none; padding: 0; color: #E2E8F0; font-size: inherit; }
         .post-body blockquote { border-left: 3px solid ${COLORS.orange}; padding: 4px 0 4px 18px; margin: 0 0 24px; color: ${COLORS.textSecondary}; font-style: italic; }
         .post-body img { max-width: 100%; border-radius: 10px; margin: 24px 0; }
         .post-body table { width: 100%; border-collapse: collapse; margin: 0 0 24px; font-size: 15px; }
