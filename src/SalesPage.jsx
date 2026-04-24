@@ -420,20 +420,31 @@ export default function SalesPage() {
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", height: 56 }}>
           <a href="#top" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: "none" }}>
             <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(26,24,21,0.3)" }}>_</span>
-            <span style={{ color: "rgba(26,24,21,0.55)" }}>for</span>
-            <span style={{ color: "rgba(26,24,21,0.3)" }}>_</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.3)" : "rgba(255,255,255,0.4)" }}>_</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.55)" : "rgba(255,255,255,0.7)" }}>for</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.3)" : "rgba(255,255,255,0.4)" }}>_</span>
             <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(26,24,21,0.22)" }}>__c</span>
+            <span style={{ color: scrollY > 50 ? "rgba(26,24,21,0.22)" : "rgba(255,255,255,0.3)" }}>__c</span>
           </a>
-          <HamburgerMenu />
+          <HamburgerMenu onDark={scrollY <= 50} />
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section id="top" style={{ padding: "110px 20px 56px", position: "relative", overflow: "hidden" }}>
-        {/* single soft orange glow, top center */}
-        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.10) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
+      <section id="top" style={{ padding: "110px 20px 56px", position: "relative", overflow: "hidden", background: "#000" }}>
+        {/* cinematic background video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, pointerEvents: "none" }}
+        >
+          <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+        </video>
+        {/* readability overlay: darken video + subtle orange tint + vignette */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.45) 55%, rgba(10,10,10,0.75) 100%)", zIndex: 1, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.18) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)", zIndex: 1, pointerEvents: "none" }} />
 
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
           <div className="hero-grid">
@@ -441,17 +452,17 @@ export default function SalesPage() {
             <div className="hero-left">
               {/* quiet pre-headline */}
               <div style={{ animation: "fadeUp 0.5s ease both", marginBottom: 22 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: 2, color: COLORS.textMuted, textTransform: "uppercase" }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 500, letterSpacing: 2, color: "rgba(255,255,255,0.65)", textTransform: "uppercase" }}>
                   Claude Code × Salesforce
                 </span>
               </div>
 
-              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(40px, 7.2vw, 78px)", fontWeight: 700, color: COLORS.textPrimary, lineHeight: 1.0, marginBottom: 24, letterSpacing: -2.5 }}>
+              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(40px, 7.2vw, 78px)", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.0, marginBottom: 24, letterSpacing: -2.5, textShadow: "0 2px 24px rgba(0,0,0,0.4)" }}>
                 What if your next Flow was one prompt away?
               </h1>
 
-              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2vw, 20px)", color: COLORS.textSecondary, lineHeight: 1.55, maxWidth: 540, marginBottom: 36 }}>
-                Ship Flows, fields, validation rules, and Apex <strong style={{ color: COLORS.textPrimary, fontWeight: 600 }}>10× faster</strong>. All from your terminal.
+              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(16px, 2vw, 20px)", color: "rgba(255,255,255,0.82)", lineHeight: 1.55, maxWidth: 540, marginBottom: 36, textShadow: "0 1px 12px rgba(0,0,0,0.35)" }}>
+                Ship Flows, fields, validation rules, and Apex <strong style={{ color: "#FFFFFF", fontWeight: 600 }}>10× faster</strong>. All from your terminal.
               </p>
 
               {/* primary CTA */}
@@ -464,7 +475,7 @@ export default function SalesPage() {
                 {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{t}</span>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{t}</span>
                   </div>
                 ))}
               </div>
@@ -1198,7 +1209,7 @@ function TestimonialCard({ name, role, quote }) {
 }
 
 /* ── Hamburger menu (smooth-scrolls to page sections) ── */
-function HamburgerMenu() {
+function HamburgerMenu({ onDark = false }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -1238,8 +1249,8 @@ function HamburgerMenu() {
         style={{
           width: 40,
           height: 40,
-          border: `1px solid ${COLORS.border}`,
-          background: open ? COLORS.surface2 : "rgba(26,24,21,0.04)",
+          border: `1px solid ${onDark && !open ? "rgba(255,255,255,0.18)" : COLORS.border}`,
+          background: open ? COLORS.surface2 : (onDark ? "rgba(255,255,255,0.08)" : "rgba(26,24,21,0.04)"),
           borderRadius: 8,
           cursor: "pointer",
           display: "flex",
@@ -1251,18 +1262,18 @@ function HamburgerMenu() {
         }}
       >
         <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "transform 0.25s, opacity 0.25s",
+          width: 18, height: 2, background: onDark && !open ? "#FFFFFF" : COLORS.textPrimary, borderRadius: 1,
+          transition: "transform 0.25s, opacity 0.25s, background 0.2s",
           transform: open ? "translateY(6px) rotate(45deg)" : "none",
         }} />
         <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "opacity 0.2s",
+          width: 18, height: 2, background: onDark && !open ? "#FFFFFF" : COLORS.textPrimary, borderRadius: 1,
+          transition: "opacity 0.2s, background 0.2s",
           opacity: open ? 0 : 1,
         }} />
         <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "transform 0.25s",
+          width: 18, height: 2, background: onDark && !open ? "#FFFFFF" : COLORS.textPrimary, borderRadius: 1,
+          transition: "transform 0.25s, background 0.2s",
           transform: open ? "translateY(-6px) rotate(-45deg)" : "none",
         }} />
       </button>
