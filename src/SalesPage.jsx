@@ -501,7 +501,7 @@ export default function SalesPage() {
             textShadow: "0 4px 40px rgba(0,0,0,0.6)",
             maxWidth: 920,
           }}>
-            What if your next Flow was one prompt away?
+            Ship Salesforce automations 10× faster with Claude Code <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>— even if Flows freak you out.</span>
           </h1>
 
           {/* subtitle */}
@@ -516,7 +516,7 @@ export default function SalesPage() {
             marginBottom: 44,
             textShadow: "0 2px 20px rgba(0,0,0,0.5)",
           }}>
-            Ship Flows, fields, validation rules, and Apex <strong style={{ color: "#FFFFFF", fontWeight: 600 }}>10× faster</strong> — straight from your terminal. No clicks. No code by hand.
+            Turn plain-English prompts into <strong style={{ color: "#FFFFFF", fontWeight: 600 }}>production-ready automations</strong> — without writing a single line of code.
           </p>
 
           {/* CTAs */}
@@ -551,8 +551,11 @@ export default function SalesPage() {
                 gap: 10,
               }}
             >
-              Join the waitlist <span style={{ fontSize: 18 }}>→</span>
+              Get Instant Access — $97 <span style={{ fontSize: 18 }}>→</span>
             </button>
+            <div style={{ width: "100%", flexBasis: "100%", marginTop: -22, marginBottom: 6, fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.62)", textAlign: "center", letterSpacing: 0.2 }}>
+              One-time payment · Lifetime access · 30-day guarantee
+            </div>
 
             <a
               href="#pricing"
@@ -597,7 +600,7 @@ export default function SalesPage() {
       <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "40px 20px" }}>
         <div className="stats-strip">
           {[
-            ["Claude Code", "Your only tool"],
+            ["Claude Code", "The only tool you need"],
             ["5 min", "To your first Flow"],
             ["0 lines", "Of code to write"],
           ].map(([num, label], i) => (
@@ -639,6 +642,13 @@ export default function SalesPage() {
         <blockquote style={{ marginTop: 48, paddingLeft: 24, borderLeft: `2px solid ${COLORS.orange}`, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(22px, 3.2vw, 30px)", fontWeight: 600, lineHeight: 1.3, color: COLORS.textPrimary, letterSpacing: -0.5 }}>
           Now I just tell Claude to build the flow. It goes into my org, creates it, and deploys it. All I do is go check that it works. What used to take me an afternoon takes 5 minutes.
         </blockquote>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, lineHeight: 1.7, color: COLORS.textSecondary, marginTop: 32 }}>
+          Last month I used Claude Code to build a lead routing Flow, three validation rules, a batch Apex class, and a full set of permission updates — all in one sitting. It took about 90 minutes. My old workflow? That's a week and a half of tickets, approvals, and manual clicking.
+        </p>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 20, padding: "6px 14px", background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.22)`, borderRadius: 100 }}>
+          <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.sfBlue, fontWeight: 600, letterSpacing: 0.3 }}>8× Salesforce Certified · GTM Engineer</span>
+        </div>
       </Section>
 
       {/* ── HEADLESS FUTURE (Benioff proof) — 50/50 split ── */}
@@ -666,10 +676,10 @@ export default function SalesPage() {
               Benioff just announced <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> — every object, workflow, and Agentforce agent exposed as an API, MCP, and CLI. The browser is no longer the interface. The terminal is.
             </p>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textSecondary, marginTop: 14 }}>
-              Here's what that means: every admin who only knows how to click through Setup is about to get lapped by admins who can prompt their org from the command line. The skill gap is opening right now.
+              Here's what that means for you specifically: metadata operations that used to require 15 clicks in Setup will run as CLI commands. Flows will be expressible as API payloads. Permission sets will be deployable from a terminal. The admins who learn this workflow now — while it's still early — become the ones their teams can't replace.
             </p>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16.5, lineHeight: 1.7, color: COLORS.textPrimary, marginTop: 14, fontWeight: 500 }}>
-              This course is how you end up on the right side of it — while it's still early.
+              This course teaches you that exact workflow, start to finish.
             </p>
             <div style={{ marginTop: 22, padding: "12px 16px", background: "rgba(1,118,211,0.08)", border: "1px solid rgba(1,118,211,0.25)", borderRadius: 10, display: "inline-block" }}>
               <a href="https://x.com/Benioff/status/2044981547267395620" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.sfBlue, textDecoration: "none", letterSpacing: 0.5 }}>
@@ -720,6 +730,15 @@ export default function SalesPage() {
             ))}
           </div>
         </div>
+        <div style={{ textAlign: "center", marginTop: 48 }}>
+          <p style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(20px, 2.6vw, 26px)", fontWeight: 600, color: COLORS.textPrimary, marginBottom: 18, letterSpacing: -0.3 }}>
+            Ready to make the switch?
+          </p>
+          <CTAButton large onClick={openWaitlist}>Get Instant Access — $97</CTAButton>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted, marginTop: 14 }}>
+            One-time · Lifetime access · 30-day guarantee
+          </p>
+        </div>
       </Section>
 
       {/* ── WHAT YOU GET (interactive tabs) ── */}
@@ -763,6 +782,12 @@ export default function SalesPage() {
               I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.
             </p>
           </div>
+        </div>
+        <div style={{ textAlign: "center", marginTop: 40 }}>
+          <CTAButton large onClick={openWaitlist}>I want the "after" version of my job</CTAButton>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted, marginTop: 14 }}>
+            $97 one-time · Lifetime access · 30-day guarantee
+          </p>
         </div>
       </Section>
 
@@ -858,6 +883,14 @@ export default function SalesPage() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
           <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: COLORS.textPrimary, marginBottom: 12 }}>30-Day Risk-Free Guarantee</h3>
           <SubText center>Go through the whole course. Try the prompts in your own org. If you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days and I'll refund every penny. No questions. No hoops. I'd rather you try it risk-free than wonder "what if."</SubText>
+          <div style={{ marginTop: 24, padding: "16px 20px", background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 12, textAlign: "left" }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, lineHeight: 1.6, color: COLORS.textPrimary, fontStyle: "italic", marginBottom: 8 }}>
+              "Showed my VP the before and after. We cancelled the Agentforce eval the same week."
+            </p>
+            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted, letterSpacing: 0.5 }}>
+              — Priya R. · RevOps Lead, FinTech
+            </p>
+          </div>
         </div>
       </Section>
 
@@ -925,7 +958,7 @@ export default function SalesPage() {
                     {[...Array(5)].map((_, s) => (<span key={s} style={{ color: COLORS.gold, fontSize: 12 }}>★</span>))}
                     <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, fontWeight: 700, color: COLORS.textSecondary, marginLeft: 4 }}>5.0 from early access</span>
                   </div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, fontStyle: "italic" }}>"Built a routing flow in 10 minutes." — Sarah K., Admin</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, fontStyle: "italic" }}>"6 years admin, never touched a terminal — first flow shipped before lunch." — Marcus T.</div>
                 </div>
               </div>
 
@@ -945,7 +978,7 @@ export default function SalesPage() {
 
               <div className="enroll-cta-wrap">
                 <div style={{ position: "relative", overflow: "hidden", borderRadius: 10 }}>
-                  <CTAButton large full onClick={openWaitlist}>JOIN THE WAITLIST</CTAButton>
+                  <CTAButton large full onClick={openWaitlist}>Enroll Now — $97</CTAButton>
                   <span className="enroll-sheen" aria-hidden="true" />
                 </div>
               </div>
@@ -993,7 +1026,7 @@ export default function SalesPage() {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.textSecondary, lineHeight: 1.6, marginBottom: 32 }}>
             $97 one-time. Lifetime access. 30-day money-back guarantee.
           </p>
-          <CTAButton large onClick={openWaitlist}>Join the waitlist</CTAButton>
+          <CTAButton large onClick={openWaitlist}>Get Instant Access — $97</CTAButton>
         </div>
       </section>
 
@@ -1443,7 +1476,7 @@ function HamburgerMenu({ onDark = false }) {
               boxShadow: "0 4px 16px rgba(218,119,86,0.3)",
             }}
           >
-            Join the waitlist <span style={{ marginLeft: 4 }}>→</span>
+            Get Instant Access — $97 <span style={{ marginLeft: 4 }}>→</span>
           </button>
         </div>
       )}
@@ -1498,8 +1531,8 @@ const ICONS = {
 const FEATURES = [
   {
     icon: "⚡", short: "Setup",
-    title: "Zero to connected in minutes",
-    desc: "Install Claude Code and connect it to your Salesforce org. No terminal experience required.",
+    title: "Zero to connected in 5 minutes",
+    desc: "Install Claude Code, connect to your org, run your first command — even if you've never touched a terminal.",
     scene: [
       { t: "$ npm i -g @anthropic-ai/claude-code", c: "#6B7280" },
       { t: "$ claude", c: "#A5D6FF" },
@@ -1511,8 +1544,8 @@ const FEATURES = [
   },
   {
     icon: "🏗️", short: "Fields",
-    title: "Fields, layouts, permissions",
-    desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt.",
+    title: "Fields, layouts, and permissions on autopilot",
+    desc: "Create fields, add them to page layouts, and update permission sets with one prompt instead of 15 clicks.",
     scene: [
       { t: "> Add Lead_Source_Detail__c", c: "#DA7756" },
       { t: "  picklist to Contact", c: "#A5D6FF" },
@@ -1525,7 +1558,7 @@ const FEATURES = [
   {
     icon: "🔄", short: "Flows",
     title: "Flows from plain English",
-    desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org.",
+    desc: 'Say "when X happens, do Y" and get a working Flow with loops, decisions, and assignments — deployed to your org.',
     scene: [
       { t: "> Build a flow that routes", c: "#DA7756" },
       { t: "  leads by region to owners", c: "#A5D6FF" },
@@ -1537,8 +1570,8 @@ const FEATURES = [
   },
   {
     icon: "📝", short: "Apex",
-    title: "Validation rules & Apex",
-    desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code.",
+    title: "Apex without writing Apex",
+    desc: "Generate triggers, test classes, and batch jobs by describing what you need. Claude writes it, you review it.",
     scene: [
       { t: "> Require CloseDate when", c: "#DA7756" },
       { t: "  Stage = Closed Won", c: "#A5D6FF" },
@@ -1551,8 +1584,8 @@ const FEATURES = [
   },
   {
     icon: "🐛", short: "Debug",
-    title: "When AI gets it wrong",
-    desc: "It will. Here's the process to debug and get Claude back on track when it misfires.",
+    title: "Debug with AI as your copilot",
+    desc: "Diagnose failures, trace errors, and fix broken automations faster than you can open the debug log.",
     scene: [
       { t: "$ deploy Account_Status__c trigger", c: "#6B7280" },
       { t: "✗ Unknown field 'Status'", c: "#EF4444" },
@@ -1564,8 +1597,8 @@ const FEATURES = [
   },
   {
     icon: "📋", short: "Prompts",
-    title: "Real prompts you can steal",
-    desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping.",
+    title: "The prompt playbook",
+    desc: "20+ copy-paste prompts for real admin tasks — fields, Flows, validation rules, routing, and more.",
     scene: [
       { t: "[01] Create picklist on Contact…", c: "#A5D6FF" },
       { t: "[02] Build lead routing flow…", c: "#A5D6FF" },
@@ -1720,7 +1753,7 @@ function InfoTip({ text }) {
 /* ── ROI calculator (interactive) ── */
 function ROICalculator() {
   const [salary, setSalary] = useState(120000);
-  const [hoursPerWeek, setHoursPerWeek] = useState(5);
+  const [hoursPerWeek, setHoursPerWeek] = useState(3);
   const [weeksPerYear, setWeeksPerYear] = useState(50);
 
   const hourlyRate = salary / (40 * weeksPerYear);
