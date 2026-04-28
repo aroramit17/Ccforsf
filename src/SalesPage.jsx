@@ -119,8 +119,8 @@ function Nav() {
       <div className="nav-links">
         <a href="#model">The Model</a>
         <a href="#build">What you'll build</a>
+        <a href="#walkthrough">Watch</a>
         <a href="#curriculum">Curriculum</a>
-        <a href="#instructor">Instructor</a>
         <a href={ENROLL_HASH}>Pricing</a>
         <a href={ENROLL_HASH} className="btn btn--primary" style={{ padding: "10px 18px" }}>
           Enroll <span className="arrow">→</span>
@@ -551,6 +551,90 @@ Risks:
   );
 }
 
+function Walkthrough() {
+  const beats = [
+    {
+      t: "00:12",
+      label: "The prompt",
+      body: "“Hey Claude, create a contact-role flow on the Opportunity object — when an opportunity is closed, update the contact's role.”",
+    },
+    {
+      t: "00:38",
+      label: "Flow generated",
+      body: "Claude reads the org via Salesforce DX, drafts UpdateContactRoleOnClosedWon, and auto-optimizes the trigger so it only fires on the transition to Closed Won.",
+    },
+    {
+      t: "01:25",
+      label: "Tested in the org",
+      body: "Open the flow in Setup. It's there. Confirm record-triggered, after-save, decision-maker assignment.",
+    },
+    {
+      t: "02:40",
+      label: "End-to-end",
+      body: "Relate a Contact to the Opportunity (Claude does it via anonymous Apex), close the deal, watch the Contact's role flip to Decision Maker.",
+    },
+  ];
+
+  return (
+    <section className="section section-divider reveal" id="walkthrough">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">05</span>Live walkthrough</div>
+          <div className="block-head-meta">An hour's work · in three minutes</div>
+        </div>
+
+        <div className="walkthrough-intro">
+          <h2 className="display">
+            From a sentence<br />
+            to a deployed <em>Flow.</em>
+          </h2>
+          <p className="lead" style={{ marginTop: "24px" }}>
+            A real recording from my dev org. One prompt builds the flow,
+            connects it to Salesforce DX, and runs the test loop end-to-end —
+            the kind of thing that used to eat a full afternoon.
+          </p>
+        </div>
+
+        <figure className="walkthrough-frame artifact">
+          <div className="artifact-header">
+            <span>UpdateContactRoleOnClosedWon.flow-meta.xml</span>
+            <span style={{ color: "var(--accent)" }}>● live · 3 min</span>
+          </div>
+          <div className="walkthrough-video">
+            {/* TODO: swap src to the hosted demo URL once uploaded */}
+            <div className="walkthrough-poster" role="img" aria-label="Demo video coming soon">
+              <div className="walkthrough-play" aria-hidden="true">▶</div>
+              <div className="walkthrough-poster-label">Demo recording</div>
+              <div className="walkthrough-poster-sub">Video file uploads next — watch this space</div>
+            </div>
+          </div>
+          <figcaption className="walkthrough-caption">
+            <span style={{ fontFamily: "var(--mono)", fontSize: "10px", letterSpacing: "0.12em", color: "var(--ink-500)", textTransform: "uppercase" }}>
+              Caption
+            </span>
+            <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "16px", color: "var(--ink-800)" }}>
+              “I used to be deathly afraid of flows. Now all I do is test them — Claude does the build.”
+            </span>
+          </figcaption>
+        </figure>
+
+        <div className="walkthrough-beats">
+          {beats.map((b, i) => (
+            <div className="walkthrough-beat" key={b.t}>
+              <div className="walkthrough-beat-num">{String(i + 1).padStart(2, "0")}</div>
+              <div className="walkthrough-beat-time">{b.t}</div>
+              <div>
+                <div className="walkthrough-beat-label">{b.label}</div>
+                <div className="walkthrough-beat-body">{b.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Curriculum() {
   const [open, setOpen] = useState(0);
   const phases = [
@@ -601,7 +685,7 @@ function Curriculum() {
     <section className="section section-divider reveal" id="curriculum">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">05</span>Course architecture</div>
+          <div className="eyebrow"><span className="num">06</span>Course architecture</div>
           <div className="block-head-meta">Four phases · Twelve modules · ~4 hours</div>
         </div>
 
@@ -670,7 +754,7 @@ function Demo() {
     <section className="section section--tight section-divider reveal" id="demo">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">06</span>What it looks like</div>
+          <div className="eyebrow"><span className="num">07</span>What it looks like</div>
           <div className="block-head-meta">Prompt → reviewable artifact</div>
         </div>
 
@@ -725,7 +809,7 @@ function Safety() {
     <section className="section section-divider reveal" id="safety">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">07</span>Safety & trust</div>
+          <div className="eyebrow"><span className="num">08</span>Safety & trust</div>
           <div className="block-head-meta">How to operate without breaking things</div>
         </div>
 
@@ -764,17 +848,15 @@ function Instructor() {
     <section className="section section-divider section--dark reveal" id="instructor">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">08</span>Instructor</div>
+          <div className="eyebrow"><span className="num">09</span>Instructor</div>
           <div className="block-head-meta">Built by an operator</div>
         </div>
 
         <div className="instructor-grid">
           <div className="instructor-portrait">
             <div className="portrait-frame">
-              <div className="portrait-inner">
-                <div className="portrait-mono">A</div>
-                <div className="portrait-grid" />
-              </div>
+              <img className="portrait-photo" src="/amit-headshot.png" alt="Amit — instructor, 8× Salesforce Certified, GTM Engineer" />
+              <div className="portrait-grid" />
               <div className="portrait-caption">
                 <span>Amit</span>
                 <span>SF·26</span>
@@ -849,7 +931,7 @@ function Pricing() {
     <section className="section section-divider reveal" id="enroll">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">09</span>Enrollment</div>
+          <div className="eyebrow"><span className="num">10</span>Enrollment</div>
           <div className="block-head-meta">One tier · everything included</div>
         </div>
 
@@ -916,7 +998,7 @@ function FAQ() {
     <section className="section section-divider reveal" id="faq">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">10</span>Frequently asked</div>
+          <div className="eyebrow"><span className="num">11</span>Frequently asked</div>
           <div className="block-head-meta">Practical objections, answered</div>
         </div>
 
@@ -957,7 +1039,7 @@ function FinalCTA() {
     <section className="section final-cta" id="cta">
       <div className="shell">
         <div className="final-cta-inner">
-          <div className="eyebrow"><span className="num">11</span>One last thing</div>
+          <div className="eyebrow"><span className="num">12</span>One last thing</div>
           <h2 className="display final-cta-title">
             The admins who learn this<br />
             <em>this year</em> will be the<br />
@@ -1042,6 +1124,7 @@ export default function SalesPage() {
       <Friction />
       <NewModel />
       <WhatYouBuild />
+      <Walkthrough />
       <Curriculum />
       <Demo />
       <Safety />

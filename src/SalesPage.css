@@ -471,6 +471,125 @@
   margin: 0;
 }
 
+/* WALKTHROUGH (live demo video) */
+.ccsf-root .walkthrough-intro { max-width: 760px; margin-bottom: 64px; }
+.ccsf-root .walkthrough-frame { margin-top: 24px; }
+.ccsf-root .walkthrough-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--ink-900);
+  overflow: hidden;
+}
+.ccsf-root .walkthrough-video video,
+.ccsf-root .walkthrough-video iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0;
+}
+.ccsf-root .walkthrough-poster {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px;
+  background:
+    radial-gradient(ellipse at center, rgba(184,67,31,0.18) 0%, transparent 60%),
+    var(--ink-900);
+  color: var(--bone-200);
+  text-align: center;
+  padding: 24px;
+}
+.ccsf-root .walkthrough-poster::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(245,241,232,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245,241,232,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+.ccsf-root .walkthrough-play {
+  position: relative;
+  width: 72px; height: 72px;
+  border: 1.5px solid var(--bone-300);
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 22px;
+  color: var(--accent);
+  padding-left: 4px;
+}
+.ccsf-root .walkthrough-poster-label {
+  position: relative;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--bone-400);
+}
+.ccsf-root .walkthrough-poster-sub {
+  position: relative;
+  font-family: var(--serif); font-style: italic;
+  font-size: 18px; color: var(--bone-200);
+}
+.ccsf-root .walkthrough-caption {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 24px;
+  padding: 18px 22px;
+  border-top: 1px solid var(--border);
+  align-items: baseline;
+}
+@media (max-width: 600px) {
+  .ccsf-root .walkthrough-caption { grid-template-columns: 1fr; gap: 6px; }
+}
+
+.ccsf-root .walkthrough-beats {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 1100px) {
+  .ccsf-root .walkthrough-beats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .ccsf-root .walkthrough-beats { grid-template-columns: 1fr; }
+}
+.ccsf-root .walkthrough-beat {
+  display: grid;
+  grid-template-columns: 32px 64px 1fr;
+  gap: 12px;
+  padding: 28px 24px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+}
+.ccsf-root .walkthrough-beat:last-child { border-right: none; }
+@media (max-width: 1100px) {
+  .ccsf-root .walkthrough-beat:nth-child(2) { border-right: none; }
+  .ccsf-root .walkthrough-beat:nth-child(3) { border-right: 1px solid var(--border); }
+}
+@media (max-width: 600px) {
+  .ccsf-root .walkthrough-beat,
+  .ccsf-root .walkthrough-beat:nth-child(3) { border-right: none; }
+}
+.ccsf-root .walkthrough-beat-num {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--accent); font-weight: 600;
+  letter-spacing: 0.1em; padding-top: 2px;
+}
+.ccsf-root .walkthrough-beat-time {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink-500); letter-spacing: 0.06em;
+  padding-top: 2px;
+}
+.ccsf-root .walkthrough-beat-label {
+  font-family: var(--serif); font-size: 19px;
+  font-weight: 400; letter-spacing: -0.01em;
+  color: var(--ink-900); margin-bottom: 6px;
+}
+.ccsf-root .walkthrough-beat-body {
+  font-size: 13.5px; color: var(--ink-600);
+  line-height: 1.55;
+}
+
 /* CURRICULUM */
 .ccsf-root .curriculum-intro { max-width: 800px; margin-bottom: 80px; }
 .ccsf-root .curriculum { border-top: 1px solid var(--border); }
@@ -621,14 +740,13 @@
   aspect-ratio: 4 / 5;
   position: relative; overflow: hidden;
 }
-.ccsf-root .portrait-inner { position: absolute; inset: 0; display: grid; place-items: center; }
-.ccsf-root .portrait-mono {
-  font-family: var(--serif);
-  font-size: clamp(120px, 22vw, 240px);
-  font-style: italic; font-weight: 300;
-  color: var(--bone-100);
-  letter-spacing: -0.04em;
+.ccsf-root .portrait-photo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
   z-index: 1;
+  filter: grayscale(0.15) contrast(1.02);
 }
 .ccsf-root .portrait-grid {
   position: absolute; inset: 0;
@@ -636,6 +754,8 @@
     linear-gradient(to right, rgba(245,241,232,0.06) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(245,241,232,0.06) 1px, transparent 1px);
   background-size: 32px 32px;
+  z-index: 2;
+  pointer-events: none;
 }
 .ccsf-root .portrait-caption {
   position: absolute;
