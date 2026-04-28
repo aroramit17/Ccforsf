@@ -745,6 +745,39 @@
   cursor: pointer;
   transition: background 0.25s ease;
 }
+.ccsf-root .walkthrough-poster.has-thumb { padding: 0; background: var(--ink-900); }
+.ccsf-root .walkthrough-poster.has-thumb::before { display: none; }
+.ccsf-root .walkthrough-poster-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ccsf-root .walkthrough-poster-overlay {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.55) 70%, rgba(10,10,10,0.7) 100%);
+  transition: background 0.25s ease;
+}
+.ccsf-root .walkthrough-poster-button.has-thumb:hover .walkthrough-poster-overlay,
+.ccsf-root .walkthrough-poster-button.has-thumb:focus-visible .walkthrough-poster-overlay {
+  background:
+    radial-gradient(ellipse at center, rgba(10,10,10,0.05) 0%, rgba(10,10,10,0.4) 70%, rgba(10,10,10,0.6) 100%);
+}
+.ccsf-root .walkthrough-poster.has-thumb .walkthrough-play,
+.ccsf-root .walkthrough-poster.has-thumb .walkthrough-poster-label,
+.ccsf-root .walkthrough-poster.has-thumb .walkthrough-poster-sub {
+  position: relative;
+  z-index: 1;
+}
+.ccsf-root .walkthrough-poster.has-thumb .walkthrough-play {
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(2px);
+}
+.ccsf-root .walkthrough-poster.has-thumb .walkthrough-poster-label,
+.ccsf-root .walkthrough-poster.has-thumb .walkthrough-poster-sub {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
 .ccsf-root .walkthrough-poster-button:hover .walkthrough-play,
 .ccsf-root .walkthrough-poster-button:focus-visible .walkthrough-play {
   background: var(--accent);

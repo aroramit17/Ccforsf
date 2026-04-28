@@ -765,10 +765,18 @@ function Walkthrough() {
           <div className="walkthrough-video">
             <button
               type="button"
-              className="walkthrough-poster walkthrough-poster-button"
+              className="walkthrough-poster walkthrough-poster-button has-thumb"
               aria-label="Play demo video"
               onClick={() => setVideoOpen(true)}
             >
+              <img
+                className="walkthrough-poster-img"
+                src="/walkthrough-thumb.png"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="walkthrough-poster-overlay" aria-hidden="true" />
               <div className="walkthrough-play" aria-hidden="true">▶</div>
               <div className="walkthrough-poster-label">Demo recording · 3 min</div>
               <div className="walkthrough-poster-sub">Click to watch the full walkthrough.</div>
