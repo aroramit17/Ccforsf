@@ -677,7 +677,43 @@ Risks:
   );
 }
 
+const WALKTHROUGH_EMBED_URL = "https://iframe.mediadelivery.net/embed/649324/252378e4-2c62-497a-9a8c-f3e06e7db083?autoplay=true&preload=true";
+
+function VideoModal({ open, onClose, src, title }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="video-modal-overlay" role="dialog" aria-modal="true" aria-label={title} onClick={onClose}>
+      <div className="video-modal-frame" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="video-modal-close" onClick={onClose} aria-label="Close video">×</button>
+        <div className="video-modal-aspect">
+          <iframe
+            src={src}
+            title={title}
+            loading="lazy"
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Walkthrough() {
+  const [videoOpen, setVideoOpen] = useState(false);
   const beats = [
     {
       t: "00:12",
@@ -727,12 +763,16 @@ function Walkthrough() {
             <span style={{ color: "var(--accent)" }}>● live · 3 min</span>
           </div>
           <div className="walkthrough-video">
-            {/* TODO: swap src to the hosted demo URL once uploaded */}
-            <div className="walkthrough-poster" role="img" aria-label="Demo video coming soon">
+            <button
+              type="button"
+              className="walkthrough-poster walkthrough-poster-button"
+              aria-label="Play demo video"
+              onClick={() => setVideoOpen(true)}
+            >
               <div className="walkthrough-play" aria-hidden="true">▶</div>
-              <div className="walkthrough-poster-label">Demo recording</div>
-              <div className="walkthrough-poster-sub">Video file uploads next. Watch this space.</div>
-            </div>
+              <div className="walkthrough-poster-label">Demo recording · 3 min</div>
+              <div className="walkthrough-poster-sub">Click to watch the full walkthrough.</div>
+            </button>
           </div>
           <figcaption className="walkthrough-caption">
             <span style={{ fontFamily: "var(--mono)", fontSize: "10px", letterSpacing: "0.12em", color: "var(--ink-500)", textTransform: "uppercase" }}>
@@ -757,6 +797,12 @@ function Walkthrough() {
           ))}
         </div>
       </div>
+      <VideoModal
+        open={videoOpen}
+        onClose={() => setVideoOpen(false)}
+        src={WALKTHROUGH_EMBED_URL}
+        title="Claude Code for Salesforce — live walkthrough"
+      />
     </section>
   );
 }
