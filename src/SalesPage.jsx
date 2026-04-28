@@ -621,12 +621,12 @@ function Walkthrough() {
         <div className="walkthrough-beats">
           {beats.map((b, i) => (
             <div className="walkthrough-beat" key={b.t}>
-              <div className="walkthrough-beat-num">{String(i + 1).padStart(2, "0")}</div>
-              <div className="walkthrough-beat-time">{b.t}</div>
-              <div>
-                <div className="walkthrough-beat-label">{b.label}</div>
-                <div className="walkthrough-beat-body">{b.body}</div>
+              <div className="walkthrough-beat-meta">
+                <span className="walkthrough-beat-num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="walkthrough-beat-time">{b.t}</span>
               </div>
+              <div className="walkthrough-beat-label">{b.label}</div>
+              <div className="walkthrough-beat-body">{b.body}</div>
             </div>
           ))}
         </div>
