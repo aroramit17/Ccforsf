@@ -434,6 +434,246 @@
 }
 @media (max-width: 800px) { .ccsf-root .model-callout { grid-template-columns: 1fr; gap: 16px; } }
 
+/* PROJECT FILES + VS CODE WIREFRAME */
+.ccsf-root .model-files {
+  margin-top: 96px;
+  padding-top: 48px;
+  border-top: 1px solid var(--border);
+}
+.ccsf-root .model-files-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 40px;
+}
+@media (max-width: 640px) {
+  .ccsf-root .model-files-meta { flex-direction: column; gap: 8px; align-items: flex-start; }
+}
+.ccsf-root .model-files-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.1fr;
+  gap: 64px;
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .ccsf-root .model-files-grid { grid-template-columns: 1fr; gap: 48px; }
+}
+
+.ccsf-root .model-files-copy h3.display { font-size: clamp(28px, 3.4vw, 44px); }
+.ccsf-root .files-list {
+  list-style: none;
+  margin: 40px 0 0 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+.ccsf-root .files-item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 16px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+}
+.ccsf-root .files-item-num {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--accent); font-weight: 600;
+  letter-spacing: 0.12em; padding-top: 4px;
+}
+.ccsf-root .files-item-name { margin-bottom: 4px; }
+.ccsf-root .files-mono {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--ink-900); font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.ccsf-root .files-item-label {
+  font-family: var(--serif); font-size: 18px;
+  color: var(--ink-900); margin-bottom: 4px;
+  font-weight: 400; letter-spacing: -0.01em;
+}
+.ccsf-root .files-item-body {
+  font-size: 13.5px; color: var(--ink-600);
+  line-height: 1.6;
+}
+.ccsf-root .files-closer {
+  margin-top: 28px;
+  font-family: var(--serif); font-style: italic;
+  font-size: 18px; color: var(--ink-800);
+}
+
+/* VS Code wireframe */
+.ccsf-root .vscode {
+  background: var(--ink-900);
+  color: var(--bone-300);
+  border: 1px solid rgba(0,0,0,0.4);
+  font-family: var(--mono);
+  font-size: 12px;
+  box-shadow: 0 30px 60px -30px rgba(26,25,22,0.28),
+              0 6px 18px -8px rgba(26,25,22,0.18);
+  display: flex;
+  flex-direction: column;
+}
+.ccsf-root .vscode-titlebar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 14px;
+  background: #15140F;
+  border-bottom: 1px solid rgba(0,0,0,0.5);
+  font-size: 11px;
+  color: var(--ink-400);
+  letter-spacing: 0.04em;
+}
+.ccsf-root .vscode-traffic {
+  display: inline-flex;
+  gap: 6px;
+}
+.ccsf-root .vscode-traffic span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--ink-700);
+}
+.ccsf-root .vscode-traffic span:nth-child(1) { background: #C45A2A; }
+.ccsf-root .vscode-traffic span:nth-child(2) { background: #BAB6A9; opacity: 0.5; }
+.ccsf-root .vscode-traffic span:nth-child(3) { background: #76736A; opacity: 0.6; }
+.ccsf-root .vscode-titlebar-text {
+  text-align: center;
+  color: var(--bone-400);
+}
+.ccsf-root .vscode-titlebar-meta {
+  font-size: 10px;
+  color: var(--ink-500);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ccsf-root .vscode-body {
+  display: grid;
+  grid-template-columns: 38px 180px 1fr;
+  min-height: 380px;
+}
+@media (max-width: 560px) {
+  .ccsf-root .vscode-body { grid-template-columns: 32px 140px 1fr; min-height: 340px; }
+}
+
+.ccsf-root .vscode-activitybar {
+  background: #0F0E0B;
+  border-right: 1px solid rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  gap: 16px;
+  color: var(--ink-500);
+  font-size: 16px;
+}
+.ccsf-root .vscode-act {
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  padding-left: 2px;
+}
+.ccsf-root .vscode-act--active {
+  color: var(--bone-200);
+  border-left-color: var(--accent);
+}
+
+.ccsf-root .vscode-sidebar {
+  background: #1B1A16;
+  border-right: 1px solid rgba(0,0,0,0.5);
+  padding: 12px 0;
+  font-size: 12px;
+}
+.ccsf-root .vscode-sidebar-h {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--ink-400);
+  padding: 0 14px 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ccsf-root .vscode-sidebar-folder,
+.ccsf-root .vscode-sidebar-file {
+  padding: 4px 14px;
+  color: var(--bone-300);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ccsf-root .vscode-sidebar-folder { color: var(--bone-400); font-weight: 500; }
+.ccsf-root .vscode-sidebar-folder--collapsed { color: var(--ink-500); }
+.ccsf-root .vscode-sidebar-file { padding-left: 28px; }
+.ccsf-root .vscode-sidebar-file--active {
+  background: rgba(184,67,31,0.18);
+  color: var(--bone-100);
+  border-left: 2px solid var(--accent);
+  padding-left: 26px;
+}
+.ccsf-root .vscode-fi {
+  display: inline-grid;
+  place-items: center;
+  width: 16px; height: 16px;
+  border: 1px solid rgba(245,241,232,0.18);
+  font-size: 8px;
+  color: var(--bone-400);
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+.ccsf-root .vscode-sidebar-file--active .vscode-fi {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ccsf-root .vscode-editor {
+  background: #0E0D0A;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ccsf-root .vscode-tabs {
+  background: #15140F;
+  border-bottom: 1px solid rgba(0,0,0,0.5);
+  display: flex;
+  font-size: 11px;
+  color: var(--ink-400);
+}
+.ccsf-root .vscode-tab {
+  padding: 9px 18px;
+  border-right: 1px solid rgba(0,0,0,0.5);
+  cursor: default;
+}
+.ccsf-root .vscode-tab--active {
+  background: #0E0D0A;
+  color: var(--bone-200);
+  border-bottom: 1px solid var(--accent);
+}
+.ccsf-root .vscode-code {
+  margin: 0;
+  padding: 18px 22px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--bone-300);
+  white-space: pre-wrap;
+  overflow-x: auto;
+  flex: 1;
+}
+
+.ccsf-root .vscode-statusbar {
+  background: var(--accent);
+  color: var(--bone-100);
+  padding: 5px 14px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  display: flex;
+  gap: 18px;
+  text-transform: uppercase;
+}
+
 /* BUILD PANELS */
 .ccsf-root .build-intro { max-width: 700px; margin-bottom: 80px; }
 .ccsf-root .build-grid {

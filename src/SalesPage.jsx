@@ -8,11 +8,11 @@ const ENROLL_HASH = "#enroll";
 
 const FAQS = [
   { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
-  { q: "What do I need to get started?", a: "A Claude Max subscription ($100/month — Anthropic moved Claude Code access into the Max plan) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
-  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on the Claude Max plan from Anthropic ($100/month — where Claude Code now lives) and connects directly to your org. No Salesforce add-on license needed." },
+  { q: "What do I need to get started?", a: "A Claude Max subscription ($100/month, since Anthropic moved Claude Code access into the Max plan) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
+  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on the Claude Max plan from Anthropic ($100/month, where Claude Code now lives) and connects directly to your org. No Salesforce add-on license needed." },
   { q: "How long do I have access?", a: "Lifetime. Watch it once, come back anytime. All future updates are included." },
   { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
-  { q: "Is this safe for my production org?", a: "Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
+  { q: "Is this safe for my production org?", a: "Great question. Security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model. It uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
   { q: "Is this affiliated with Salesforce or Anthropic?", a: "No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." },
 ];
 
@@ -23,7 +23,7 @@ const HOMEPAGE_JSON_LD = {
       "@type": "Course",
       "@id": "https://ccforsf.com/#course",
       "name": "Claude Code for Salesforce Admins",
-      "description": "A hands-on mini-course that teaches Salesforce Admins how to use Claude Code to build Flows, custom fields, validation rules, and Apex — without clicking through Setup or writing code by hand.",
+      "description": "A hands-on mini-course that teaches Salesforce Admins how to use Claude Code to build Flows, custom fields, validation rules, and Apex without clicking through Setup or writing code by hand.",
       "url": "https://ccforsf.com/",
       "inLanguage": "en",
       "provider": { "@id": "https://ccforsf.com/#org" },
@@ -238,8 +238,7 @@ function Hero() {
 
           <p className="lead" style={{ marginTop: "40px" }}>
             Install it. Connect it to your org. Use plain English to ship flows, validation
-            rules, and metadata work — without a developer in the loop, and without
-            ever touching the terminal as a stranger.
+            rules, and metadata work. No developer in the loop. No terminal anxiety.
           </p>
 
           <div className="hero-ctas">
@@ -325,7 +324,7 @@ function Friction() {
               is a bottleneck.
             </h2>
             <p className="lead" style={{ marginTop: "32px" }}>
-              The job has quietly become more strategic — and more constrained — than the
+              The job has quietly become more strategic, and more constrained, than the
               tools were built for. Tickets queue. Sandboxes pile up. The point-and-click
               surface area keeps growing while the time you have to operate it does not.
             </p>
@@ -374,6 +373,131 @@ function ModelDiagram() {
   );
 }
 
+function ProjectFiles() {
+  const files = [
+    {
+      n: "01",
+      name: "claude.md",
+      label: "The voice.",
+      body: "Tone, naming conventions, what \"good\" looks like in your org. The model writes the way you write.",
+    },
+    {
+      n: "02",
+      name: "project.md",
+      label: "The map.",
+      body: "Objects, fields, flows, business processes you actually run. Written once, referenced forever.",
+    },
+    {
+      n: "03",
+      name: "agents.md",
+      label: "The crew.",
+      body: "Specialized agents for flow review, security audit, documentation, migration. Wired up, ready to call.",
+    },
+  ];
+
+  const claudeMdContent = `# CC for SF · org
+
+> Voice. Naming. Guardrails.
+
+## Voice
+- Plain language. Short sentences.
+- Show the diff before you propose.
+
+## Conventions
+- Custom fields end in __c
+- Flows live in /flows
+- Validation rules use AND() / NOT()
+
+## Guardrails
+- Sandbox first. Always.
+- No bulk DML without review.`;
+
+  return (
+    <div className="model-files">
+      <div className="model-files-meta">
+        <div className="eyebrow">Project structure</div>
+        <div className="block-head-meta">Three files · one folder</div>
+      </div>
+
+      <div className="model-files-grid">
+        <div className="model-files-copy">
+          <h3 className="display">
+            Open VS Code.<br />
+            Drop in your org.<br />
+            <em>That's the install.</em>
+          </h3>
+          <p className="lead" style={{ marginTop: "20px" }}>
+            Claude Code reads three plain text files the way a new hire reads
+            onboarding docs. Write them once. The model speaks fluent your-org
+            from then on.
+          </p>
+
+          <ol className="files-list">
+            {files.map((f) => (
+              <li className="files-item" key={f.n}>
+                <div className="files-item-num">{f.n}</div>
+                <div>
+                  <div className="files-item-name"><span className="files-mono">{f.name}</span></div>
+                  <div className="files-item-label">{f.label}</div>
+                  <div className="files-item-body">{f.body}</div>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <p className="files-closer">Three files. No syntax. No magic. Just context.</p>
+        </div>
+
+        <div className="vscode" aria-label="VS Code wireframe">
+          <div className="vscode-titlebar">
+            <span className="vscode-traffic"><span /><span /><span /></span>
+            <span className="vscode-titlebar-text">ccforsf-org / claude.md</span>
+            <span className="vscode-titlebar-meta">VS&nbsp;Code</span>
+          </div>
+          <div className="vscode-body">
+            <div className="vscode-activitybar" aria-hidden="true">
+              <span className="vscode-act vscode-act--active">▢</span>
+              <span className="vscode-act">⌕</span>
+              <span className="vscode-act">⎇</span>
+              <span className="vscode-act">⊕</span>
+            </div>
+            <div className="vscode-sidebar">
+              <div className="vscode-sidebar-h">EXPLORER</div>
+              <div className="vscode-sidebar-folder">▾ ccforsf-org</div>
+              <div className="vscode-sidebar-file vscode-sidebar-file--active">
+                <span className="vscode-fi">md</span>
+                <span>claude.md</span>
+              </div>
+              <div className="vscode-sidebar-file">
+                <span className="vscode-fi">md</span>
+                <span>project.md</span>
+              </div>
+              <div className="vscode-sidebar-file">
+                <span className="vscode-fi">md</span>
+                <span>agents.md</span>
+              </div>
+              <div className="vscode-sidebar-folder vscode-sidebar-folder--collapsed">▸ flows</div>
+              <div className="vscode-sidebar-folder vscode-sidebar-folder--collapsed">▸ objects</div>
+              <div className="vscode-sidebar-folder vscode-sidebar-folder--collapsed">▸ permissionsets</div>
+            </div>
+            <div className="vscode-editor">
+              <div className="vscode-tabs">
+                <div className="vscode-tab vscode-tab--active">claude.md</div>
+              </div>
+              <pre className="vscode-code">{claudeMdContent}</pre>
+            </div>
+          </div>
+          <div className="vscode-statusbar">
+            <span>main</span>
+            <span>UTF-8</span>
+            <span>Markdown</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function NewModel() {
   return (
     <section className="section section-divider reveal" id="model">
@@ -389,14 +513,16 @@ function NewModel() {
             to <em>directing the work.</em>
           </h2>
           <p className="lead" style={{ marginTop: "28px", maxWidth: "62ch" }}>
-            Claude Code reads your Salesforce project the way a senior architect would —
-            knows your objects, fields, flows, and rules — and turns plain-English intent
+            Claude Code reads your Salesforce project the way a senior architect would.
+            It knows your objects, fields, flows, and rules, and turns plain-English intent
             into reviewable, testable artifacts. You stay the operator. The model handles
             the surface area.
           </p>
         </div>
 
         <ModelDiagram />
+
+        <ProjectFiles />
 
         <div className="model-callout">
           <div className="callout-side">
@@ -538,7 +664,7 @@ Risks:
             <em>Finished work.</em>
           </h2>
           <p className="lead" style={{ marginTop: "24px" }}>
-            Each module ends with a real, deployable artifact — the kind of thing you'd
+            Each module ends with a real, deployable artifact. The kind of thing you'd
             normally file a ticket for. Here are four you'll ship in the course.
           </p>
         </div>
@@ -556,7 +682,7 @@ function Walkthrough() {
     {
       t: "00:12",
       label: "The prompt",
-      body: "“Hey Claude, create a contact-role flow on the Opportunity object — when an opportunity is closed, update the contact's role.”",
+      body: "“Hey Claude, create a contact-role flow on the Opportunity object. When an opportunity is closed, update the contact's role.”",
     },
     {
       t: "00:38",
@@ -590,8 +716,8 @@ function Walkthrough() {
           </h2>
           <p className="lead" style={{ marginTop: "24px" }}>
             A real recording from my dev org. One prompt builds the flow,
-            connects it to Salesforce DX, and runs the test loop end-to-end —
-            the kind of thing that used to eat a full afternoon.
+            connects it to Salesforce DX, and runs the test loop end-to-end.
+            The kind of thing that used to eat a full afternoon.
           </p>
         </div>
 
@@ -605,7 +731,7 @@ function Walkthrough() {
             <div className="walkthrough-poster" role="img" aria-label="Demo video coming soon">
               <div className="walkthrough-play" aria-hidden="true">▶</div>
               <div className="walkthrough-poster-label">Demo recording</div>
-              <div className="walkthrough-poster-sub">Video file uploads next — watch this space</div>
+              <div className="walkthrough-poster-sub">Video file uploads next. Watch this space.</div>
             </div>
           </div>
           <figcaption className="walkthrough-caption">
@@ -613,7 +739,7 @@ function Walkthrough() {
               Caption
             </span>
             <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "16px", color: "var(--ink-800)" }}>
-              “I used to be deathly afraid of flows. Now all I do is test them — Claude does the build.”
+              “I used to be deathly afraid of flows. Now all I do is test them. Claude does the build.”
             </span>
           </figcaption>
         </figure>
@@ -644,7 +770,7 @@ function Curriculum() {
       duration: "~45 min",
       modules: [
         { n: "1.1", t: "Why Claude Code, why now", d: "The shift from point-and-click to prompt-driven admin work." },
-        { n: "1.2", t: "Install — without fear", d: "Walk-through of installation on Mac and Windows. Terminal demystified." },
+        { n: "1.2", t: "Install, without fear", d: "Walk-through of installation on Mac and Windows. Terminal demystified." },
         { n: "1.3", t: "Your first useful output", d: "Within 15 minutes, a real artifact you can deploy." },
       ],
     },
@@ -664,7 +790,7 @@ function Curriculum() {
       duration: "~90 min",
       modules: [
         { n: "3.1", t: "Flows from plain English", d: "Generate, review, deploy." },
-        { n: "3.2", t: "Validation rules and triggers", d: "When to use which — and how to spec them." },
+        { n: "3.2", t: "Validation rules and triggers", d: "When to use which, and how to spec them." },
         { n: "3.3", t: "Metadata and permissions work", d: "Audit, refactor, document." },
         { n: "3.4", t: "Documentation that stays current", d: "Auto-generated, version-controlled." },
       ],
@@ -674,7 +800,7 @@ function Curriculum() {
       title: "Operating model",
       duration: "~45 min",
       modules: [
-        { n: "4.1", t: "Sandbox-first patterns", d: "Validate before promote — every time." },
+        { n: "4.1", t: "Sandbox-first patterns", d: "Validate before promote. Every time." },
         { n: "4.2", t: "Review discipline", d: "Reading a diff like a senior architect." },
         { n: "4.3", t: "Where Claude ends, where you begin", d: "The boundaries of the partnership." },
       ],
@@ -855,7 +981,7 @@ function Instructor() {
         <div className="instructor-grid">
           <div className="instructor-portrait">
             <div className="portrait-frame">
-              <img className="portrait-photo" src="/amit-headshot.png" alt="Amit — instructor, 8× Salesforce Certified, GTM Engineer" />
+              <img className="portrait-photo" src="/amit-headshot.png" alt="Amit, instructor. 8× Salesforce Certified, GTM Engineer." />
               <div className="portrait-grid" />
               <div className="portrait-caption">
                 <span>Amit</span>
@@ -982,7 +1108,7 @@ function Pricing() {
             </div>
 
             <p style={{ fontFamily: "var(--mono)", fontSize: "10px", letterSpacing: "0.06em", color: "var(--ink-500)", marginTop: 12, lineHeight: 1.5 }}>
-              Requires a Claude Max subscription ($100/month — Claude Code now lives in Max).
+              Requires a Claude Max subscription ($100/month, where Claude Code now lives).
               No Salesforce add-on license required beyond Enterprise / Unlimited / Developer edition.
             </p>
           </div>
@@ -1113,7 +1239,7 @@ export default function SalesPage() {
     <div className="ccsf-root">
       <SEO
         title="CC for SF — Claude Code for Salesforce Admins"
-        description="Hands-on mini-course. Use Claude Code to ship Flows, validation rules, and metadata work from plain English — no developer in the loop. $97 one-time, 30-day guarantee."
+        description="Hands-on mini-course. Use Claude Code to ship Flows, validation rules, and metadata work from plain English. No developer in the loop. $97 one-time, 30-day guarantee."
         path="/"
         jsonLd={HOMEPAGE_JSON_LD}
       />
