@@ -8,11 +8,13 @@ const ENROLL_HASH = "#enroll";
 
 const FAQS = [
   { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
-  { q: "What do I need to get started?", a: "A Claude Max subscription ($100/month, since Anthropic moved Claude Code access into the Max plan) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
-  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on the Claude Max plan from Anthropic ($100/month, where Claude Code now lives) and connects directly to your org. No Salesforce add-on license needed." },
+  { q: "What do I need to get started?", a: "A Claude Pro subscription ($20/month) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
+  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a Claude Pro subscription from Anthropic ($20/month) and connects directly to your org. No Salesforce add-on license needed." },
   { q: "How long do I have access?", a: "Lifetime. Watch it once, come back anytime. All future updates are included." },
   { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
   { q: "Is this safe for my production org?", a: "Great question. Security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model. It uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
+  { q: "Does Claude Code store my Salesforce data?", a: "No. Claude Code is a local CLI that runs on your machine. Your metadata stays yours. It reads project files locally, sends only the relevant context to Anthropic's API to generate a response, and writes the output back to your local repo. Salesforce records, customer data, and credentials never leave your environment unless you explicitly paste them into a prompt." },
+  { q: "Is this \"Shadow AI\"? What about compliance?", a: "Claude Code uses your existing Salesforce login and respects every permission, profile, sharing rule, and SOX control already in place. There is no separate AI service connected to your org — Claude only sees what you, the authenticated user, would see. All deploys go through the same change-set / CI/CD path your security team already approved. Anthropic's API does not train on your data (Pro and Max plans are excluded from training by default)." },
   { q: "Is this affiliated with Salesforce or Anthropic?", a: "No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." },
 ];
 
@@ -110,9 +112,25 @@ function useReveal() {
 
 function Nav() {
   const scrolled = useScrolled();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => { if (e.key === "Escape") setMenuOpen(false); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
+  const close = () => setMenuOpen(false);
+
   return (
     <nav className={`nav ${scrolled ? "scrolled" : ""}`}>
-      <a href="#top" className="nav-mark">
+      <a href="#top" className="nav-mark" onClick={close}>
         <span className="glyph">CC</span>
         <span>CC&nbsp;<span style={{ color: "var(--ink-400)" }}>/</span>&nbsp;SF</span>
       </a>
@@ -122,11 +140,54 @@ function Nav() {
         <a href="#walkthrough">Watch</a>
         <a href="#curriculum">Curriculum</a>
         <a href={ENROLL_HASH}>Pricing</a>
-        <a href={ENROLL_HASH} className="btn btn--primary" style={{ padding: "10px 18px" }}>
+        <a href={ENROLL_HASH} className="btn btn--primary nav-enroll" style={{ padding: "10px 18px" }}>
           Enroll <span className="arrow">→</span>
         </a>
       </div>
+
+      <button
+        type="button"
+        className={`nav-burger ${menuOpen ? "nav-burger--open" : ""}`}
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        aria-controls="ccsf-mobile-menu"
+        onClick={() => setMenuOpen((v) => !v)}
+      >
+        <span /><span /><span />
+      </button>
+
+      <div
+        id="ccsf-mobile-menu"
+        className={`nav-mobile ${menuOpen ? "nav-mobile--open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!menuOpen}
+      >
+        <a href="#model" onClick={close}>The Model</a>
+        <a href="#build" onClick={close}>What you'll build</a>
+        <a href="#walkthrough" onClick={close}>Watch</a>
+        <a href="#curriculum" onClick={close}>Curriculum</a>
+        <a href="#faq" onClick={close}>FAQ</a>
+        <a href={ENROLL_HASH} onClick={close}>Pricing</a>
+        <a href={ENROLL_HASH} className="btn btn--primary nav-mobile-cta" onClick={close}>
+          Get Lifetime Access for $97 <span className="arrow">→</span>
+        </a>
+      </div>
     </nav>
+  );
+}
+
+function StickyEnroll() {
+  const scrolled = useScrolled(600);
+  return (
+    <a
+      href={ENROLL_HASH}
+      className={`sticky-enroll ${scrolled ? "sticky-enroll--show" : ""}`}
+      aria-label="Enroll — Get lifetime access for $97"
+    >
+      <span className="sticky-enroll-text">Get Lifetime Access — $97</span>
+      <span className="arrow">→</span>
+    </a>
   );
 }
 
@@ -237,13 +298,13 @@ function Hero() {
           </h1>
 
           <p className="lead" style={{ marginTop: "40px" }}>
-            Install it. Connect it to your org. Use plain English to ship flows, validation
-            rules, and metadata work. No developer in the loop. No terminal anxiety.
+            Stop Clicking. Start Prompting. Build &amp; Deploy Salesforce Flows in
+            5&nbsp;Minutes—No Code Required.
           </p>
 
           <div className="hero-ctas">
             <a href={ENROLL_HASH} className="btn btn--primary">
-              Enroll Now <span className="arrow">→</span>
+              Get Lifetime Access for $97 <span className="arrow">→</span>
             </a>
             <a href="#model" className="btn btn--ghost">
               See how it works
@@ -324,9 +385,8 @@ function Friction() {
               is a bottleneck.
             </h2>
             <p className="lead" style={{ marginTop: "32px" }}>
-              The job has quietly become more strategic, and more constrained, than the
-              tools were built for. Tickets queue. Sandboxes pile up. The point-and-click
-              surface area keeps growing while the time you have to operate it does not.
+              Finally bridge the gap between "I know what the business needs" and "I don't
+              know how to write the Apex for it." Be your own developer.
             </p>
           </div>
 
@@ -509,14 +569,13 @@ function NewModel() {
 
         <div className="model-intro">
           <h2 className="display">
-            From clicking through screens<br />
-            to <em>directing the work.</em>
+            Ship the 'Regional Lead Routing' flow<br />
+            before your <em>10:00 AM meeting</em> ends.
           </h2>
           <p className="lead" style={{ marginTop: "28px", maxWidth: "62ch" }}>
-            Claude Code reads your Salesforce project the way a senior architect would.
-            It knows your objects, fields, flows, and rules, and turns plain-English intent
-            into reviewable, testable artifacts. You stay the operator. The model handles
-            the surface area.
+            One prompt. One reviewable diff. One deploy. The kind of work that used to
+            mean a Jira ticket, two sprints of waiting, and an apology email to the VP of
+            Sales — done before your second coffee.
           </p>
         </div>
 
@@ -660,12 +719,14 @@ Risks:
 
         <div className="build-intro">
           <h2 className="display">
-            Not features.<br />
-            <em>Finished work.</em>
+            Backlog anxiety<br />
+            is <em>real.</em>
           </h2>
           <p className="lead" style={{ marginTop: "24px" }}>
-            Each module ends with a real, deployable artifact. The kind of thing you'd
-            normally file a ticket for. Here are four you'll ship in the course.
+            That feeling when your "Quick Wins" list has 42 items and your Tuesday is
+            booked with back-to-back meetings. Each module ends with a real, deployable
+            artifact — the kind of thing you'd normally file a ticket for. Claude Code
+            isn't just a tool; it's how you get your lunch break back.
           </p>
         </div>
 
@@ -677,7 +738,7 @@ Risks:
   );
 }
 
-const WALKTHROUGH_EMBED_URL = "https://iframe.mediadelivery.net/embed/649324/252378e4-2c62-497a-9a8c-f3e06e7db083?autoplay=true&preload=true";
+const WALKTHROUGH_EMBED_URL = "https://iframe.mediadelivery.net/embed/649324/252378e4-2c62-497a-9a8c-f3e06e7db083?autoplay=true&preload=true&playsinline=true&muted=false&responsive=true";
 
 function VideoModal({ open, onClose, src, title }) {
   useEffect(() => {
@@ -702,9 +763,9 @@ function VideoModal({ open, onClose, src, title }) {
           <iframe
             src={src}
             title={title}
-            loading="lazy"
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
+            playsInline
           />
         </div>
       </div>
@@ -820,43 +881,46 @@ function Curriculum() {
   const phases = [
     {
       phase: "Phase I",
-      title: "Foundation",
-      duration: "~45 min",
+      title: "Foundation & data model",
+      duration: "Capstone: BrightPath Solar",
       modules: [
-        { n: "1.1", t: "Why Claude Code, why now", d: "The shift from point-and-click to prompt-driven admin work." },
-        { n: "1.2", t: "Install, without fear", d: "Walk-through of installation on Mac and Windows. Terminal demystified." },
-        { n: "1.3", t: "Your first useful output", d: "Within 15 minutes, a real artifact you can deploy." },
+        { n: "1.1", t: "Why Claude Code, why now", d: "The shift from point-and-click to prompt-driven admin work, set inside the BrightPath capstone scenario." },
+        { n: "1.2", t: "Install, connect, first prompt", d: "Mac + Windows walk-through. Authenticate to a Salesforce DX sandbox. Get your first artifact deployed." },
+        { n: "1.3", t: "Custom fields on Account, Contact, Opportunity", d: "Ship the BrightPath field set: Customer Type, Utility Provider, System Size, Financing Method, and more — from a single prompt." },
       ],
     },
     {
       phase: "Phase II",
-      title: "Connection",
-      duration: "~60 min",
+      title: "Custom objects & schema",
+      duration: "6 objects · 25+ fields",
       modules: [
-        { n: "2.1", t: "Authenticating to your org", d: "Connecting Claude Code to your sandbox safely." },
-        { n: "2.2", t: "Project context: telling Claude about your org", d: "How metadata becomes vocabulary." },
-        { n: "2.3", t: "Reading the org: schemas, flows, rules", d: "From blank prompt to org-aware partner." },
+        { n: "2.1", t: "Custom objects + relationships", d: "Build Site Survey, Installation, Warranty Claim, Equipment, Incentive Program, and Incentive Application — with master-detail and lookup wiring." },
+        { n: "2.2", t: "Record types + page layouts", d: "Residential vs Commercial accounts. Three opportunity record types: Residential Install, Commercial Install, Service/Warranty." },
+        { n: "2.3", t: "Permission sets + custom app", d: "Sales Rep, Operations, and Admin personas. Build the BrightPath Solar app with custom tabs in one prompt." },
+        { n: "2.4", t: "Validation rules", d: "Stage-gated amounts, future-only schedule dates, warranty expiration logic — drafted, deployed, tested." },
       ],
     },
     {
       phase: "Phase III",
-      title: "Building",
-      duration: "~90 min",
+      title: "Flows from English",
+      duration: "4 production flows",
       modules: [
-        { n: "3.1", t: "Flows from plain English", d: "Generate, review, deploy." },
-        { n: "3.2", t: "Validation rules and triggers", d: "When to use which, and how to spec them." },
-        { n: "3.3", t: "Metadata and permissions work", d: "Audit, refactor, document." },
-        { n: "3.4", t: "Documentation that stays current", d: "Auto-generated, version-controlled." },
+        { n: "3.1", t: "Lead Intake screen flow", d: "Three-screen wizard that creates Account + Contact + Opportunity in one go, with a live savings estimate." },
+        { n: "3.2", t: "Post-Survey auto-update", d: "Record-triggered flow that promotes the Opportunity to Proposal, files panel-upgrade tasks, and Chatter-warns on heavy shade." },
+        { n: "3.3", t: "Installation milestone notifications", d: "Branching flow that emails the customer on inspection scheduling and closes the deal on inspection passed." },
+        { n: "3.4", t: "Warranty expiration scheduled flow", d: "Daily 7am job that surfaces 90-day warranty expirations and pings the Customer Success manager with a summary." },
       ],
     },
     {
       phase: "Phase IV",
-      title: "Operating model",
-      duration: "~45 min",
+      title: "Apex, LWC & ops",
+      duration: "Triggers · Batch · LWC",
       modules: [
-        { n: "4.1", t: "Sandbox-first patterns", d: "Validate before promote. Every time." },
-        { n: "4.2", t: "Review discipline", d: "Reading a diff like a senior architect." },
-        { n: "4.3", t: "Where Claude ends, where you begin", d: "The boundaries of the partnership." },
+        { n: "4.1", t: "Apex trigger: Commission Calculator", d: "Tiered commission logic with cash bonus and lease/PPA penalty. Handler-class pattern, bulkified to 200+ records, 90% test coverage." },
+        { n: "4.2", t: "Apex trigger: Installation Validator", d: "Forward-only status progression, permit-number gating, completed-survey enforcement — with custom errors and full negative-path tests." },
+        { n: "4.3", t: "Batch + Schedulable: Production Estimator", d: "Nightly job that calculates annual kWh production and 25-year lifetime savings on every Closed Won deal." },
+        { n: "4.4", t: "Lightning Web Component: Installation Timeline", d: "A wired LWC that visualizes status from Permit Submitted → Inspection Passed, with an On Hold amber state. CSS-only, responsive." },
+        { n: "4.5", t: "Dummy data + reports + dashboard", d: "100+ records seeded across all objects. Pipeline-by-financing-method report, install-status tracker, and a live BrightPath Operations dashboard." },
       ],
     },
   ];
@@ -866,7 +930,7 @@ function Curriculum() {
       <div className="shell">
         <div className="block-head">
           <div className="eyebrow"><span className="num">06</span>Course architecture</div>
-          <div className="block-head-meta">Four phases · Twelve modules · ~4 hours</div>
+          <div className="block-head-meta">Four phases · BrightPath Solar capstone</div>
         </div>
 
         <div className="curriculum-intro">
@@ -874,6 +938,12 @@ function Curriculum() {
             A system, not<br />
             <em>a syllabus.</em>
           </h2>
+          <p className="lead" style={{ marginTop: "24px", maxWidth: "62ch" }}>
+            You'll build a complete Salesforce org for a fictional solar installer —
+            BrightPath Energy — alongside the lessons. Six custom objects, 25+ fields,
+            four flows, two Apex triggers, a batch job, and a Lightning Web Component.
+            Everything you'd ship at a real job, shipped here first.
+          </p>
         </div>
 
         <div className="curriculum">
@@ -892,7 +962,7 @@ function Curriculum() {
                     <span className="phase-toggle">{isOpen ? "−" : "+"}</span>
                   </div>
                 </button>
-                <div className="phase-body" style={{ maxHeight: isOpen ? "600px" : "0px" }}>
+                <div className="phase-body" style={{ maxHeight: isOpen ? "1200px" : "0px" }}>
                   <div className="phase-body-inner">
                     {p.modules.map((m) => (
                       <div className="module" key={m.n}>
@@ -941,12 +1011,13 @@ function Demo() {
         <div className="demo-grid">
           <div className="demo-copy">
             <h2 className="display">
-              Type something<br />
+              The kind of thing<br />
               an <em>admin would say.</em>
             </h2>
             <p className="lead" style={{ marginTop: "20px" }}>
-              In the course, this runs against your real org. Below: the kind of
-              prompt-to-artifact loop you'll be running every day.
+              A snapshot of the prompt-to-artifact loop you'll run every day in the
+              course. The example on the right is real output from a real org. Below:
+              other prompts admins use to put Claude to work.
             </p>
             <div className="demo-examples">
               <div className="eyebrow" style={{ marginBottom: "12px" }}>Other things admins ask Claude</div>
@@ -1051,9 +1122,10 @@ function Instructor() {
 
           <div className="instructor-note">
             <h2 className="display">
-              <em>"I was the admin</em><br />
-              who was scared<br />
-              of Flows."
+              Stop being a<br />
+              <em>"point-and-click"</em> admin.<br />
+              Start being a Salesforce<br />
+              <em>architect.</em>
             </h2>
             <div className="instructor-body">
               <p>
@@ -1162,7 +1234,7 @@ function Pricing() {
             </div>
 
             <p style={{ fontFamily: "var(--mono)", fontSize: "10px", letterSpacing: "0.06em", color: "var(--ink-500)", marginTop: 12, lineHeight: 1.5 }}>
-              Requires a Claude Max subscription ($100/month, where Claude Code now lives).
+              Requires a Claude Pro subscription ($20/month).
               No Salesforce add-on license required beyond Enterprise / Unlimited / Developer edition.
             </p>
           </div>
@@ -1227,7 +1299,7 @@ function FinalCTA() {
           </h2>
           <div className="final-cta-buttons">
             <a href={ENROLL_HASH} className="btn btn--primary" style={{ padding: "20px 36px", fontSize: "15px" }}>
-              Enroll Now <span className="arrow">→</span>
+              Start Building with Claude <span className="arrow">→</span>
             </a>
             <a href="#curriculum" className="btn btn--ghost" style={{ padding: "20px 36px", fontSize: "15px", borderColor: "var(--bone-300)", color: "var(--bone-100)" }}>
               See the curriculum
@@ -1299,6 +1371,7 @@ export default function SalesPage() {
       />
 
       <Nav />
+      <StickyEnroll />
       <Hero />
       <Marquee />
       <Friction />

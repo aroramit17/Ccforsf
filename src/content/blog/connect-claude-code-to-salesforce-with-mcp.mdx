@@ -1,6 +1,6 @@
 ---
 title: "Connect Claude Code to your Salesforce org with MCP (VS Code setup)"
-description: "The six-phase setup: Node + SF CLI + Claude Max + the Salesforce DX MCP server + a single .mcp.json file. 15 minutes from zero to your first prompt in VS Code."
+description: "The six-phase setup: Node + SF CLI + Claude Pro + the Salesforce DX MCP server + a single .mcp.json file. 15 minutes from zero to your first prompt in VS Code."
 date: 2026-04-23
 author: Amit
 heroImage: /amit-headshot.png
@@ -18,7 +18,7 @@ Get these four things in place first:
 
 - **Node.js 18+** (check with `node --version`)
 - **Salesforce CLI**: `npm install -g @salesforce/cli`
-- **Claude Max subscription** ($100/month). Anthropic moved Claude Code access into the Max plan in 2026 — the old Pro tier doesn't include it anymore.
+- **Claude Pro subscription** ($20/month). Required to use Claude Code.
 - **VS Code + the Salesforce Extension Pack**. Open VS Code, go to the Extensions tab (Cmd/Ctrl+Shift+X), search for **"Salesforce Extension Pack"** (published by Salesforce), and install it. This bundles Apex support, SOQL, DX project tooling, and the Org Browser all in one.
 
 None of these are optional. If you're missing any, the later phases will fail in confusing ways.
@@ -56,7 +56,7 @@ You now have a Salesforce DX project folder with `sfdx-project.json` at the root
 npm install -g @anthropic-ai/claude-code
 ```
 
-Then run `claude` from any terminal. The first time, it opens a browser window to authenticate against your Claude Max account. Once that's done, you'll see the `claude>` prompt.
+Then run `claude` from any terminal. The first time, it opens a browser window to authenticate against your Claude Pro account. Once that's done, you'll see the `claude>` prompt.
 
 You can close and reopen the terminal at any time — your auth is cached.
 
