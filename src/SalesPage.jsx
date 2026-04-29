@@ -877,70 +877,63 @@ function BuildStack({ builds }) {
   }, []);
 
   const count = builds.length;
-  const segment = 1 / count;
-  const rawIdx = progress / segment;
   const activeIdx = Math.min(count - 1, Math.floor(progress * count));
-  const trackHeight = `calc(${count} * 100vh)`;
 
   const goTo = (i) => {
     const el = trackRef.current;
     if (!el) return;
-    const top = el.offsetTop + ((el.offsetHeight - window.innerHeight) * (i / count));
+    const card = el.querySelector(`[data-build-card="${i}"]`);
+    const top = card
+      ? card.getBoundingClientRect().top + window.scrollY - 96
+      : el.offsetTop + ((el.offsetHeight - window.innerHeight) * (i / count));
     window.scrollTo({ top, behavior: "smooth" });
   };
 
   return (
-    <div className="build-track" ref={trackRef} style={{ height: trackHeight }}>
-      <div className="build-sticky">
-        <div className="shell build-sticky-shell">
-          <div className="build-stack-meta">
-            <div className="eyebrow">
-              <span className="num">{String(activeIdx + 1).padStart(2, "0")}</span>
-              {builds[activeIdx].kind} · scroll to advance
-            </div>
-            <div className="block-head-meta">
-              {String(activeIdx + 1).padStart(2, "0")} <span style={{ opacity: 0.4 }}>/ {String(count).padStart(2, "0")}</span>
-            </div>
+    <div className="build-track" ref={trackRef}>
+      <div className="shell build-sticky-shell">
+        <div className="build-stack-meta">
+          <div className="eyebrow">
+            <span className="num">{String(activeIdx + 1).padStart(2, "0")}</span>
+            {builds[activeIdx].kind} · scroll to advance
           </div>
+          <div className="block-head-meta">
+            {String(activeIdx + 1).padStart(2, "0")} <span style={{ opacity: 0.4 }}>/ {String(count).padStart(2, "0")}</span>
+          </div>
+        </div>
 
-          <div className="build-stack">
-            {builds.map((b, i) => {
-              const offset = i - activeIdx;
-              const localProgress = Math.max(0, Math.min(1, rawIdx - i));
-              return (
-                <article
-                  key={b.idx}
-                  className={`build-stack-card${offset === 0 ? " is-active" : ""}${offset < 0 ? " is-past" : ""}${offset > 0 ? " is-future" : ""}`}
-                  style={{
-                    "--offset": offset,
-                    "--abs-offset": Math.abs(offset),
-                    "--local-progress": localProgress,
-                    zIndex: 20 - Math.abs(offset),
-                  }}
-                  aria-hidden={offset !== 0}
-                >
-                  <BuildPanel {...b} />
-                </article>
-              );
-            })}
-          </div>
+        <div className="build-stack" style={{ "--build-count": count }}>
+          {builds.map((b, i) => (
+            <div
+              key={b.idx}
+              data-build-card={i}
+              className={`build-stack-card${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}${i > activeIdx ? " is-future" : ""}`}
+              style={{
+                "--card-index": i,
+                "--reverse-index": count - i,
+                zIndex: 10 + i,
+              }}
+            >
+              <BuildPanel {...b} />
+            </div>
+          ))}
+        </div>
 
-          <div className="build-progress" role="tablist" aria-label="What you'll build">
-            {builds.map((b, i) => (
-              <button
-                key={b.idx}
-                type="button"
-                role="tab"
-                aria-selected={i === activeIdx}
-                onClick={() => goTo(i)}
-                className={`build-progress-step${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}`}
-              >
-                <span className="build-progress-num">{b.idx}</span>
-                <span className="build-progress-label">{b.kind}</span>
-                <span className="build-progress-bar" />
-              </button>
-            ))}
-          </div>
+        <div className="build-progress" role="tablist" aria-label="What you'll build">
+          {builds.map((b, i) => (
+            <button
+              key={b.idx}
+              type="button"
+              role="tab"
+              aria-selected={i === activeIdx}
+              onClick={() => goTo(i)}
+              className={`build-progress-step${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}`}
+            >
+              <span className="build-progress-num">{b.idx}</span>
+              <span className="build-progress-label">{b.kind}</span>
+              <span className="build-progress-bar" />
+            </button>
+          ))}
         </div>
       </div>
     </div>
