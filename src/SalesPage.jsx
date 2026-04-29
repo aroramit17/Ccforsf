@@ -85,6 +85,27 @@ function useScrolled(threshold = 24) {
   return scrolled;
 }
 
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "light";
+    const stored = window.localStorage.getItem("ccsf-theme");
+    if (stored === "dark" || stored === "light") return stored;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.colorScheme = theme;
+    try { window.localStorage.setItem("ccsf-theme", theme); } catch {}
+  }, [theme]);
+
+  const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  return { theme, toggle };
+}
+
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll(".ccsf-root .reveal");
@@ -109,6 +130,27 @@ function useReveal() {
 }
 
 /* ══════════════════════════ COMPONENTS ══════════════════════════ */
+
+function ThemeToggle({ className = "" }) {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === "dark";
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      className={`theme-toggle ${className}`}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-pressed={isDark}
+      title={isDark ? "Light mode" : "Dark mode"}
+    >
+      <span className="theme-toggle-track">
+        <span className="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">☀</span>
+        <span className="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">☾</span>
+        <span className="theme-toggle-thumb" aria-hidden="true" />
+      </span>
+    </button>
+  );
+}
 
 function Nav() {
   const scrolled = useScrolled();
@@ -140,10 +182,13 @@ function Nav() {
         <a href="#walkthrough">Watch</a>
         <a href="#curriculum">Curriculum</a>
         <a href={ENROLL_HASH}>Pricing</a>
+        <ThemeToggle className="theme-toggle--nav" />
         <a href={ENROLL_HASH} className="btn btn--primary nav-enroll" style={{ padding: "10px 18px" }}>
           Enroll <span className="arrow">→</span>
         </a>
       </div>
+
+      <ThemeToggle className="theme-toggle--mobile" />
 
       <button
         type="button"
@@ -569,8 +614,8 @@ function NewModel() {
 
         <div className="model-intro">
           <h2 className="display">
-            Ship the 'Regional Lead Routing' flow<br />
-            before your <em>10:00 AM meeting</em> ends.
+            Ship the 'Regional Lead Routing' flow before your{" "}
+            <em>10:00 AM meeting</em> ends.
           </h2>
           <p className="lead" style={{ marginTop: "28px", maxWidth: "62ch" }}>
             One prompt. One reviewable diff. One deploy. The kind of work that used to
@@ -623,6 +668,73 @@ function BuildPanel({ idx, title, kind, prompt, artifact, tag }) {
         </div>
       </div>
     </article>
+  );
+}
+
+function BacklogMock() {
+  const tickets = [
+    { id: "T-2841", pri: "high", title: "Territory routing flow for net-new Leads", owner: "Sarah K.", age: "14d", type: "Flow" },
+    { id: "T-2837", pri: "high", title: "Validation: Close Date required at Negotiation", owner: "Marcus R.", age: "9d", type: "Rule" },
+    { id: "T-2829", pri: "med",  title: "Audit profiles with Modify All on Account", owner: "Priya S.", age: "22d", type: "Audit" },
+    { id: "T-2818", pri: "high", title: "Migrate Quote Builder Aura → LWC", owner: "DevOps", age: "31d", type: "LWC" },
+    { id: "T-2807", pri: "low",  title: "Document active Opportunity flows", owner: "—", age: "6d", type: "Docs" },
+    { id: "T-2792", pri: "med",  title: "Permission set: Finance read-only on Opp", owner: "Sarah K.", age: "18d", type: "Perms" },
+    { id: "T-2774", pri: "high", title: "Apex test class for CommissionTrigger", owner: "Marcus R.", age: "27d", type: "Apex" },
+  ];
+  return (
+    <div className="backlog-mock" aria-label="Salesforce admin backlog mock-up">
+      <div className="backlog-mock-frame">
+        <div className="backlog-mock-tabs">
+          <span className="backlog-mock-tab backlog-mock-tab--active">
+            <span className="backlog-mock-tab-icon">★</span>
+            Admin Backlog
+          </span>
+          <span className="backlog-mock-tab-meta">42 items · sorted by Priority</span>
+        </div>
+
+        <div className="backlog-mock-toolbar">
+          <span className="backlog-mock-pill">List View · Recently Modified</span>
+          <span className="backlog-mock-search">⌕ Search this list…</span>
+        </div>
+
+        <div className="backlog-mock-table">
+          <div className="backlog-mock-row backlog-mock-row--head">
+            <div>#</div>
+            <div>P</div>
+            <div>Subject</div>
+            <div>Owner</div>
+            <div>Age</div>
+            <div>Type</div>
+          </div>
+          {tickets.map((t) => (
+            <div className="backlog-mock-row" key={t.id}>
+              <div className="backlog-mock-id">{t.id}</div>
+              <div>
+                <span className={`backlog-mock-pri backlog-mock-pri--${t.pri}`}>
+                  {t.pri === "high" ? "High" : t.pri === "med" ? "Med" : "Low"}
+                </span>
+              </div>
+              <div className="backlog-mock-subject">{t.title}</div>
+              <div className="backlog-mock-owner">{t.owner}</div>
+              <div className="backlog-mock-age">{t.age}</div>
+              <div className="backlog-mock-type">{t.type}</div>
+            </div>
+          ))}
+          <div className="backlog-mock-row backlog-mock-row--more">
+            <div />
+            <div />
+            <div className="backlog-mock-subject" style={{ color: "var(--ink-500)" }}>
+              + 35 more &nbsp;&nbsp;·&nbsp;&nbsp; oldest item: 89&nbsp;days
+            </div>
+            <div /><div /><div />
+          </div>
+        </div>
+      </div>
+      <div className="backlog-mock-caption">
+        <span className="backlog-mock-caption-eyebrow">Live list view · BrightPath sandbox</span>
+        <span>Every row is a Tuesday afternoon you don't get back.</span>
+      </div>
+    </div>
   );
 }
 
@@ -717,17 +829,21 @@ Risks:
           <div className="block-head-meta">Four case studies · real artifacts</div>
         </div>
 
-        <div className="build-intro">
-          <h2 className="display">
-            Backlog anxiety<br />
-            is <em>real.</em>
-          </h2>
-          <p className="lead" style={{ marginTop: "24px" }}>
-            That feeling when your "Quick Wins" list has 42 items and your Tuesday is
-            booked with back-to-back meetings. Each module ends with a real, deployable
-            artifact — the kind of thing you'd normally file a ticket for. Claude Code
-            isn't just a tool; it's how you get your lunch break back.
-          </p>
+        <div className="build-intro-grid">
+          <div className="build-intro">
+            <h2 className="display">
+              Backlog anxiety<br />
+              is <em>real.</em>
+            </h2>
+            <p className="lead" style={{ marginTop: "24px" }}>
+              That feeling when your "Quick Wins" list has 42 items and your Tuesday is
+              booked with back-to-back meetings. Each module ends with a real, deployable
+              artifact — the kind of thing you'd normally file a ticket for. Claude Code
+              isn't just a tool; it's how you get your lunch break back.
+            </p>
+          </div>
+
+          <BacklogMock />
         </div>
 
         <div className="build-grid">
