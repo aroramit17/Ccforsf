@@ -1142,6 +1142,166 @@
   margin: 0;
 }
 
+/* BUILD STACK — scroll-driven card flip */
+.ccsf-root .build-track { position: relative; }
+.ccsf-root .build-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.ccsf-root .build-sticky-shell {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 100vh;
+  padding-top: 88px;
+  padding-bottom: 32px;
+}
+.ccsf-root .build-stack-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.ccsf-root .build-stack {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  perspective: 1600px;
+  transform-style: preserve-3d;
+}
+.ccsf-root .build-stack-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  transform-origin: top center;
+  transition:
+    transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 500ms ease;
+  will-change: transform, opacity;
+  --offset: 0;
+  --abs-offset: 0;
+}
+.ccsf-root .build-stack-card.is-active {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotateX(0deg);
+  z-index: 20;
+}
+.ccsf-root .build-stack-card.is-future {
+  opacity: 1;
+  transform:
+    translateY(calc(var(--abs-offset) * 28px))
+    scale(calc(1 - var(--abs-offset) * 0.045))
+    rotateX(calc(var(--abs-offset) * 4deg));
+}
+.ccsf-root .build-stack-card.is-future:nth-child(n+4) { opacity: 0; pointer-events: none; }
+.ccsf-root .build-stack-card.is-past {
+  opacity: 0;
+  pointer-events: none;
+  transform:
+    translateY(calc(var(--offset) * 60px))
+    scale(0.94)
+    rotateX(-12deg);
+}
+.ccsf-root .build-stack-card .build-panel {
+  background: var(--bone-100);
+  border: 1px solid var(--border-strong);
+  padding: 32px 36px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 60px -28px rgba(26, 25, 22, 0.22),
+    0 8px 18px -10px rgba(26, 25, 22, 0.12);
+}
+[data-theme="dark"] .ccsf-root .build-stack-card .build-panel { background: var(--surface); }
+.ccsf-root .build-stack-card .build-panel-artifact { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.ccsf-root .build-stack-card .build-output { flex: 1; overflow: auto; }
+.ccsf-root .build-stack-card h3.display { font-size: clamp(24px, 2.6vw, 36px); }
+
+.ccsf-root .build-progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 0 0;
+}
+.ccsf-root .build-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 4px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: var(--ink-500);
+  border-top: 1px solid var(--border);
+  position: relative;
+  transition: color 220ms ease;
+}
+.ccsf-root .build-progress-step::before {
+  content: "";
+  position: absolute;
+  top: -1px; left: 0;
+  height: 1px; width: 0;
+  background: var(--accent);
+  transition: width 320ms ease;
+}
+.ccsf-root .build-progress-step.is-past::before,
+.ccsf-root .build-progress-step.is-active::before {
+  width: 100%;
+}
+.ccsf-root .build-progress-step.is-active { color: var(--ink-900); }
+.ccsf-root .build-progress-num {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 600;
+}
+.ccsf-root .build-progress-label {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 800px) {
+  .ccsf-root .build-track { height: auto !important; }
+  .ccsf-root .build-sticky { position: static; height: auto; overflow: visible; }
+  .ccsf-root .build-sticky-shell { padding-top: 48px; max-height: none; }
+  .ccsf-root .build-stack {
+    position: static;
+    perspective: none;
+    transform-style: flat;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .ccsf-root .build-stack-card,
+  .ccsf-root .build-stack-card.is-active,
+  .ccsf-root .build-stack-card.is-past,
+  .ccsf-root .build-stack-card.is-future {
+    position: relative;
+    inset: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+  }
+  .ccsf-root .build-stack-card .build-panel { padding: 24px; }
+  .ccsf-root .build-progress { display: none; }
+}
+
 /* WALKTHROUGH (live demo video) */
 .ccsf-root .walkthrough-intro { max-width: 760px; margin-bottom: 64px; }
 .ccsf-root .walkthrough-frame { margin-top: 24px; }
@@ -1664,6 +1824,132 @@
   letter-spacing: 0.12em; color: var(--ink-500);
   text-transform: uppercase; font-weight: 600;
   margin-bottom: 12px;
+}
+
+/* TESTIMONIALS — scattered paper notes */
+.ccsf-root .testimonials-intro { max-width: 760px; margin-bottom: 64px; }
+.ccsf-root .testimonials-wall {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px 32px;
+  margin-bottom: 48px;
+}
+@media (max-width: 1000px) { .ccsf-root .testimonials-wall { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .ccsf-root .testimonials-wall { grid-template-columns: 1fr; gap: 20px; } }
+
+.ccsf-root .testimonial-paper {
+  position: relative;
+  background: #FAF7F0;
+  color: #2B2A26;
+  padding: 22px 22px 18px;
+  margin: 0;
+  transform: rotate(var(--rot));
+  transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 320ms ease;
+  box-shadow:
+    0 1px 1px rgba(26, 25, 22, 0.04),
+    0 14px 28px -16px rgba(26, 25, 22, 0.20),
+    0 4px 10px -8px rgba(26, 25, 22, 0.10);
+  background-image:
+    radial-gradient(at 10% 20%, rgba(0,0,0,0.025) 0%, transparent 35%),
+    radial-gradient(at 70% 8%, rgba(0,0,0,0.020) 0%, transparent 30%),
+    radial-gradient(at 30% 90%, rgba(0,0,0,0.025) 0%, transparent 30%),
+    radial-gradient(at 90% 60%, rgba(0,0,0,0.018) 0%, transparent 28%),
+    linear-gradient(135deg, rgba(0,0,0,0.012), rgba(0,0,0,0) 50%);
+  border-radius: 1px;
+}
+.ccsf-root .testimonial-paper::before,
+.ccsf-root .testimonial-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+}
+.ccsf-root .testimonial-paper::before {
+  background-image:
+    linear-gradient(102deg, transparent 38%, rgba(0,0,0,0.04) 39%, transparent 40%),
+    linear-gradient(85deg, transparent 70%, rgba(0,0,0,0.03) 71%, transparent 72%),
+    linear-gradient(120deg, transparent 12%, rgba(0,0,0,0.03) 13%, transparent 14%);
+  mix-blend-mode: multiply;
+  opacity: 0.7;
+}
+.ccsf-root .testimonial-paper::after {
+  /* corner fold */
+  top: 0; right: 0;
+  width: 22px; height: 22px;
+  background: linear-gradient(225deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.04) 50%, transparent 60%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+.ccsf-root .testimonial-paper:hover {
+  transform: rotate(0deg) translateY(-4px);
+  box-shadow:
+    0 1px 1px rgba(26, 25, 22, 0.04),
+    0 28px 50px -22px rgba(26, 25, 22, 0.30),
+    0 8px 18px -10px rgba(26, 25, 22, 0.16);
+  z-index: 5;
+}
+.ccsf-root .testimonial-paper-body {
+  margin: 0 0 20px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: #2B2A26;
+  font-weight: 400;
+}
+.ccsf-root .testimonial-paper-cap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(26, 25, 22, 0.18);
+}
+.ccsf-root .testimonial-paper-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #DDD7C5, #C4BCA6);
+  color: #1A1916;
+  display: grid; place-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: inset 0 0 0 1px rgba(26,25,22,0.08);
+  flex-shrink: 0;
+}
+.ccsf-root .testimonial-paper-meta { display: flex; flex-direction: column; gap: 2px; }
+.ccsf-root .testimonial-paper-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A1916;
+}
+.ccsf-root .testimonial-paper-role {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: #56544D;
+}
+[data-theme="dark"] .ccsf-root .testimonial-paper {
+  background: #F5F1E8;
+  color: #2B2A26;
+}
+.ccsf-root .testimonials-foot {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink-500);
+  border-top: 1px dashed var(--border);
+  padding-top: 18px;
+  flex-wrap: wrap;
+  max-width: 780px;
+}
+.ccsf-root .testimonials-foot-eyebrow {
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 600;
 }
 
 /* PRICING — BONUSES */

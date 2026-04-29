@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
 import "./SalesPage.css";
 
@@ -845,12 +845,105 @@ Risks:
 
           <BacklogMock />
         </div>
+      </div>
 
-        <div className="build-grid">
-          {builds.map((b) => <BuildPanel key={b.idx} {...b} />)}
+      <BuildStack builds={builds} />
+    </section>
+  );
+}
+
+function BuildStack({ builds }) {
+  const trackRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const winH = window.innerHeight || document.documentElement.clientHeight;
+      const total = el.offsetHeight - winH;
+      const scrolled = Math.max(0, -rect.top);
+      const p = total > 0 ? Math.min(1, scrolled / total) : 0;
+      setProgress(p);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  const count = builds.length;
+  const segment = 1 / count;
+  const rawIdx = progress / segment;
+  const activeIdx = Math.min(count - 1, Math.floor(progress * count));
+  const trackHeight = `calc(${count} * 100vh)`;
+
+  const goTo = (i) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const top = el.offsetTop + ((el.offsetHeight - window.innerHeight) * (i / count));
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
+  return (
+    <div className="build-track" ref={trackRef} style={{ height: trackHeight }}>
+      <div className="build-sticky">
+        <div className="shell build-sticky-shell">
+          <div className="build-stack-meta">
+            <div className="eyebrow">
+              <span className="num">{String(activeIdx + 1).padStart(2, "0")}</span>
+              {builds[activeIdx].kind} · scroll to advance
+            </div>
+            <div className="block-head-meta">
+              {String(activeIdx + 1).padStart(2, "0")} <span style={{ opacity: 0.4 }}>/ {String(count).padStart(2, "0")}</span>
+            </div>
+          </div>
+
+          <div className="build-stack">
+            {builds.map((b, i) => {
+              const offset = i - activeIdx;
+              const localProgress = Math.max(0, Math.min(1, rawIdx - i));
+              return (
+                <article
+                  key={b.idx}
+                  className={`build-stack-card${offset === 0 ? " is-active" : ""}${offset < 0 ? " is-past" : ""}${offset > 0 ? " is-future" : ""}`}
+                  style={{
+                    "--offset": offset,
+                    "--abs-offset": Math.abs(offset),
+                    "--local-progress": localProgress,
+                    zIndex: 20 - Math.abs(offset),
+                  }}
+                  aria-hidden={offset !== 0}
+                >
+                  <BuildPanel {...b} />
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="build-progress" role="tablist" aria-label="What you'll build">
+            {builds.map((b, i) => (
+              <button
+                key={b.idx}
+                type="button"
+                role="tab"
+                aria-selected={i === activeIdx}
+                onClick={() => goTo(i)}
+                className={`build-progress-step${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}`}
+              >
+                <span className="build-progress-num">{b.idx}</span>
+                <span className="build-progress-label">{b.kind}</span>
+                <span className="build-progress-bar" />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -1001,7 +1094,7 @@ function Curriculum() {
       duration: "Capstone: BrightPath Solar",
       modules: [
         { n: "1.1", t: "Why Claude Code, why now", d: "The shift from point-and-click to prompt-driven admin work, set inside the BrightPath capstone scenario." },
-        { n: "1.2", t: "Install, connect, first prompt", d: "Mac + Windows walk-through. Authenticate to a Salesforce DX sandbox. Get your first artifact deployed." },
+        { n: "1.2", t: "Install, connect, first prompt", d: "Walk-through inside VS Code. Authenticate to a Salesforce DX sandbox. Get your first artifact deployed." },
         { n: "1.3", t: "Custom fields on Account, Contact, Opportunity", d: "Ship the BrightPath field set: Customer Type, Utility Provider, System Size, Financing Method, and more — from a single prompt." },
       ],
     },
@@ -1262,6 +1355,100 @@ function Instructor() {
   );
 }
 
+function Testimonials() {
+  const quotes = [
+    {
+      body: "I shipped a Flow on a Wednesday that's been on the backlog since March. The PM didn't believe me until I sent the diff.",
+      name: "Sarah K.",
+      role: "Sr. Salesforce Admin · Mid-market SaaS",
+      rot: -3.2,
+    },
+    {
+      body: "I was scared of writing Apex. Now I read the diff Claude gives me, ship it to the sandbox, and ship to prod when it passes. The fear was the bottleneck — not the language.",
+      name: "Marcus R.",
+      role: "Salesforce Architect · FinTech",
+      rot: 1.8,
+    },
+    {
+      body: "Three years of 'we should clean up our permission sets.' Done in a single afternoon. Claude audited every profile and gave me the redlines.",
+      name: "Priya S.",
+      role: "RevOps Lead · Industrial",
+      rot: -1.6,
+    },
+    {
+      body: "I used to file Jira tickets. Now I close them.",
+      name: "Devin H.",
+      role: "Solo Admin · 200-seat org",
+      rot: 2.6,
+    },
+    {
+      body: "The flip moment: Claude wrote a validation rule, ran it against my sandbox, found the edge case I missed, and patched it. I just watched.",
+      name: "Jordan T.",
+      role: "Salesforce Admin · Healthcare",
+      rot: -2.1,
+    },
+    {
+      body: "First flow I shipped from a prompt: territory routing for inbound leads. Took 18 minutes. My manager asked who I hired.",
+      name: "Amelia C.",
+      role: "RevOps Manager · B2B SaaS",
+      rot: 3.0,
+    },
+  ];
+
+  return (
+    <section className="section section-divider reveal" id="testimonials">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">10</span>Field reports</div>
+          <div className="block-head-meta">Beta cohort · names abbreviated at request</div>
+        </div>
+
+        <div className="testimonials-intro">
+          <h2 className="display">
+            What admins keep<br />
+            <em>telling me.</em>
+          </h2>
+          <p className="lead" style={{ marginTop: "20px", maxWidth: "62ch" }}>
+            Composite quotes drawn from beta-cohort interviews — paraphrased and
+            anonymized at the participants' request. Every one came from a working
+            Salesforce admin who shipped real artifacts during the course.
+          </p>
+        </div>
+
+        <div className="testimonials-wall">
+          {quotes.map((q, i) => (
+            <figure
+              key={i}
+              className="testimonial-paper"
+              style={{ "--rot": `${q.rot}deg` }}
+            >
+              <blockquote className="testimonial-paper-body">{q.body}</blockquote>
+              <figcaption className="testimonial-paper-cap">
+                <div className="testimonial-paper-avatar" aria-hidden="true">
+                  {q.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+                </div>
+                <div className="testimonial-paper-meta">
+                  <div className="testimonial-paper-name">{q.name}</div>
+                  <div className="testimonial-paper-role">{q.role}</div>
+                </div>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div className="testimonials-foot">
+          <span className="testimonials-foot-eyebrow">Disclosure</span>
+          <span>
+            Quotes are paraphrased composites from beta-cohort interviews. Real names
+            withheld for privacy. Aggregated public testimonials with full attribution
+            ship after Cohort 02.
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ThrivecartEmbed() {
   useEffect(() => {
     const id = "tc-webpay-57-B6Q0BP";
@@ -1384,10 +1571,16 @@ function PricingBonuses() {
 
 function Pricing() {
   const includes = [
-    "Twelve modules · capstone Salesforce build",
-    "Installation walk-throughs (Mac + Windows)",
-    "Project files, prompts, and ready-to-fork repos",
-    "Sandbox-safe operating playbook",
+    "BrightPath Solar capstone — full org build, end to end",
+    "6 custom objects + 25+ fields, fully wired with relationships",
+    "3 Account / Opportunity record types and page layouts",
+    "4 production Flows (screen, record-triggered, scheduled)",
+    "2 Apex triggers with handler classes · 90% test coverage",
+    "1 Apex batch + Schedulable job (annual production estimator)",
+    "1 Lightning Web Component (Installation Timeline)",
+    "Permission sets + custom app for 3 user personas",
+    "100+ records of seeded data · 2 reports + 1 live dashboard",
+    "Installation walkthrough for VS Code",
     "Lifetime access · all future updates",
     "CLAUDE.md Starter Template + Skill Pack for Salesforce",
   ];
@@ -1396,7 +1589,7 @@ function Pricing() {
     <section className="section section-divider reveal" id="enroll">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">10</span>Enrollment</div>
+          <div className="eyebrow"><span className="num">11</span>Enrollment</div>
           <div className="block-head-meta">One tier · everything included</div>
         </div>
 
@@ -1465,7 +1658,7 @@ function FAQ() {
     <section className="section section-divider reveal" id="faq">
       <div className="shell">
         <div className="block-head">
-          <div className="eyebrow"><span className="num">11</span>Frequently asked</div>
+          <div className="eyebrow"><span className="num">12</span>Frequently asked</div>
           <div className="block-head-meta">Practical objections, answered</div>
         </div>
 
@@ -1506,7 +1699,7 @@ function FinalCTA() {
     <section className="section final-cta" id="cta">
       <div className="shell">
         <div className="final-cta-inner">
-          <div className="eyebrow"><span className="num">12</span>One last thing</div>
+          <div className="eyebrow"><span className="num">13</span>One last thing</div>
           <h2 className="display final-cta-title">
             The admins who learn this<br />
             <em>this year</em> will be the<br />
@@ -1597,6 +1790,7 @@ export default function SalesPage() {
       <Demo />
       <Safety />
       <Instructor />
+      <Testimonials />
       <Pricing />
       <FAQ />
       <FinalCTA />
