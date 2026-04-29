@@ -1,6 +1,6 @@
-# CC for SF — Claude Code for Salesforce Admins
+# CC for SF: Claude Code for Salesforce Admins
 
-> CC for SF is a hands-on mini-course that teaches Salesforce Admins how to use Claude Code (Anthropic's agentic CLI) to build Flows, custom fields, validation rules, Apex triggers, batch jobs, and Lightning Web Components — without clicking through Setup or writing code by hand. The whole course is structured around a capstone build: a complete Salesforce org for a fictional solar installer (BrightPath Energy). Created by Amit, 8× Salesforce Certified GTM Engineer.
+> CC for SF is a hands-on mini-course that teaches Salesforce Admins how to use Claude Code (Anthropic's agentic CLI) to build Flows, custom fields, validation rules, Apex triggers, batch jobs, and Lightning Web Components without clicking through Setup or writing code by hand. The whole course is structured around a capstone build: a complete Salesforce org for a fictional solar installer, BrightPath Energy. Created by Amit, 8x Salesforce Certified GTM Engineer.
 
 Key facts:
 
@@ -10,6 +10,10 @@ Key facts:
 - Salesforce license: works with any org on Enterprise, Unlimited, or Developer edition. No Agentforce license needed.
 - Independence: not affiliated with or endorsed by Salesforce or Anthropic. Salesforce and Claude are trademarks of their respective companies.
 - Current status: enrollment open via Thrivecart checkout on the homepage.
+- Homepage headline: "The modern Salesforce Admin doesn't just manage the org. They prompt it."
+- Testimonials section headline: "Proof from admins who stopped waiting."
+- Bonuses section headline: "The extras that make this a no-brainer."
+- Bonuses include a private course community, a production prompt vault, and Amit's handpicked Claude Code plugin stack, including Superpowers and Claude Mem.
 
 ## Security & data handling
 
@@ -20,13 +24,13 @@ Key facts:
 
 ## Core pages
 
-- [Homepage](https://ccforsf.com/): Course overview, capstone project, modules, pricing, FAQ, and Thrivecart checkout.
+- [Homepage](https://ccforsf.com/): Course overview, typewriter operating-model headline, headless Salesforce market-shift section, scroll-stacked build artifacts, walkthrough, BrightPath Solar capstone, bonuses, pricing, FAQ, testimonials, and Thrivecart checkout.
 - [About Amit](https://ccforsf.com/about): Instructor bio, credentials, and why the course exists.
 - [Blog](https://ccforsf.com/blog): Tutorials and field notes on using Claude Code with Salesforce.
 
 ## Blog posts
 
-- [Connect Claude Code to your Salesforce org with MCP (VS Code setup)](https://ccforsf.com/blog/connect-claude-code-to-salesforce-with-mcp): Six-phase VS Code setup guide for wiring Claude Code to a Salesforce org via the Salesforce DX MCP server — prerequisites, .mcp.json config, verification, and multi-org patterns.
+- [Connect Claude Code to your Salesforce org with MCP (VS Code setup)](https://ccforsf.com/blog/connect-claude-code-to-salesforce-with-mcp): Six-phase VS Code setup guide for wiring Claude Code to a Salesforce org via the Salesforce DX MCP server: prerequisites, .mcp.json config, verification, and multi-org patterns.
 - [Salesforce is shipping an AI that watches you. Here's why admins still need Claude Code.](https://ccforsf.com/blog/agent-albert-and-claude-code): Analysis of Salesforce's Agent Albert announcement and why admins still need Claude Code as a builder's tool.
 - [Build Agentforce agents without hand-writing Agent Script](https://ccforsf.com/blog/agentforce-with-claude-code): How to describe an Agentforce agent in English and let Claude Code generate and deploy the .ascript file.
 - [Claude Code vs Agentforce: when to use which](https://ccforsf.com/blog/claude-code-vs-agentforce): Decision framework comparing Anthropic's Claude Code CLI with Salesforce's Agentforce platform.
@@ -37,26 +41,26 @@ Key facts:
 
 ## What the course covers
 
-The curriculum is structured around the BrightPath Solar capstone — a full Salesforce org build for a fictional solar installer.
+The curriculum is structured around the BrightPath Solar capstone: a full Salesforce org build for a fictional solar installer.
 
-Phase I — Foundation & data model:
+Phase I: Foundation & data model:
 - Why Claude Code, why now (set inside the BrightPath capstone scenario).
 - Install Claude Code, authenticate to a Salesforce DX sandbox, and ship a first artifact.
 - Custom fields on Account, Contact, and Opportunity (Customer Type, Utility Provider, System Size, Financing Method, etc.).
 
-Phase II — Custom objects & schema:
+Phase II: Custom objects & schema:
 - Six custom objects with relationships: Site Survey, Installation, Warranty Claim, Equipment, Incentive Program, Incentive Application.
 - Record types and page layouts (Residential vs Commercial; three Opportunity record types).
 - Permission sets and a custom Salesforce app with custom tabs (Sales Rep, Operations, Admin personas).
 - Validation rules (stage-gated amounts, future-only dates, warranty expiration logic).
 
-Phase III — Flows from English:
+Phase III: Flows from English:
 - Lead Intake screen flow (creates Account + Contact + Opportunity).
 - Post-Survey auto-update record-triggered flow.
 - Installation milestone notifications (record-triggered, branching).
 - Warranty expiration scheduled flow (daily 7am).
 
-Phase IV — Apex, LWC & ops:
+Phase IV: Apex, LWC & ops:
 - Apex trigger: tiered Commission Calculator with handler-class pattern, bulkified, 90% test coverage.
 - Apex trigger: Installation Status Validator (forward-only progression, custom errors).
 - Batch + Schedulable: nightly Annual Production Estimator and lifetime savings rollup.

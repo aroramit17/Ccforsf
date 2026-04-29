@@ -5,6 +5,16 @@ import "./SalesPage.css";
 /* ══════════════════════════ CONSTANTS ══════════════════════════ */
 
 const ENROLL_HASH = "#enroll";
+const THRIVECART_EMBED_ID = "tc-webpay-57-R3BT08";
+const TYPEWRITER_WORDS = [
+  "fields",
+  "permission sets",
+  "profiles",
+  "flows",
+  "validation rules",
+  "Apex classes",
+  "test classes",
+];
 
 const FAQS = [
   { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
@@ -14,7 +24,7 @@ const FAQS = [
   { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
   { q: "Is this safe for my production org?", a: "Great question. Security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model. It uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
   { q: "Does Claude Code store my Salesforce data?", a: "No. Claude Code is a local CLI that runs on your machine. Your metadata stays yours. It reads project files locally, sends only the relevant context to Anthropic's API to generate a response, and writes the output back to your local repo. Salesforce records, customer data, and credentials never leave your environment unless you explicitly paste them into a prompt." },
-  { q: "Is this \"Shadow AI\"? What about compliance?", a: "Claude Code uses your existing Salesforce login and respects every permission, profile, sharing rule, and SOX control already in place. There is no separate AI service connected to your org — Claude only sees what you, the authenticated user, would see. All deploys go through the same change-set / CI/CD path your security team already approved. Anthropic's API does not train on your data (Pro and Max plans are excluded from training by default)." },
+  { q: "Is this \"Shadow AI\"? What about compliance?", a: "Claude Code uses your existing Salesforce login and respects every permission, profile, sharing rule, and SOX control already in place. There is no separate AI service connected to your org. Claude only sees what you, the authenticated user, would see. All deploys go through the same change-set / CI/CD path your security team already approved. Anthropic's API does not train on your data (Pro and Max plans are excluded from training by default)." },
   { q: "Is this affiliated with Salesforce or Anthropic?", a: "No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." },
 ];
 
@@ -228,9 +238,9 @@ function StickyEnroll() {
     <a
       href={ENROLL_HASH}
       className={`sticky-enroll ${scrolled ? "sticky-enroll--show" : ""}`}
-      aria-label="Enroll — Get lifetime access for $97"
+      aria-label="Enroll, get lifetime access for $97"
     >
-      <span className="sticky-enroll-text">Get Lifetime Access — $97</span>
+      <span className="sticky-enroll-text">Get Lifetime Access: $97</span>
       <span className="arrow">→</span>
     </a>
   );
@@ -252,9 +262,9 @@ function HeroComposition() {
           <line x1="0" y1="560" x2="600" y2="560" strokeDasharray="2,3" />
         </g>
         <g fontFamily="var(--mono)" fontSize="9" fill="rgba(26,25,22,0.45)" letterSpacing="1">
-          <text x="6" y="76">A — PROMPT</text>
-          <text x="6" y="316">B — CONTEXT</text>
-          <text x="6" y="556">C — OUTPUT</text>
+          <text x="6" y="76">A: PROMPT</text>
+          <text x="6" y="316">B: CONTEXT</text>
+          <text x="6" y="556">C: OUTPUT</text>
         </g>
       </svg>
 
@@ -327,24 +337,24 @@ function Hero() {
       <div className="grid-overlay" />
       <div className="shell hero-grid">
         <div className="hero-copy">
-          <div className="hero-meta">
-            <div className="eyebrow"><span className="num">01</span>A mini-course</div>
+          <div className="hero-meta hero-meta--coords-only">
             <div className="hero-coords">
               <span>37.7749° N</span>
-              <span>—</span>
+              <span>/</span>
               <span>SF·26</span>
             </div>
           </div>
 
           <h1 className="display">
-            Claude Code,<br />
-            for the modern<br />
-            <em>Salesforce&nbsp;Admin.</em>
+            The modern<br />
+            Salesforce Admin<br />
+            doesn't just manage the org.<br />
+            <em>They prompt it.</em>
           </h1>
 
           <p className="lead" style={{ marginTop: "40px" }}>
             Stop Clicking. Start Prompting. Build &amp; Deploy Salesforce Flows in
-            5&nbsp;Minutes—No Code Required.
+            5&nbsp;Minutes. No Code Required.
           </p>
 
           <div className="hero-ctas">
@@ -603,6 +613,56 @@ function ProjectFiles() {
   );
 }
 
+function TypewriterHeadline() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [letters, setLetters] = useState(TYPEWRITER_WORDS[0]);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    if (prefersReducedMotion) return undefined;
+
+    const fullWord = TYPEWRITER_WORDS[wordIndex];
+    let delay = deleting ? 42 : 74;
+
+    if (!deleting && letters === fullWord) {
+      delay = 1200;
+    } else if (deleting && letters === "") {
+      delay = 220;
+    }
+
+    const timeout = window.setTimeout(() => {
+      if (!deleting && letters === fullWord) {
+        setDeleting(true);
+        return;
+      }
+
+      if (deleting && letters === "") {
+        setDeleting(false);
+        setWordIndex((i) => (i + 1) % TYPEWRITER_WORDS.length);
+        return;
+      }
+
+      setLetters((current) => (
+        deleting ? fullWord.slice(0, Math.max(0, current.length - 1)) : fullWord.slice(0, current.length + 1)
+      ));
+    }, delay);
+
+    return () => window.clearTimeout(timeout);
+  }, [deleting, letters, wordIndex]);
+
+  return (
+    <h2 className="display model-typewriter-headline">
+      Ship{" "}
+      <em className="typewriter-word" aria-live="polite">
+        {letters || "\u00a0"}
+      </em>
+      <br />
+      at the speed of light.
+    </h2>
+  );
+}
+
 function NewModel() {
   return (
     <section className="section section-divider reveal" id="model">
@@ -613,31 +673,76 @@ function NewModel() {
         </div>
 
         <div className="model-intro">
-          <h2 className="display">
-            Ship the 'Regional Lead Routing' flow before your{" "}
-            <em>10:00 AM meeting</em> ends.
-          </h2>
+          <TypewriterHeadline />
           <p className="lead" style={{ marginTop: "28px", maxWidth: "62ch" }}>
             One prompt. One reviewable diff. One deploy. The kind of work that used to
             mean a Jira ticket, two sprints of waiting, and an apology email to the VP of
-            Sales — done before your second coffee.
+            Sales, done before your second coffee.
           </p>
         </div>
 
         <ModelDiagram />
 
         <ProjectFiles />
+      </div>
+    </section>
+  );
+}
 
-        <div className="model-callout">
-          <div className="callout-side">
-            <div className="eyebrow">A note on control</div>
+function HeadlessFuture() {
+  return (
+    <section className="section section-divider reveal" id="headless">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">Signal</span>The future is headless</div>
+          <div className="block-head-meta">API-first · CLI-ready · AI-native</div>
+        </div>
+
+        <div className="headless-grid">
+          <div className="headless-copy">
+            <h2 className="display">
+              The UI is dying.<br />
+              <em>Admins who adapt win.</em>
+            </h2>
+            <div className="headless-body">
+              <p>
+                Salesforce is moving to APIs, CLI, and AI-first workflows.
+                Clicking through Setup will not be enough anymore.
+              </p>
+              <p>
+                Admins who can command Salesforce will build faster, earn more,
+                and stay in demand.
+              </p>
+              <p>
+                This is how you get ahead before everyone else catches on.
+              </p>
+            </div>
           </div>
-          <div className="callout-body">
-            <p className="serif-italic" style={{ fontSize: "24px", lineHeight: 1.4, color: "var(--ink-800)", maxWidth: "58ch", margin: 0 }}>
-              "Claude Code is a partner, not an autopilot. Every change is reviewed,
-              every change is sandboxed, every change is yours."
-            </p>
-          </div>
+
+          <figure className="headless-media">
+            <div className="headless-image-wrap">
+              <img
+                src="/benioff.png"
+                alt="Conference speaker on stage"
+                className="headless-image"
+              />
+              <div className="headless-scanlines" aria-hidden="true" />
+              <div className="headless-tweet" aria-label="Marc Benioff tweet excerpt">
+                <div className="headless-tweet-meta">
+                  <span>Marc Benioff</span>
+                  <span>@Benioff</span>
+                </div>
+                <p>
+                  Welcome Salesforce Headless 360. No browser required.
+                  Our API is the UI. Salesforce, Agentforce, and Slack are now
+                  exposed through APIs, MCP, and CLI.
+                </p>
+              </div>
+              <figcaption className="headless-caption">
+                Salesforce signal · Headless workflows
+              </figcaption>
+            </div>
+          </figure>
         </div>
       </div>
     </section>
@@ -677,7 +782,7 @@ function BacklogMock() {
     { id: "T-2837", pri: "high", title: "Validation: Close Date required at Negotiation", owner: "Marcus R.", age: "9d", type: "Rule" },
     { id: "T-2829", pri: "med",  title: "Audit profiles with Modify All on Account", owner: "Priya S.", age: "22d", type: "Audit" },
     { id: "T-2818", pri: "high", title: "Migrate Quote Builder Aura → LWC", owner: "DevOps", age: "31d", type: "LWC" },
-    { id: "T-2807", pri: "low",  title: "Document active Opportunity flows", owner: "—", age: "6d", type: "Docs" },
+    { id: "T-2807", pri: "low",  title: "Document active Opportunity flows", owner: "Unassigned", age: "6d", type: "Docs" },
     { id: "T-2792", pri: "med",  title: "Permission set: Finance read-only on Opp", owner: "Sarah K.", age: "18d", type: "Perms" },
     { id: "T-2774", pri: "high", title: "Apex test class for CommissionTrigger", owner: "Marcus R.", age: "27d", type: "Apex" },
   ];
@@ -791,7 +896,7 @@ function WhatYouBuild() {
       artifact: {
         file: "permission-audit.md",
         meta: "12 profiles · 3 risks",
-        code: `# Modify All — Account
+        code: `# Modify All: Account
 - System Administrator ✓ (expected)
 - Sales Ops Lead ⚠ (review)
 - Integration_API ⚠ (over-scoped)
@@ -838,7 +943,7 @@ Risks:
             <p className="lead" style={{ marginTop: "24px" }}>
               That feeling when your "Quick Wins" list has 42 items and your Tuesday is
               booked with back-to-back meetings. Each module ends with a real, deployable
-              artifact — the kind of thing you'd normally file a ticket for. Claude Code
+              artifact, the kind of thing you'd normally file a ticket for. Claude Code
               isn't just a tool; it's how you get your lunch break back.
             </p>
           </div>
@@ -895,7 +1000,7 @@ function BuildStack({ builds }) {
         <div className="build-stack-meta">
           <div className="eyebrow">
             <span className="num">{String(activeIdx + 1).padStart(2, "0")}</span>
-            {builds[activeIdx].kind} · scroll to advance
+            {builds[activeIdx].kind}<span className="build-scroll-hint"> · scroll to advance</span>
           </div>
           <div className="block-head-meta">
             {String(activeIdx + 1).padStart(2, "0")} <span style={{ opacity: 0.4 }}>/ {String(count).padStart(2, "0")}</span>
@@ -1072,7 +1177,7 @@ function Walkthrough() {
         open={videoOpen}
         onClose={() => setVideoOpen(false)}
         src={WALKTHROUGH_EMBED_URL}
-        title="Claude Code for Salesforce — live walkthrough"
+        title="Claude Code for Salesforce: live walkthrough"
       />
     </section>
   );
@@ -1088,7 +1193,7 @@ function Curriculum() {
       modules: [
         { n: "1.1", t: "Why Claude Code, why now", d: "The shift from point-and-click to prompt-driven admin work, set inside the BrightPath capstone scenario." },
         { n: "1.2", t: "Install, connect, first prompt", d: "Walk-through inside VS Code. Authenticate to a Salesforce DX sandbox. Get your first artifact deployed." },
-        { n: "1.3", t: "Custom fields on Account, Contact, Opportunity", d: "Ship the BrightPath field set: Customer Type, Utility Provider, System Size, Financing Method, and more — from a single prompt." },
+        { n: "1.3", t: "Custom fields on Account, Contact, Opportunity", d: "Ship the BrightPath field set: Customer Type, Utility Provider, System Size, Financing Method, and more from a single prompt." },
       ],
     },
     {
@@ -1096,10 +1201,10 @@ function Curriculum() {
       title: "Custom objects & schema",
       duration: "6 objects · 25+ fields",
       modules: [
-        { n: "2.1", t: "Custom objects + relationships", d: "Build Site Survey, Installation, Warranty Claim, Equipment, Incentive Program, and Incentive Application — with master-detail and lookup wiring." },
+        { n: "2.1", t: "Custom objects + relationships", d: "Build Site Survey, Installation, Warranty Claim, Equipment, Incentive Program, and Incentive Application, with master-detail and lookup wiring." },
         { n: "2.2", t: "Record types + page layouts", d: "Residential vs Commercial accounts. Three opportunity record types: Residential Install, Commercial Install, Service/Warranty." },
         { n: "2.3", t: "Permission sets + custom app", d: "Sales Rep, Operations, and Admin personas. Build the BrightPath Solar app with custom tabs in one prompt." },
-        { n: "2.4", t: "Validation rules", d: "Stage-gated amounts, future-only schedule dates, warranty expiration logic — drafted, deployed, tested." },
+        { n: "2.4", t: "Validation rules", d: "Stage-gated amounts, future-only schedule dates, and warranty expiration logic. Drafted, deployed, tested." },
       ],
     },
     {
@@ -1119,7 +1224,7 @@ function Curriculum() {
       duration: "Triggers · Batch · LWC",
       modules: [
         { n: "4.1", t: "Apex trigger: Commission Calculator", d: "Tiered commission logic with cash bonus and lease/PPA penalty. Handler-class pattern, bulkified to 200+ records, 90% test coverage." },
-        { n: "4.2", t: "Apex trigger: Installation Validator", d: "Forward-only status progression, permit-number gating, completed-survey enforcement — with custom errors and full negative-path tests." },
+        { n: "4.2", t: "Apex trigger: Installation Validator", d: "Forward-only status progression, permit-number gating, and completed-survey enforcement, with custom errors and full negative-path tests." },
         { n: "4.3", t: "Batch + Schedulable: Production Estimator", d: "Nightly job that calculates annual kWh production and 25-year lifetime savings on every Closed Won deal." },
         { n: "4.4", t: "Lightning Web Component: Installation Timeline", d: "A wired LWC that visualizes status from Permit Submitted → Inspection Passed, with an On Hold amber state. CSS-only, responsive." },
         { n: "4.5", t: "Dummy data + reports + dashboard", d: "100+ records seeded across all objects. Pipeline-by-financing-method report, install-status tracker, and a live BrightPath Operations dashboard." },
@@ -1141,8 +1246,8 @@ function Curriculum() {
             <em>a syllabus.</em>
           </h2>
           <p className="lead" style={{ marginTop: "24px", maxWidth: "62ch" }}>
-            You'll build a complete Salesforce org for a fictional solar installer —
-            BrightPath Energy — alongside the lessons. Six custom objects, 25+ fields,
+            You'll build a complete Salesforce org for a fictional solar installer,
+            BrightPath Energy, alongside the lessons. Six custom objects, 25+ fields,
             four flows, two Apex triggers, a batch job, and a Lightning Web Component.
             Everything you'd ship at a real job, shipped here first.
           </p>
@@ -1339,7 +1444,13 @@ function Instructor() {
                 I went from filing Jira tickets and waiting two weeks to just… building the
                 thing myself. This course is everything I wish someone had shown me on day one.
               </p>
-              <div className="instructor-sign">— Amit</div>
+              <div className="instructor-sign">- Amit</div>
+              <div className="instructor-work-pills" aria-label="Past operator roles">
+                <span>Avan Grid · Solo Admin</span>
+                <span>Slalom · Salesforce Consultant</span>
+                <span>dice.com · Business Systems Director</span>
+                <span>webAI · RevOps Manager</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1357,7 +1468,7 @@ function Testimonials() {
       rot: -3.2,
     },
     {
-      body: "I was scared of writing Apex. Now I read the diff Claude gives me, ship it to the sandbox, and ship to prod when it passes. The fear was the bottleneck — not the language.",
+      body: "I was scared of writing Apex. Now I read the diff Claude gives me, ship it to the sandbox, and ship to prod when it passes. The fear was the bottleneck, not the language.",
       name: "Marcus R.",
       role: "Salesforce Architect · FinTech",
       rot: 1.8,
@@ -1387,6 +1498,7 @@ function Testimonials() {
       rot: 3.0,
     },
   ];
+  const quoteRows = [quotes.slice(0, 3), quotes.slice(3)];
 
   return (
     <section className="section section-divider reveal" id="testimonials">
@@ -1398,34 +1510,44 @@ function Testimonials() {
 
         <div className="testimonials-intro">
           <h2 className="display">
-            What admins keep<br />
-            <em>telling me.</em>
+            Proof from admins<br />
+            <em>who stopped waiting.</em>
           </h2>
           <p className="lead" style={{ marginTop: "20px", maxWidth: "62ch" }}>
-            Composite quotes drawn from beta-cohort interviews — paraphrased and
+            Composite quotes drawn from beta-cohort interviews, paraphrased and
             anonymized at the participants' request. Every one came from a working
             Salesforce admin who shipped real artifacts during the course.
           </p>
         </div>
 
-        <div className="testimonials-wall">
-          {quotes.map((q, i) => (
-            <figure
-              key={i}
-              className="testimonial-paper"
-              style={{ "--rot": `${q.rot}deg` }}
+        <div className="testimonials-wall" aria-label="Beta cohort testimonial cards">
+          {quoteRows.map((row, rowIdx) => (
+            <div
+              className={`testimonials-marquee testimonials-marquee--${rowIdx === 0 ? "right" : "left"}`}
+              key={rowIdx}
             >
-              <blockquote className="testimonial-paper-body">{q.body}</blockquote>
-              <figcaption className="testimonial-paper-cap">
-                <div className="testimonial-paper-avatar" aria-hidden="true">
-                  {q.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
-                </div>
-                <div className="testimonial-paper-meta">
-                  <div className="testimonial-paper-name">{q.name}</div>
-                  <div className="testimonial-paper-role">{q.role}</div>
-                </div>
-              </figcaption>
-            </figure>
+              <div className="testimonials-marquee-track">
+                {[...row, ...row].map((q, i) => (
+                  <figure
+                    key={`${rowIdx}-${i}`}
+                    className="testimonial-paper"
+                    style={{ "--rot": `${q.rot}deg` }}
+                    aria-hidden={i >= row.length}
+                  >
+                    <blockquote className="testimonial-paper-body">{q.body}</blockquote>
+                    <figcaption className="testimonial-paper-cap">
+                      <div className="testimonial-paper-avatar" aria-hidden="true">
+                        {q.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+                      </div>
+                      <div className="testimonial-paper-meta">
+                        <div className="testimonial-paper-name">{q.name}</div>
+                        <div className="testimonial-paper-role">{q.role}</div>
+                      </div>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
@@ -1444,7 +1566,7 @@ function Testimonials() {
 
 function ThrivecartEmbed() {
   useEffect(() => {
-    const id = "tc-webpay-57-B6Q0BP";
+    const id = THRIVECART_EMBED_ID;
     if (document.getElementById(id)) return;
     const s = document.createElement("script");
     s.async = true;
@@ -1459,7 +1581,7 @@ function ThrivecartEmbed() {
       data-thrivecart-account="webpay"
       data-thrivecart-tpl="v2"
       data-thrivecart-product="57"
-      data-thrivecart-embeddable="tc-webpay-57-B6Q0BP"
+      data-thrivecart-embeddable={THRIVECART_EMBED_ID}
     />
   );
 }
@@ -1471,7 +1593,7 @@ function PricingBonuses() {
       label: "The Inner Circle",
       sub: "Private Slack for course members.",
       title: "When 'just ask the team' isn't an option.",
-      body: "You're the solo admin. Or the senior on a two-person team. Either way, there's no Slack channel to drop your weird Flow error into at 4:55pm on a Friday. This one is. Working admins, the instructor, and the kind of community where 'is this CPU-time limit normal?' gets answered in 12 minutes — not 12 days.",
+      body: "You're the solo admin. Or the senior on a two-person team. Either way, there's no Slack channel to drop your weird Flow error into at 4:55pm on a Friday. This one is. Working admins, the instructor, and the kind of community where 'is this CPU-time limit normal?' gets answered in 12 minutes, not 12 days.",
       worth: "$499",
       tagline: "Lifetime access",
     },
@@ -1480,18 +1602,18 @@ function PricingBonuses() {
       label: "The Production Vault",
       sub: "Real Claude Code transcripts from real orgs.",
       title: "Every Salesforce prompt I've shipped.",
-      body: "The unedited Claude Code sessions I run against production Salesforce orgs — the prompts that worked, the dead ends I had to back out of, the recovery patterns when Claude got it wrong. The kind of senior-architect ride-along that normally costs $5,000 in consulting time.",
+      body: "The unedited Claude Code sessions I run against production Salesforce orgs: the prompts that worked, the dead ends I had to back out of, the recovery patterns when Claude got it wrong. The kind of senior-architect ride-along that normally costs $5,000 in consulting time.",
       worth: "$799",
-      tagline: "Updated monthly",
+      tagline: "Field-tested sessions",
     },
     {
       tag: "Bonus 03",
       label: "The Plugin Pack",
-      sub: "30+ Claude Code plugins, hand-picked.",
-      title: "The leverage doesn't stop at the org.",
-      body: "Your career compounds outside Salesforce too. This is my curated repo of Claude Code plugins for git workflow, CI/CD, documentation, code review, and security scanning. One copy command, dropped into any project on your laptop. Tested in production by me first.",
+      sub: "Handpicked Claude Code plugins for serious leverage.",
+      title: "My personal plugin stack for faster Claude Code work.",
+      body: "You get the exact plugins I use to make Claude Code more useful across real projects, including Superpowers and Claude Mem. These are the productivity boosters, memory tools, workflow helpers, and repo habits I trust when I want Claude to move faster without losing context.",
       worth: "$249",
-      tagline: "One repo · all yours",
+      tagline: "Curated by Amit",
     },
   ];
 
@@ -1504,11 +1626,11 @@ function PricingBonuses() {
 
       <div className="pricing-bonuses-intro">
         <h3 className="display">
-          Plus three things<br />
-          <em>you didn't pay for.</em>
+          The extras that make this<br />
+          <em>a no-brainer.</em>
         </h3>
         <p className="lead" style={{ marginTop: "20px", maxWidth: "62ch" }}>
-          Course alone gets you the skill. These bonuses get you the unfair advantage —
+          Course alone gets you the skill. These bonuses get you the unfair advantage:
           the community, the receipts, and the tools I personally won't ship without.
         </p>
       </div>
@@ -1564,7 +1686,7 @@ function PricingBonuses() {
 
 function Pricing() {
   const includes = [
-    "BrightPath Solar capstone — full org build, end to end",
+    "BrightPath Solar capstone: full org build, end to end",
     "6 custom objects + 25+ fields, fully wired with relationships",
     "3 Account / Opportunity record types and page layouts",
     "4 production Flows (screen, record-triggered, scheduled)",
@@ -1765,7 +1887,7 @@ export default function SalesPage() {
   return (
     <div className="ccsf-root">
       <SEO
-        title="CC for SF — Claude Code for Salesforce Admins"
+        title="CC for SF: Claude Code for Salesforce Admins"
         description="Hands-on mini-course. Use Claude Code to ship Flows, validation rules, and metadata work from plain English. No developer in the loop. $97 one-time, 30-day guarantee."
         path="/"
         jsonLd={HOMEPAGE_JSON_LD}
@@ -1777,6 +1899,7 @@ export default function SalesPage() {
       <Marquee />
       <Friction />
       <NewModel />
+      <HeadlessFuture />
       <WhatYouBuild />
       <Walkthrough />
       <Curriculum />
