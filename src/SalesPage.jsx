@@ -1284,15 +1284,112 @@ function ThrivecartEmbed() {
   );
 }
 
+function PricingBonuses() {
+  const bonuses = [
+    {
+      tag: "Bonus 01",
+      label: "The Inner Circle",
+      sub: "Private Slack for course members.",
+      title: "When 'just ask the team' isn't an option.",
+      body: "You're the solo admin. Or the senior on a two-person team. Either way, there's no Slack channel to drop your weird Flow error into at 4:55pm on a Friday. This one is. Working admins, the instructor, and the kind of community where 'is this CPU-time limit normal?' gets answered in 12 minutes — not 12 days.",
+      worth: "$499",
+      tagline: "Lifetime access",
+    },
+    {
+      tag: "Bonus 02",
+      label: "The Production Vault",
+      sub: "Real Claude Code transcripts from real orgs.",
+      title: "Every Salesforce prompt I've shipped.",
+      body: "The unedited Claude Code sessions I run against production Salesforce orgs — the prompts that worked, the dead ends I had to back out of, the recovery patterns when Claude got it wrong. The kind of senior-architect ride-along that normally costs $5,000 in consulting time.",
+      worth: "$799",
+      tagline: "Updated monthly",
+    },
+    {
+      tag: "Bonus 03",
+      label: "The Plugin Pack",
+      sub: "30+ Claude Code plugins, hand-picked.",
+      title: "The leverage doesn't stop at the org.",
+      body: "Your career compounds outside Salesforce too. This is my curated repo of Claude Code plugins for git workflow, CI/CD, documentation, code review, and security scanning. One copy command, dropped into any project on your laptop. Tested in production by me first.",
+      worth: "$249",
+      tagline: "One repo · all yours",
+    },
+  ];
+
+  return (
+    <div className="pricing-bonuses">
+      <div className="pricing-bonuses-head">
+        <div className="eyebrow"><span className="num">+ 03</span>Bonuses · included free</div>
+        <div className="block-head-meta">$1,547 in extras · yours at no extra cost</div>
+      </div>
+
+      <div className="pricing-bonuses-intro">
+        <h3 className="display">
+          Plus three things<br />
+          <em>you didn't pay for.</em>
+        </h3>
+        <p className="lead" style={{ marginTop: "20px", maxWidth: "62ch" }}>
+          Course alone gets you the skill. These bonuses get you the unfair advantage —
+          the community, the receipts, and the tools I personally won't ship without.
+        </p>
+      </div>
+
+      <div className="pricing-bonuses-grid">
+        {bonuses.map((b) => (
+          <article key={b.tag} className="bonus-card">
+            <div className="bonus-card-head">
+              <span className="bonus-card-tag">{b.tag}</span>
+              <span className="bonus-card-worth">value <strong>{b.worth}</strong></span>
+            </div>
+            <div className="bonus-card-label">{b.label}</div>
+            <h4 className="bonus-card-title">{b.title}</h4>
+            <div className="bonus-card-sub">{b.sub}</div>
+            <p className="bonus-card-body">{b.body}</p>
+            <div className="bonus-card-foot">
+              <span className="bonus-card-included">✓ Included</span>
+              <span className="bonus-card-tagline">{b.tagline}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="pricing-bonuses-stack">
+        <div className="bonus-stack-row">
+          <span>Course · twelve modules + capstone</span>
+          <span className="bonus-stack-val">$497</span>
+        </div>
+        <div className="bonus-stack-row">
+          <span>Bonus 01 · The Inner Circle (lifetime)</span>
+          <span className="bonus-stack-val">$499</span>
+        </div>
+        <div className="bonus-stack-row">
+          <span>Bonus 02 · The Production Vault</span>
+          <span className="bonus-stack-val">$799</span>
+        </div>
+        <div className="bonus-stack-row">
+          <span>Bonus 03 · The Plugin Pack</span>
+          <span className="bonus-stack-val">$249</span>
+        </div>
+        <div className="bonus-stack-row bonus-stack-row--total">
+          <span>Total stacked value</span>
+          <span className="bonus-stack-val">$2,044</span>
+        </div>
+        <div className="bonus-stack-row bonus-stack-row--your">
+          <span>Your price today</span>
+          <span className="bonus-stack-val bonus-stack-val--accent">$97</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Pricing() {
   const includes = [
-    "Twelve modules · ~4 hours of focused video",
+    "Twelve modules · capstone Salesforce build",
     "Installation walk-throughs (Mac + Windows)",
     "Project files, prompts, and ready-to-fork repos",
     "Sandbox-safe operating playbook",
     "Lifetime access · all future updates",
     "CLAUDE.md Starter Template + Skill Pack for Salesforce",
-    "Private community for course members",
   ];
 
   return (
@@ -1355,6 +1452,8 @@ function Pricing() {
             </p>
           </div>
         </div>
+
+        <PricingBonuses />
       </div>
     </section>
   );

@@ -31,11 +31,13 @@ Any future copy, ad, email, meta tag, or schema should pull from this list. If a
 
 ### Module list (coming soon)
 
-### Bonuses
+### Bonuses (shown on the Pricing section as a stacked-value block)
 
-- **CLAUDE.md Starter Template** (value: $29)  
-- **Claude Code Skill Pack for Salesforce** — pre-built slash-command skills for the 10 most common admin tasks: Flow generator, field migrator, validation-rule writer, Apex-test generator, Aura → LWC migrator (value: $149)  
-- **Access to private Claude community** (value: $299)
+- **Bonus 01 — The Inner Circle** (value: $499). Lifetime access to the private Slack community for course members. Working admins, the instructor, and async help on Flow / MCP / Apex questions.
+- **Bonus 02 — The Production Vault** (value: $799). Real Claude Code transcripts from production Salesforce orgs — prompts that worked, dead ends, recovery patterns. Updated monthly.
+- **Bonus 03 — The Plugin Pack** (value: $249). 30+ curated Claude Code plugins for git, CI/CD, docs, code review, and security scanning. The leverage doesn't stop at Salesforce.
+
+Stacked value: $2,044. Price today: $97.
 
 ### Disclaimer (include near checkout and in footer)
 
