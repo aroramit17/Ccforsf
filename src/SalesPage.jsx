@@ -596,7 +596,7 @@ function ProjectFiles() {
               <div className="vscode-sidebar-folder vscode-sidebar-folder--collapsed">▸ permissionsets</div>
             </div>
             <div className="vscode-editor">
-              <div className="vscode-tabs">
+              <div className="vscode-tabs" aria-hidden="true">
                 <div className="vscode-tab vscode-tab--active">claude.md</div>
               </div>
               <pre className="vscode-code">{claudeMdContent}</pre>
@@ -721,11 +721,27 @@ function HeadlessFuture() {
 
           <figure className="headless-media">
             <div className="headless-image-wrap">
-              <img
-                src="/benioff.png"
-                alt="Conference speaker on stage"
-                className="headless-image"
-              />
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet="/images/benioff-400.avif 400w, /images/benioff-800.avif 800w"
+                  sizes="(max-width: 800px) 100vw, 600px"
+                />
+                <source
+                  type="image/webp"
+                  srcSet="/images/benioff-400.webp 400w, /images/benioff-800.webp 800w"
+                  sizes="(max-width: 800px) 100vw, 600px"
+                />
+                <img
+                  src="/benioff.png"
+                  alt="Conference speaker on stage"
+                  className="headless-image"
+                  width="930"
+                  height="479"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
               <div className="headless-scanlines" aria-hidden="true" />
               <div className="headless-tweet" aria-label="Marc Benioff tweet excerpt">
                 <div className="headless-tweet-meta">
@@ -1012,6 +1028,10 @@ function BuildStack({ builds }) {
             <div
               key={b.idx}
               data-build-card={i}
+              id={`build-panel-${i}`}
+              role="tabpanel"
+              aria-labelledby={`build-tab-${i}`}
+              aria-hidden={i !== activeIdx}
               className={`build-stack-card${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}${i > activeIdx ? " is-future" : ""}`}
               style={{
                 "--card-index": i,
@@ -1030,13 +1050,16 @@ function BuildStack({ builds }) {
               key={b.idx}
               type="button"
               role="tab"
+              id={`build-tab-${i}`}
               aria-selected={i === activeIdx}
+              aria-controls={`build-panel-${i}`}
+              tabIndex={i === activeIdx ? 0 : -1}
               onClick={() => goTo(i)}
               className={`build-progress-step${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}`}
             >
               <span className="build-progress-num">{b.idx}</span>
               <span className="build-progress-label">{b.kind}</span>
-              <span className="build-progress-bar" />
+              <span className="build-progress-bar" aria-hidden="true" />
             </button>
           ))}
         </div>
@@ -1137,13 +1160,27 @@ function Walkthrough() {
               aria-label="Play demo video"
               onClick={() => setVideoOpen(true)}
             >
-              <img
-                className="walkthrough-poster-img"
-                src="/walkthrough-thumb.png"
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet="/images/walkthrough-thumb-400.avif 400w, /images/walkthrough-thumb-800.avif 800w, /images/walkthrough-thumb-1200.avif 1200w"
+                  sizes="(max-width: 1000px) 100vw, 1000px"
+                />
+                <source
+                  type="image/webp"
+                  srcSet="/images/walkthrough-thumb-400.webp 400w, /images/walkthrough-thumb-800.webp 800w, /images/walkthrough-thumb-1200.webp 1200w"
+                  sizes="(max-width: 1000px) 100vw, 1000px"
+                />
+                <img
+                  className="walkthrough-poster-img"
+                  src="/walkthrough-thumb.png"
+                  alt="Demo: Claude Code generating Salesforce metadata in VS Code"
+                  width="1870"
+                  height="920"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
               <div className="walkthrough-poster-overlay" aria-hidden="true" />
               <div className="walkthrough-play" aria-hidden="true">▶</div>
               <div className="walkthrough-poster-label">Demo recording · 3 min</div>
@@ -1256,9 +1293,18 @@ function Curriculum() {
         <div className="curriculum">
           {phases.map((p, i) => {
             const isOpen = open === i;
+            const btnId = `phase-head-${i}`;
+            const panelId = `phase-body-${i}`;
             return (
               <div className={`phase ${isOpen ? "phase--open" : ""}`} key={p.phase}>
-                <button className="phase-head" onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}>
+                <button
+                  type="button"
+                  id={btnId}
+                  className="phase-head"
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                >
                   <div className="phase-head-l">
                     <span className="phase-tag">{p.phase}</span>
                     <span className="phase-title">{p.title}</span>
@@ -1266,10 +1312,17 @@ function Curriculum() {
                   <div className="phase-head-r">
                     <span className="phase-duration">{p.duration}</span>
                     <span className="phase-count">{p.modules.length} modules</span>
-                    <span className="phase-toggle">{isOpen ? "−" : "+"}</span>
+                    <span className="phase-toggle" aria-hidden="true">{isOpen ? "−" : "+"}</span>
                   </div>
                 </button>
-                <div className="phase-body" style={{ maxHeight: isOpen ? "1200px" : "0px" }}>
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={btnId}
+                  aria-hidden={!isOpen}
+                  className="phase-body"
+                  style={{ maxHeight: isOpen ? "1200px" : "0px" }}
+                >
                   <div className="phase-body-inner">
                     {p.modules.map((m) => (
                       <div className="module" key={m.n}>
@@ -1413,7 +1466,27 @@ function Instructor() {
         <div className="instructor-grid">
           <div className="instructor-portrait">
             <div className="portrait-frame">
-              <img className="portrait-photo" src="/amit-headshot.png" alt="Amit, instructor. 8× Salesforce Certified, GTM Engineer." />
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet="/images/amit-headshot-400.avif 400w, /images/amit-headshot-800.avif 800w"
+                  sizes="(max-width: 900px) 100vw, 400px"
+                />
+                <source
+                  type="image/webp"
+                  srcSet="/images/amit-headshot-400.webp 400w, /images/amit-headshot-800.webp 800w"
+                  sizes="(max-width: 900px) 100vw, 400px"
+                />
+                <img
+                  className="portrait-photo"
+                  src="/amit-headshot.png"
+                  alt="Amit, instructor. 8× Salesforce Certified, GTM Engineer."
+                  width="1024"
+                  height="1024"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
               <div className="portrait-grid" />
               <div className="portrait-caption">
                 <span>Amit</span>
@@ -1789,14 +1862,30 @@ function FAQ() {
           <div className="faq-list">
             {FAQS.map((f, i) => {
               const isOpen = openIdx === i;
+              const btnId = `faq-q-${i}`;
+              const panelId = `faq-a-${i}`;
               return (
                 <div className={`faq-item ${isOpen ? "faq-item--open" : ""}`} key={i}>
-                  <button className="faq-q" onClick={() => setOpenIdx(isOpen ? -1 : i)} aria-expanded={isOpen}>
+                  <button
+                    type="button"
+                    id={btnId}
+                    className="faq-q"
+                    onClick={() => setOpenIdx(isOpen ? -1 : i)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                  >
                     <span className="faq-q-num">{String(i + 1).padStart(2, "0")}</span>
                     <span className="faq-q-text">{f.q}</span>
-                    <span className="faq-toggle">{isOpen ? "−" : "+"}</span>
+                    <span className="faq-toggle" aria-hidden="true">{isOpen ? "−" : "+"}</span>
                   </button>
-                  <div className="faq-a-wrap" style={{ maxHeight: isOpen ? "600px" : "0px" }}>
+                  <div
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={btnId}
+                    aria-hidden={!isOpen}
+                    className="faq-a-wrap"
+                    style={{ maxHeight: isOpen ? "600px" : "0px" }}
+                  >
                     <div className="faq-a">{f.a}</div>
                   </div>
                 </div>
@@ -1893,23 +1982,26 @@ export default function SalesPage() {
         jsonLd={HOMEPAGE_JSON_LD}
       />
 
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <Nav />
       <StickyEnroll />
-      <Hero />
-      <Marquee />
-      <Friction />
-      <NewModel />
-      <HeadlessFuture />
-      <WhatYouBuild />
-      <Walkthrough />
-      <Curriculum />
-      <Demo />
-      <Safety />
-      <Instructor />
-      <Testimonials />
-      <Pricing />
-      <FAQ />
-      <FinalCTA />
+      <main id="main-content" tabIndex={-1}>
+        <Hero />
+        <Marquee />
+        <Friction />
+        <NewModel />
+        <HeadlessFuture />
+        <WhatYouBuild />
+        <Walkthrough />
+        <Curriculum />
+        <Demo />
+        <Safety />
+        <Instructor />
+        <Testimonials />
+        <Pricing />
+        <FAQ />
+        <FinalCTA />
+      </main>
       <Footer />
     </div>
   );

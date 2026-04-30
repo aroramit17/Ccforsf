@@ -2,7 +2,7 @@ import { Head } from 'vite-react-ssg'
 
 const SITE_URL = 'https://ccforsf.com'
 
-export default function SEO({ title, description, path, image = '/amit-headshot.png', jsonLd, noindex }) {
+export default function SEO({ title, description, path, image = '/og/og-home.png', jsonLd, noindex }) {
   const url = `${SITE_URL}${path}`
   const absoluteImage = image.startsWith('http') ? image : `${SITE_URL}${image}`
 

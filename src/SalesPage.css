@@ -231,6 +231,31 @@
 }
 .ccsf-root .reveal.in { opacity: 1; transform: translateY(0); }
 
+.ccsf-root .skip-link {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border-radius: 0 0 8px 8px;
+  z-index: 200;
+  transform: translateY(-110%);
+  transition: transform 180ms ease;
+}
+.ccsf-root .skip-link:focus,
+.ccsf-root .skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid rgba(218,119,86,0.6);
+  outline-offset: 2px;
+}
+.ccsf-root main:focus { outline: none; }
+
 .ccsf-root .nav {
   position: fixed; top: 0; left: 0; right: 0;
   z-index: 50;

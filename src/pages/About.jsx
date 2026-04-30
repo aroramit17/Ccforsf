@@ -70,7 +70,25 @@ export default function About() {
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           {/* Header portrait */}
           <div style={{ width: 'clamp(160px, 28vw, 220px)', height: 'clamp(160px, 28vw, 220px)', borderRadius: 24, overflow: 'hidden', border: `2px solid ${COLORS.border}`, marginBottom: 32, boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}>
-            <img src="/amit-headshot.png" alt="Amit — 8x Salesforce Certified, creator of CC for SF" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <picture>
+              <source
+                type="image/avif"
+                srcSet="/images/amit-headshot-400.avif 400w, /images/amit-headshot-800.avif 800w"
+                sizes="(max-width: 600px) 28vw, 220px"
+              />
+              <source
+                type="image/webp"
+                srcSet="/images/amit-headshot-400.webp 400w, /images/amit-headshot-800.webp 800w"
+                sizes="(max-width: 600px) 28vw, 220px"
+              />
+              <img
+                src="/amit-headshot.png"
+                alt="Amit — 8x Salesforce Certified, creator of CC for SF"
+                width="1024"
+                height="1024"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
+            </picture>
           </div>
 
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 2.5, color: COLORS.orange, textTransform: 'uppercase', marginBottom: 12 }}>
