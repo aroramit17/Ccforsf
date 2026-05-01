@@ -4,6 +4,19 @@ description: "The six-phase setup: Node + SF CLI + Claude Pro + the Salesforce D
 date: 2026-04-23
 author: Amit
 heroImage: /amit-headshot.png
+tldr:
+  - "MCP is what lets Claude Code see your real org — objects, field API names, the sandbox alias — instead of guessing."
+  - "Setup is six small steps: Node, SF CLI, Claude Pro, the @salesforce/mcp server, a .mcp.json file, and an authenticated alias."
+  - "Once wired, Claude Code can run SOQL, retrieve and deploy metadata, and open test runs from your terminal."
+faq:
+  - q: "Do I need a paid Claude plan to use MCP?"
+    a: "Yes. Claude Code requires Claude Pro ($20/month) in 2026. Pro covers everything described here, including tool use against MCP servers."
+  - q: "Will MCP work against a production org?"
+    a: "Yes, but use a sandbox or developer org while you are learning. Authenticate with `sf org login web --alias <name>` and point Claude Code at that alias in your CLAUDE.md."
+  - q: "Is the Salesforce DX MCP server official?"
+    a: "Yes — it ships from Salesforce as `@salesforce/mcp` on npm. It supports the toolsets you would expect: metadata retrieve/deploy, SOQL, Apex tests, and the Code Analyzer."
+  - q: "What if the MCP server cannot connect to my org?"
+    a: "Run `sf org display --target-org <alias>` to confirm the auth is valid and not expired. The MCP server reads from your local SF CLI auth, so a stale token there is the most common cause."
 ---
 
 If you've tried Claude Code on a Salesforce project and felt like it was guessing at your org, you probably skipped the MCP setup. Claude Code without MCP can still write Apex and Flow XML, but it has no connection to your actual org — it doesn't know your objects, your field API names, or which sandbox you're pointed at. MCP fixes that.

@@ -2653,6 +2653,75 @@
   text-decoration: none !important;
 }
 
+/* FEATURED GUIDES (Start Here) */
+.ccsf-root .featured-guides-grid {
+  display: grid; grid-template-columns: 0.7fr 1.3fr;
+  gap: 64px; align-items: start;
+}
+@media (max-width: 900px) { .ccsf-root .featured-guides-grid { grid-template-columns: 1fr; gap: 32px; } }
+.ccsf-root .featured-guides-list {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.ccsf-root .featured-guide {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: start;
+  gap: 20px;
+  padding: 28px 4px;
+  background: var(--bone-200);
+  text-decoration: none;
+  color: inherit;
+  transition: padding 200ms ease, background 200ms ease;
+}
+.ccsf-root .featured-guide:hover,
+.ccsf-root .featured-guide:focus-visible {
+  padding-left: 12px;
+  background: color-mix(in srgb, var(--accent) 6%, var(--bone-200));
+}
+.ccsf-root .featured-guide:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.ccsf-root .featured-guide-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 600;
+  padding-top: 4px;
+}
+.ccsf-root .featured-guide-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 400;
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
+  margin-bottom: 8px;
+}
+.ccsf-root .featured-guide-blurb {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-500);
+  margin-bottom: 12px;
+  max-width: 56ch;
+}
+.ccsf-root .featured-guide-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+.ccsf-root .featured-guide:hover .featured-guide-link span,
+.ccsf-root .featured-guide:focus-visible .featured-guide-link span {
+  margin-left: 4px;
+  transition: margin 200ms ease;
+}
+
 /* FAQ */
 .ccsf-root .faq-grid {
   display: grid; grid-template-columns: 0.7fr 1.3fr;

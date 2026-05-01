@@ -4,6 +4,19 @@ description: "Both let AI do Salesforce work. One lives in your terminal on a $2
 date: 2026-04-20
 author: Amit
 heroImage: /amit-headshot.png
+tldr:
+  - "Agentforce ($125–$550 per user per month) is for in-org agents that talk to users. Claude Code ($20/month) is for admins building the org from a terminal."
+  - "Use Claude Code to ship metadata, Flows, validation rules, Apex. Use Agentforce to ship a customer-facing or rep-facing AI experience."
+  - "They are complementary, not competitors. Most teams will use both."
+faq:
+  - q: "Can Claude Code do everything Agentforce can?"
+    a: "No. Agentforce is built for in-org runtime agents — chat with customers, summarize support cases, take actions on records as a logged-in user. Claude Code is build-time tooling that lives in your terminal. They solve different problems."
+  - q: "Does Agentforce require Salesforce-managed AI?"
+    a: "Yes — it runs on Salesforce's Atlas Reasoning Engine and Einstein layer. Claude Code calls Anthropic's models directly via your Pro plan."
+  - q: "Is one cheaper than the other for the same outcome?"
+    a: "For admin and dev work, Claude Code is dramatically cheaper. For runtime agents, you cannot substitute Claude Code — that is what Agentforce is for."
+  - q: "Will Claude Code deprecate Agentforce?"
+    a: "No. They are orthogonal. The bet for 2026 is admins using Claude Code to ship while Agentforce runs the in-org agents the team has already built."
 ---
 
 If you're a Salesforce Admin looking at AI tools in 2026, the two names that keep coming up are **Agentforce** (Salesforce's official agent platform) and **Claude Code** (Anthropic's terminal-based coding agent). They sound like they do the same thing. They don't.

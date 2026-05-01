@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
+import { getFeaturedHomepageGuides } from "./lib/posts.js";
 import "./SalesPage.css";
 
 /* ══════════════════════════ CONSTANTS ══════════════════════════ */
@@ -1898,6 +1899,47 @@ function FAQ() {
   );
 }
 
+function FeaturedGuides() {
+  const guides = getFeaturedHomepageGuides();
+  if (!guides.length) return null;
+  return (
+    <section className="section section-divider reveal" id="start-here" aria-labelledby="start-here-title">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">11</span>Start here</div>
+          <div className="block-head-meta">Three guides · free, no signup</div>
+        </div>
+        <div className="featured-guides-grid">
+          <div className="featured-guides-lead">
+            <h2 id="start-here-title" className="display">
+              Read these <em>first.</em>
+            </h2>
+            <p className="lead" style={{ marginTop: "20px" }}>
+              The shortest path from "I've never used Claude Code" to "I just shipped a flow from a prompt." Each post is a self-contained tutorial — no fluff, no signup wall.
+            </p>
+          </div>
+          <div className="featured-guides-list">
+            {guides.map((g, i) => (
+              <a
+                key={g.slug}
+                href={`/blog/${g.slug}`}
+                className="featured-guide"
+              >
+                <div className="featured-guide-num">{String(i + 1).padStart(2, "0")}</div>
+                <div className="featured-guide-body">
+                  <div className="featured-guide-title">{g.title}</div>
+                  <div className="featured-guide-blurb">{g.blurb}</div>
+                  <div className="featured-guide-link">Read the guide <span aria-hidden="true">→</span></div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCTA() {
   return (
     <section className="section final-cta" id="cta">
@@ -1999,6 +2041,7 @@ export default function SalesPage() {
         <Instructor />
         <Testimonials />
         <Pricing />
+        <FeaturedGuides />
         <FAQ />
         <FinalCTA />
       </main>
