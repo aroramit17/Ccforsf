@@ -1,0 +1,168 @@
+---
+title: "Deploy Flows between Salesforce orgs with Claude Code (replace Change Sets)"
+description: "Retrieve a Flow from one org, review it for best practices, and deploy it to another — from a single prompt. The workflow that replaces Change Sets, manual rebuilds, and missing dependencies."
+date: 2026-05-01
+author: Amit
+heroImage: /amit-headshot.png
+tldr:
+  - "One prompt: retrieve a Flow from your source org, review it for best practices, deploy it to the target. About 2 minutes round-trip."
+  - "Pre-deploy checks: Claude verifies referenced fields, objects, and Apex classes exist in the target org before pushing — no half-deployed Flow on a missing dependency."
+  - "Replaces Change Sets and the rebuild-from-scratch routine. Works for record-triggered, screen, scheduled, and autolaunched Flows."
+faq:
+  - q: "Does this work for record-triggered Flows specifically?"
+    a: "Yes — and screen Flows, scheduled Flows, autolaunched Flows, and platform-event Flows. Anything Salesforce stores as Flow metadata can be retrieved and deployed this way."
+  - q: "Will Claude deploy directly to production?"
+    a: "Yes if you authenticate the prod alias, but use sandbox-to-sandbox first while you build trust. For prod, treat the deploy like any other release: a code review on the retrieved Flow XML, a sandbox dress rehearsal, then production. Claude will run the Apex tests in the target org before declaring success if you ask."
+  - q: "How does this compare to Salesforce DevOps Center?"
+    a: "DevOps Center is the official Git-backed pipeline for ongoing release management. Claude Code is the prompt-driven layer for one-off deploys, dependency hunts, and refactors. They are complementary — most teams will run DOC for the regular release train and Claude Code for the in-between work."
+  - q: "What if the target org already has a different version of the Flow?"
+    a: "Claude shows you the diff and asks before overwriting. You can scope the deploy to specific elements, or pull the target version first, merge by hand, and redeploy. Don't blind-overwrite a Flow you didn't write — read the diff first."
+  - q: "Does Claude run the Flow's tests after deploying?"
+    a: "On request. Tell Claude to run `sf apex run test --classnames <YourFlowTestClass>` after the deploy. If you have Apex tests covering subflows or invocable actions referenced by the Flow, run those too."
+---
+
+Raise your hand if you've ever built a Record-Triggered Flow in dev, tested it, confirmed it works — and then had to rebuild it element by element in staging because you didn't set up a proper deployment pipeline. Or tried Change Sets and hit "missing dependency" three times in a row.
+
+This is the workflow that fixes that. One prompt, two minutes, no Change Set wizard.
+
+## The painful version
+
+Here's what an admin does today to move `Auto_Assign_Case_Owner` from `dev-org` to `staging`:
+
+1. Log into dev. Open Flow Builder. Take screenshots of every element.
+2. Log into staging. Open Flow Builder. Recreate the trigger condition.
+3. Recreate decision elements one at a time.
+4. Realize the Flow references a custom field (`Account.Territory_Region__c`) that doesn't exist in staging yet. Pause.
+5. Create the field. Update the page layout. Set field-level security on three profiles.
+6. Go back to the Flow. Recreate the next four elements.
+7. Save and activate. Test. The decision logic on step 3 is wrong because you mistyped a comparison.
+8. Fix it. Test again. Forty-five minutes have passed.
+
+Or you try Change Sets:
+
+1. Set up the deployment connection between orgs.
+2. Build the outbound Change Set. Add the Flow.
+3. Add 11 dependencies it surfaces.
+4. Upload. Wait.
+5. Switch orgs. Validate the inbound. Two more dependencies are missing.
+6. Add them in the source org's Change Set. Re-upload.
+7. Validate again. Deploy. Pray.
+
+Both paths are how admin time evaporates.
+
+## The Claude Code version
+
+Open your terminal in your Salesforce DX project. Make sure both orgs are authenticated (`sf org login web --alias dev-org`, `sf org login web --alias staging`). Then prompt:
+
+```
+Retrieve my Auto_Assign_Case_Owner Flow from dev-org, review it for
+best practices, and deploy it to my staging org.
+```
+
+Claude Code, with the Salesforce DX MCP server wired in (see [the MCP setup post](/blog/connect-claude-code-to-salesforce-with-mcp)), runs four steps:
+
+1. **Retrieve** the Flow metadata from `dev-org` via `sf project retrieve start --metadata Flow:Auto_Assign_Case_Owner`. Reads the resulting XML.
+2. **Review** the Flow against a best-practices checklist (see below). Prints a list of warnings and suggested fixes.
+3. **Dependency check** against `staging`: queries the target org for every custom field, object, Apex class, and subflow the Flow references. Reports anything missing.
+4. **Deploy** to `staging` via `sf project deploy start --metadata Flow:Auto_Assign_Case_Owner --target-org staging`. Confirms success or surfaces the deploy error verbatim.
+
+The whole thing takes under three minutes on a typical Flow. Most of that is the Salesforce CLI doing its API calls.
+
+## What the "review for best practices" pass actually flags
+
+This is the part that matters. Claude isn't just a deployment robot — it reads the retrieved XML and points out the things you'd want a senior admin to catch in code review. Common flags:
+
+- **Hardcoded IDs.** `RecordTypeId = "0124T0000004cQDQAY"` won't exist in the target org. Claude flags it and rewrites the Flow to look up the record type by `DeveloperName` instead.
+- **Missing fault paths.** Get Records, Update Records, Create Records, Loops — anything that hits the database without a connected fault path is a runtime bomb. Claude lists them.
+- **Hardcoded user IDs or queue IDs.** Same problem as record-type IDs. Claude swaps to a Get-by-Name lookup.
+- **DML inside loops.** A Flow that creates one record per iteration of a 50-row collection will hit governor limits faster than you can say "bulkification." Claude restructures to a single Create Records on a collection variable.
+- **No `$Permission` checks on fields the Flow writes.** Optional flag — useful for Flows that can run as the running user.
+- **Versioning hygiene.** If the Flow status is `Active` and there are seven inactive prior versions cluttering the org, Claude suggests cleanup.
+
+You don't have to apply every suggestion. Pick the ones that matter for your situation; tell Claude to ignore the rest. The point is: every one of these would have failed silently in production. They get caught at the prompt-review stage instead.
+
+## Dependency checks: the Change Set killer
+
+The reason Change Sets are so painful is that Salesforce surfaces the dependency tree only after you submit. Claude checks it before:
+
+```
+Dependencies referenced by Auto_Assign_Case_Owner:
+  ✓ Case (standard, present in staging)
+  ✓ Case.OwnerId (standard, present)
+  ✓ Account.Territory_Region__c (custom, present)
+  ✗ User.Sales_Region__c (custom, MISSING in staging)
+  ✓ AssignCaseToTerritoryQueue (Apex class, present)
+  ✓ Subflow_Notify_Owner (Flow, present, version 3 in dev / version 3 in staging)
+```
+
+When something's missing, Claude offers to retrieve and deploy that dependency first, in the right order. Field → page layout → permission set → Flow. No surprises mid-deploy.
+
+For multi-environment teams: this is where the Production Vault pattern (sandbox → integration → UAT → prod) becomes practical without a full DevOps Center setup. Each hop is one prompt.
+
+## A real example: the Auto_Assign_Case_Owner Flow
+
+Live transcript from a sandbox-to-sandbox deploy of a real Flow:
+
+```
+> Retrieve my Auto_Assign_Case_Owner Flow from dev-org, review it for
+  best practices, and deploy it to staging.
+
+[mcp:salesforce] sf project retrieve start --metadata Flow:Auto_Assign_Case_Owner
+                 --target-org dev-org
+✓ Retrieved 1 file (force-app/main/default/flows/Auto_Assign_Case_Owner.flow-meta.xml)
+
+Reviewing Auto_Assign_Case_Owner.flow-meta.xml…
+
+  ⚠ Hardcoded record-type ID at element "Set_RT": "0124T0000004cQDQAY".
+    → Suggested fix: replace with $RecordTypeIds.Case.Premium_Support
+  ⚠ No fault path on element "Get_Account_Owner".
+  ✓ DML is bulkified (single Update_Records on collection)
+  ✓ No SOQL inside loops
+  ✓ Run-as is "User" with $Permission gating
+
+Apply suggested fixes? [y/N] y
+[wrote] Auto_Assign_Case_Owner.flow-meta.xml (2 changes)
+
+[mcp:salesforce] dependency check vs staging…
+  ✓ all 14 referenced metadata items present in staging
+  ✓ Apex test class CaseAssignmentTest exists, last run pass
+
+[mcp:salesforce] sf project deploy start --metadata Flow:Auto_Assign_Case_Owner
+                 --target-org staging
+✓ Deploy succeeded (Id: 0Af4T0000023cZRSAY)
+
+Run CaseAssignmentTest in staging? [y/N] y
+✓ 1 ran, 1 passed (1.7s)
+
+Deploy complete. Auto_Assign_Case_Owner version 4 is active in staging.
+```
+
+Two minutes and 11 seconds. Twelve clicks total — most of them y/N confirmations. Compare that to forty-five minutes of Flow Builder rebuilding.
+
+## When NOT to use Claude Code for Flow deploys
+
+Claude Code is great for one-off deploys, dependency-driven moves, refactors, and the in-between work. There are still a few cases where you want a different tool:
+
+- **Regular release trains.** If your team ships every two weeks against a Git-backed branching strategy, set up [Salesforce DevOps Center](https://help.salesforce.com/s/articleView?id=sf.devops_center.htm). Claude Code complements DOC for one-off work but doesn't replace the pipeline.
+- **Managed packages.** Packaged Flows ship inside the package, not as standalone metadata. Use the package install path.
+- **Org-to-org copies of huge Flow sets.** When you're moving 50+ Flows in one go, you may want a `package.xml`-driven retrieve and deploy via the SF CLI directly. Claude can write the `package.xml` for you, which gets you the best of both.
+
+## Common pitfalls
+
+A few sharp edges to watch for:
+
+- **Active vs Inactive on deploy.** Salesforce can deploy an inactive Flow version, but activating it requires the deploy user to have permission. If your deploy succeeds but the Flow stays inactive, that's the cause.
+- **Subflow versions.** A Flow that calls a subflow gets pinned to a specific subflow version. If the subflow has been updated in the target org, the calling Flow may reference an old version. Claude shows you the version diff and asks.
+- **Process Builder migration leftovers.** If your "Flow" is actually a Process Builder process that was migrated, the metadata type is still `Flow` but the elements are different. Most reviews still apply, but watch for the `Recordrollback` element — it doesn't exist in modern record-triggered Flows.
+- **Permission sets on actions.** A Flow that calls an Apex invocable action requires the running user to have access to that class. The dependency check catches the class existence; it doesn't always catch the permission. Spot-check after deploy.
+
+## What to do next
+
+If this saved you an afternoon, the rest of the same workflow is in the course. The CC for SF capstone walks through this exact sandbox-to-staging-to-prod chain on a real org, including:
+
+- Building the source Flow with one prompt
+- Refactoring it (adding fault paths, replacing hardcoded IDs) with another
+- Setting up a CLAUDE.md so the review pass is consistent across your team
+- Running Apex tests in the target org as part of the deploy
+
+If you're an admin who touches Flows weekly, this is the workflow that frees up the largest single chunk of your time.
