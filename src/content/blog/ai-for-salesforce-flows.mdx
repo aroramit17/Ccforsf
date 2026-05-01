@@ -4,6 +4,19 @@ description: "Using AI — specifically Claude Code — to build record-triggere
 date: 2026-04-19
 author: Amit
 heroImage: /amit-headshot.png
+tldr:
+  - "Generate Flow XML from English prompts in your terminal, then deploy with `sf project deploy start`."
+  - "Works for record-triggered, screen, and scheduled Flows — including Apex actions and subflow calls."
+  - "The trick is showing Claude one example Flow from your org first; it copies your conventions instead of inventing new ones."
+faq:
+  - q: "Does this replace Flow Builder?"
+    a: "No. Flow Builder is still where you visually debug and step through. Claude Code is faster for the initial draft and for repetitive Flows that follow the same pattern."
+  - q: "Can Claude debug a Flow that fails at runtime?"
+    a: "Yes — paste the Flow Interview error or the debug log into the prompt. Claude reads it, points to the failing element, and proposes a fix you can deploy."
+  - q: "What about Salesforce-managed Flow templates?"
+    a: "Treat them as read-only. Have Claude generate a copy under a new name instead of editing the managed Flow directly."
+  - q: "Is generating Flows by AI safe to deploy to production?"
+    a: "Same rules as any other deploy. Get a code review, run it in a sandbox, and ship via your normal release pipeline. Do not deploy AI-generated Flows directly to prod without reading them first."
 ---
 
 Everyone's selling "AI for Salesforce Flows" right now. Most of the pitches are generic AI features bolted onto the Flow Builder UI. This post is about something different: using a real AI coding agent to **generate and deploy Flow metadata from your terminal**, no Flow Builder required.

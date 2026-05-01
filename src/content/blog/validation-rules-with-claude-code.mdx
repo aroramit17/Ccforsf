@@ -4,6 +4,19 @@ description: "Salesforce validation rule syntax is a tax. ISPICKVAL, ISBLANK, ne
 date: 2026-04-17
 author: Amit
 heroImage: /amit-headshot.png
+tldr:
+  - "Describe the rule in plain English. Claude writes the formula, generates an Apex unit test, and deploys."
+  - "Round-trip on a tricky rule (stage gate + ISPICKVAL + amount threshold) takes about 3 minutes."
+  - "The friendly error message is part of the rule — Claude writes both at once."
+faq:
+  - q: "What about cross-object validation rules?"
+    a: "Works the same. Claude can read the relationship and write the formula referencing the parent record's field. You will need a master-detail or a lookup with the right field reference."
+  - q: "How does Claude know my picklist values?"
+    a: "It queries the org via the MCP server. Make sure MCP is wired up so picklist values come from your real metadata, not guesses."
+  - q: "Can Claude write the Apex test for the rule?"
+    a: "Yes. Generate the rule and a unit test in the same prompt. Aim for both the positive path (rule allows valid records) and the negative path (rule blocks invalid ones)."
+  - q: "What if the rule already exists and I am just modifying it?"
+    a: "Retrieve the metadata first, ask Claude to update the formula, then redeploy. Do not ask Claude to write a `new` rule when you mean to edit an existing one — it will create a duplicate."
 ---
 
 Salesforce validation rules are supposed to be the easy part of admin work. Pick a formula, type some conditions, save. In practice, they're where admins lose an hour every week.

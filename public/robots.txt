@@ -78,3 +78,5 @@ User-agent: CCBot
 Allow: /
 
 Sitemap: https://ccforsf.com/sitemap.xml
+
+# LLM-friendly summary at https://ccforsf.com/llms.txt (see https://llmstxt.org/)

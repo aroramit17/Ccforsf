@@ -1,0 +1,163 @@
+---
+title: "Connect Claude Code to your Salesforce org with MCP (VS Code setup)"
+description: "The six-phase setup: Node + SF CLI + Claude Pro + the Salesforce DX MCP server + a single .mcp.json file. 15 minutes from zero to your first prompt in VS Code."
+date: 2026-04-23
+author: Amit
+heroImage: /amit-headshot.png
+tldr:
+  - "MCP is what lets Claude Code see your real org — objects, field API names, the sandbox alias — instead of guessing."
+  - "Setup is six small steps: Node, SF CLI, Claude Pro, the @salesforce/mcp server, a .mcp.json file, and an authenticated alias."
+  - "Once wired, Claude Code can run SOQL, retrieve and deploy metadata, and open test runs from your terminal."
+faq:
+  - q: "Do I need a paid Claude plan to use MCP?"
+    a: "Yes. Claude Code requires Claude Pro ($20/month) in 2026. Pro covers everything described here, including tool use against MCP servers."
+  - q: "Will MCP work against a production org?"
+    a: "Yes, but use a sandbox or developer org while you are learning. Authenticate with `sf org login web --alias <name>` and point Claude Code at that alias in your CLAUDE.md."
+  - q: "Is the Salesforce DX MCP server official?"
+    a: "Yes — it ships from Salesforce as `@salesforce/mcp` on npm. It supports the toolsets you would expect: metadata retrieve/deploy, SOQL, Apex tests, and the Code Analyzer."
+  - q: "What if the MCP server cannot connect to my org?"
+    a: "Run `sf org display --target-org <alias>` to confirm the auth is valid and not expired. The MCP server reads from your local SF CLI auth, so a stale token there is the most common cause."
+---
+
+If you've tried Claude Code on a Salesforce project and felt like it was guessing at your org, you probably skipped the MCP setup. Claude Code without MCP can still write Apex and Flow XML, but it has no connection to your actual org — it doesn't know your objects, your field API names, or which sandbox you're pointed at. MCP fixes that.
+
+MCP — the Model Context Protocol — is Anthropic's standard for letting AI tools call into external services with full auth and scoping. The Salesforce DX MCP server is the Salesforce-flavored implementation. Once it's wired in, Claude Code can query your metadata, run SOQL, retrieve and deploy components, and open Dev Console-style test runs — all from the terminal prompt.
+
+Here's the whole setup, phase by phase.
+
+## Phase 1 — Prerequisites
+
+Get these four things in place first:
+
+- **Node.js 18+** (check with `node --version`)
+- **Salesforce CLI**: `npm install -g @salesforce/cli`
+- **Claude Pro subscription** ($20/month). Required to use Claude Code.
+- **VS Code + the Salesforce Extension Pack**. Open VS Code, go to the Extensions tab (Cmd/Ctrl+Shift+X), search for **"Salesforce Extension Pack"** (published by Salesforce), and install it. This bundles Apex support, SOQL, DX project tooling, and the Org Browser all in one.
+
+None of these are optional. If you're missing any, the later phases will fail in confusing ways.
+
+> **Using a different IDE?** The MCP config is the same in IntelliJ + Illuminated Cloud 2, Cursor, or Zed. Skip VS Code-specific commands in Phase 2 and create the DX project however your editor prefers — everything from Phase 3 onward is identical.
+
+## Phase 2 — Create your SFDX project (VS Code)
+
+Open VS Code. Hit **Cmd/Ctrl+Shift+P** to bring up the Command Palette, type **SFDX: Create Project**, and pick the **Standard** template. Name the project (something like `my-sf-project`) and choose a folder. VS Code scaffolds the DX project and opens it.
+
+Now authenticate against your Salesforce org. Easiest path — Command Palette again:
+
+**SFDX: Authorize an Org** → pick *Production* (or *Sandbox*) → give it an alias like `dev-org` → your browser opens, you log in, VS Code registers the org.
+
+Equivalent CLI commands (if you prefer terminal):
+
+```bash
+sf org login web --alias dev-org
+sf config set target-org=dev-org
+```
+
+Confirm the org is wired up:
+
+```bash
+sf org display --target-org dev-org
+```
+
+You should see your org's Instance URL, User Id, and Connected Status: `Connected`.
+
+You now have a Salesforce DX project folder with `sfdx-project.json` at the root, a default org alias, and VS Code indexing your metadata via the Org Browser sidebar.
+
+## Phase 3 — Install Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+Then run `claude` from any terminal. The first time, it opens a browser window to authenticate against your Claude Pro account. Once that's done, you'll see the `claude>` prompt.
+
+You can close and reopen the terminal at any time — your auth is cached.
+
+## Phase 4 — Install the Salesforce DX MCP server
+
+```bash
+npm install -g @salesforce/mcp
+```
+
+This installs the MCP server binary globally. It's a small executable that translates MCP protocol messages into Salesforce CLI / DX API calls.
+
+## Phase 5 — Configure MCP (the key step)
+
+Create a file called `.mcp.json` in the root of your SFDX project (same folder as `sfdx-project.json`). Content:
+
+```json
+{
+  "mcpServers": {
+    "salesforce-dx": {
+      "command": "npx",
+      "args": ["@salesforce/mcp"],
+      "env": {}
+    }
+  }
+}
+```
+
+That's the whole thing. Four lines of real config.
+
+If you'd rather not copy-paste, you can also just start Claude Code in your project directory and tell it:
+
+> Configure Salesforce DX MCP for Claude Code locally in this project.
+
+It'll write the `.mcp.json` for you. Either path produces the same file.
+
+## Phase 6 — Restart and test
+
+This part is **critical** — Claude Code reads `.mcp.json` only on startup. If you added the file while Claude Code was already running, close it and reopen.
+
+Once restarted:
+
+1. Run `claude` from your project directory.
+2. Run `/init` inside the Claude prompt. This creates a `claude.md` (project context file) and gives Claude a read of your project structure.
+3. Run `/mcp` to verify the server is connected. You should see `salesforce-dx ✓ connected`.
+4. Test with a real query:
+
+```
+list all custom objects in my org
+```
+
+If Claude comes back with your actual org's custom objects — not generic "here are some common Salesforce objects" filler — you're good. You can now ask it to create fields, build Flows, write validation rules, and deploy changes, all backed by your live org's metadata.
+
+## Gotchas worth knowing
+
+A handful of things that will bite you if you skip them:
+
+**Always run `/init` at the start of a new session.** Without project context, Claude falls back to generic Salesforce advice instead of working from your org's actual schema. One `/init` command, one time per session.
+
+**Set a default org.** Run `sf config set target-org=your-org-alias`. If no default org is set, MCP has nothing to connect to and the tool calls will fail with a cryptic "no org selected" error.
+
+**For production orgs, scope to read-only.** When pointing MCP at a prod org, limit the toolsets so Claude can't accidentally deploy something:
+
+```bash
+sf mcp start --toolsets query,metadata
+```
+
+That gives it SOQL reads and metadata inspection but blocks deploys. You can always deploy manually from a sandbox branch once you're ready.
+
+**You can wire up multiple orgs.** Add multiple server entries in `.mcp.json` — one for dev, one for UAT, one for prod (read-only). Claude will let you switch between them by name during a session:
+
+```json
+{
+  "mcpServers": {
+    "salesforce-dev":  { "command": "npx", "args": ["@salesforce/mcp", "--target-org", "dev-org"] },
+    "salesforce-uat":  { "command": "npx", "args": ["@salesforce/mcp", "--target-org", "uat-org"] },
+    "salesforce-prod": { "command": "npx", "args": ["@salesforce/mcp", "--target-org", "prod-org", "--toolsets", "query,metadata"] }
+  }
+}
+```
+
+## What changes after MCP is wired
+
+The thing that surprises most admins on day one is how much Claude's answers improve once MCP is live. Before MCP, asking for a validation rule gets you a plausible-looking formula. After MCP, the same question gets a formula that references your actual field API names, respects your real record types, and is scoped to the right object.
+
+Same for Flows, fields, permission sets, Apex triggers — the output goes from "generic Salesforce example" to "thing you can actually deploy."
+
+Total time, start to finish: about 15 minutes if your Node/CLI setup is already clean. Double that if you're installing Node for the first time.
+
+---
+
+**Related:** [Your first CLAUDE.md for a Salesforce DX project](/blog/your-first-claude-md-for-salesforce) · [AI for Salesforce Flows](/blog/ai-for-salesforce-flows) · [Get the course →](/#pricing)

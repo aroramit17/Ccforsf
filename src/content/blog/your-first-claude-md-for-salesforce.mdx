@@ -4,6 +4,21 @@ description: "Claude Code reads a file called CLAUDE.md at the start of every se
 date: 2026-04-16
 author: Amit
 heroImage: /amit-headshot.png
+tldr:
+  - "CLAUDE.md is the briefing Claude reads at the start of every session. Write one and your output quality jumps overnight."
+  - "Cover four things: project overview, key workflows, naming/coding conventions, and what NOT to touch."
+  - "Keep it under 300 lines, refresh it whenever you change a convention, and check it into the repo."
+faq:
+  - q: "Where does CLAUDE.md live?"
+    a: "At the root of your repo. Claude Code looks for it in the working directory and walks up the tree, so a project-level CLAUDE.md is enough for most teams."
+  - q: "Do I need separate CLAUDE.md files for sandbox and prod?"
+    a: "Usually no — the same conventions apply. If your prod org has stricter deploy rules, add a `Production deploy gotchas` section instead of forking the file."
+  - q: "Should CLAUDE.md include credentials or org IDs?"
+    a: "No. Reference org aliases (`prod`, `dev-org`) instead. Treat CLAUDE.md as public — it gets committed to the repo."
+  - q: "Can I share one CLAUDE.md across my team?"
+    a: "Yes, and you should. Update it via PR like any other code. The file is the team's shared brief, not a personal scratchpad."
+  - q: "How is CLAUDE.md different from a README?"
+    a: "README is for humans skimming the repo. CLAUDE.md is for an AI agent about to do work. Be explicit about constraints (deploy targets, code style, what is deprecated) in a way you would not bother writing in a README."
 ---
 
 There's one file in a Salesforce DX project that does more to improve Claude Code's output than anything else you can change. It's called `CLAUDE.md`, it lives in the repo root, and most admins don't know it exists.

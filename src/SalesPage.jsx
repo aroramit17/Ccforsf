@@ -1,13 +1,31 @@
 import { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
+import { getFeaturedHomepageGuides } from "./lib/posts.js";
+import "./SalesPage.css";
+
+/* ══════════════════════════ CONSTANTS ══════════════════════════ */
+
+const ENROLL_HASH = "#enroll";
+const THRIVECART_EMBED_ID = "tc-webpay-57-R3BT08";
+const TYPEWRITER_WORDS = [
+  "fields",
+  "permission sets",
+  "profiles",
+  "flows",
+  "validation rules",
+  "Apex classes",
+  "test classes",
+];
 
 const FAQS = [
   { q: "Do I need to know how to code?", a: "No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." },
-  { q: "What do I need to get started?", a: "A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
-  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." },
+  { q: "What do I need to get started?", a: "A Claude Pro subscription ($20/month) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." },
+  { q: "How is this different from Agentforce?", a: "Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a Claude Pro subscription from Anthropic ($20/month) and connects directly to your org. No Salesforce add-on license needed." },
   { q: "How long do I have access?", a: "Lifetime. Watch it once, come back anytime. All future updates are included." },
   { q: "What if I don't like it?", a: "Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." },
-  { q: "Is this safe for my production org?", a: "Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
+  { q: "Is this safe for my production org?", a: "Great question. Security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model. It uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." },
+  { q: "Does Claude Code store my Salesforce data?", a: "No. Claude Code is a local CLI that runs on your machine. Your metadata stays yours. It reads project files locally, sends only the relevant context to Anthropic's API to generate a response, and writes the output back to your local repo. Salesforce records, customer data, and credentials never leave your environment unless you explicitly paste them into a prompt." },
+  { q: "Is this \"Shadow AI\"? What about compliance?", a: "Claude Code uses your existing Salesforce login and respects every permission, profile, sharing rule, and SOX control already in place. There is no separate AI service connected to your org. Claude only sees what you, the authenticated user, would see. All deploys go through the same change-set / CI/CD path your security team already approved. Anthropic's API does not train on your data (Pro and Max plans are excluded from training by default)." },
   { q: "Is this affiliated with Salesforce or Anthropic?", a: "No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." },
 ];
 
@@ -18,7 +36,7 @@ const HOMEPAGE_JSON_LD = {
       "@type": "Course",
       "@id": "https://ccforsf.com/#course",
       "name": "Claude Code for Salesforce Admins",
-      "description": "A hands-on mini-course that teaches Salesforce Admins how to use Claude Code to build Flows, custom fields, validation rules, and Apex — without clicking through Setup or writing code by hand.",
+      "description": "A hands-on mini-course that teaches Salesforce Admins how to use Claude Code to build Flows, custom fields, validation rules, and Apex without clicking through Setup or writing code by hand.",
       "url": "https://ccforsf.com/",
       "inLanguage": "en",
       "provider": { "@id": "https://ccforsf.com/#org" },
@@ -29,12 +47,12 @@ const HOMEPAGE_JSON_LD = {
         "priceCurrency": "USD",
         "category": "OneTimePurchase",
         "availability": "https://schema.org/InStock",
-        "url": "https://ccforsf.com/#pricing",
+        "url": "https://ccforsf.com/#enroll",
       },
       "hasCourseInstance": {
         "@type": "CourseInstance",
         "courseMode": "Online",
-        "courseWorkload": "PT2H",
+        "courseWorkload": "PT4H",
         "inLanguage": "en",
       },
     },
@@ -65,1743 +83,1969 @@ const HOMEPAGE_JSON_LD = {
   ],
 };
 
-const COLORS = {
-  orange: "#DA7756",
-  orangeHover: "#C4613F",
-  orangeGlow: "rgba(218,119,86,0.3)",
-  sfBlue: "#0176D3",
-  green: "#22C55E",
-  gold: "#FFB347",
-  bg: "#0a0a0a",
-  surface: "#111111",
-  surface2: "#1a1a1a",
-  surface3: "#222222",
-  textPrimary: "#f0f0f0",
-  textSecondary: "#a0a0a0",
-  textMuted: "#666666",
-  border: "rgba(255,255,255,0.08)",
-  borderHover: "rgba(218,119,86,0.4)",
-};
+/* ══════════════════════════ HOOKS ══════════════════════════ */
 
-/* ── hooks ── */
-function useInView(threshold = 0.12) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+function useScrolled(threshold = 24) {
+  const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const onScroll = () => setScrolled(window.scrollY > threshold);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
+  return scrolled;
+}
+
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "light";
+    const stored = window.localStorage.getItem("ccsf-theme");
+    if (stored === "dark" || stored === "light") return stored;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.colorScheme = theme;
+    try { window.localStorage.setItem("ccsf-theme", theme); } catch {}
+  }, [theme]);
+
+  const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  return { theme, toggle };
+}
+
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll(".ccsf-root .reveal");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("in"));
+      return;
+    }
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } },
-      { threshold }
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            obs.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
     );
-    obs.observe(el);
+    els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
   }, []);
-  return [ref, visible];
 }
 
-/* ── reusable atoms ── */
-function Section({ children, id, style = {}, maxWidth = 900 }) {
-  const [ref, visible] = useInView(0.06);
+/* ══════════════════════════ COMPONENTS ══════════════════════════ */
+
+function ThemeToggle({ className = "" }) {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === "dark";
   return (
-    <section ref={ref} id={id} style={{ padding: "80px 20px", transition: "opacity 0.7s ease, transform 0.7s ease", opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(30px)", position: "relative", ...style }}>
-      <div style={{ maxWidth, margin: "0 auto" }}>{children}</div>
-    </section>
-  );
-}
-
-function SectionLabel({ children }) {
-  return <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 2.5, color: COLORS.orange, textTransform: "uppercase", marginBottom: 10 }}>{children}</div>;
-}
-
-function H2({ children, center, light, className }) {
-  return <h2 className={className} style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: light ? COLORS.textPrimary : COLORS.textPrimary, lineHeight: 1.15, marginBottom: 16, textAlign: center ? "center" : "left", letterSpacing: -0.5 }}>{children}</h2>;
-}
-
-function SubText({ children, center }) {
-  return <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.7, color: COLORS.textSecondary, marginBottom: 16, textAlign: center ? "center" : "left" }}>{children}</p>;
-}
-
-function CTAButton({ children, large, full, onClick }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <button onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: large ? "18px 44px" : "14px 32px", width: full ? "100%" : "auto", background: hover ? COLORS.orangeHover : COLORS.orange, color: "#fff", border: "none", borderRadius: 8, fontSize: large ? 17 : 15, fontWeight: 800, fontFamily: "'DM Sans', sans-serif", cursor: "pointer", transition: "all 0.25s ease", transform: hover ? "translateY(-2px)" : "translateY(0)", boxShadow: hover ? `0 8px 32px ${COLORS.orangeGlow}` : `0 4px 16px rgba(218,119,86,0.2)`, letterSpacing: 0.3 }}>
-      {children} <span style={{ fontSize: large ? 20 : 17 }}>→</span>
+    <button
+      type="button"
+      onClick={toggle}
+      className={`theme-toggle ${className}`}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-pressed={isDark}
+      title={isDark ? "Light mode" : "Dark mode"}
+    >
+      <span className="theme-toggle-track">
+        <span className="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">☀</span>
+        <span className="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">☾</span>
+        <span className="theme-toggle-thumb" aria-hidden="true" />
+      </span>
     </button>
   );
 }
 
-function CheckItem({ children }) {
-  return (
-    <div style={{ display: "flex", gap: 12, marginBottom: 14, alignItems: "flex-start" }}>
-      <span style={{ color: COLORS.green, fontSize: 15, fontWeight: 700, marginTop: 1 }}>✓</span>
-      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.6, color: COLORS.textPrimary }}>{children}</span>
-    </div>
-  );
-}
-
-function Stars() {
-  return <div style={{ display: "flex", gap: 2, marginBottom: 10 }}>{[...Array(5)].map((_, i) => <span key={i} style={{ color: COLORS.gold, fontSize: 13 }}>★</span>)}</div>;
-}
-
-function FAQItem({ q, a }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div style={{ borderBottom: `1px solid ${COLORS.border}`, cursor: "pointer" }} onClick={() => setOpen(!open)}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0" }}>
-        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15.5, fontWeight: 600, color: COLORS.textPrimary, paddingRight: 16 }}>{q}</span>
-        <span style={{ fontSize: 18, color: COLORS.orange, fontWeight: 400, transition: "transform 0.3s", transform: open ? "rotate(180deg)" : "rotate(0)", flexShrink: 0 }}>▾</span>
-      </div>
-      <div style={{ maxHeight: open ? 400 : 0, overflow: "hidden", transition: "max-height 0.3s ease" }}>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textSecondary, lineHeight: 1.7, margin: "0 0 18px", paddingRight: 40 }}>{a}</p>
-      </div>
-    </div>
-  );
-}
-
-/* ── keyframes injected via style tag ── */
-function GlobalStyles() {
-  return (
-    <style>{`
-      @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-      @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-      @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
-      @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-      @keyframes sceneReveal {
-        0% { opacity: 0; transform: translateY(4px); }
-        10% { opacity: 1; transform: translateY(0); }
-        88% { opacity: 1; transform: translateY(0); }
-        97%, 100% { opacity: 0; transform: translateY(-2px); }
-      }
-      @keyframes caretBlink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
-      * { margin:0; padding:0; box-sizing:border-box; }
-      body { background:${COLORS.bg}; }
-      ::selection { background:${COLORS.orange}; color:#fff; }
-      .hero-grid { display:grid; grid-template-columns:1fr; gap:48px; align-items:center; }
-      .hero-left { text-align:center; display:flex; flex-direction:column; align-items:center; }
-      .hero-right { display:flex; justify-content:center; }
-      @media (min-width: 960px) {
-        .hero-grid { grid-template-columns: 1.05fr 1fr; gap:56px; }
-        .hero-left { text-align:left; align-items:flex-start; }
-        .hero-right { justify-content:flex-end; }
-      }
-      .roi-grid { display:grid; grid-template-columns:1fr; gap:20px; }
-      @media (min-width: 800px) { .roi-grid { grid-template-columns: 1fr 1fr; gap:28px; } }
-      input[type="range"].roi-slider {
-        -webkit-appearance: none; appearance: none;
-        width: 100%; height: 6px; border-radius: 3px;
-        background: rgba(255,255,255,0.08); outline: none; cursor: pointer;
-      }
-      input[type="range"].roi-slider::-webkit-slider-thumb {
-        -webkit-appearance: none; appearance: none;
-        width: 20px; height: 20px; border-radius: 50%;
-        background: ${COLORS.orange}; cursor: pointer;
-        box-shadow: 0 0 0 4px rgba(218,119,86,0.18);
-        transition: box-shadow 0.2s, transform 0.1s;
-      }
-      input[type="range"].roi-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 8px rgba(218,119,86,0.28); transform: scale(1.08); }
-      input[type="range"].roi-slider::-moz-range-thumb {
-        width: 20px; height: 20px; border-radius: 50%;
-        background: ${COLORS.orange}; cursor: pointer; border: none;
-        box-shadow: 0 0 0 4px rgba(218,119,86,0.18);
-      }
-      /* Touch-friendly slider — bigger thumb + track on coarse pointers (mobile) */
-      @media (hover: none) and (pointer: coarse) {
-        input[type="range"].roi-slider { height: 10px; border-radius: 5px; }
-        input[type="range"].roi-slider::-webkit-slider-thumb { width: 28px; height: 28px; box-shadow: 0 0 0 4px rgba(218,119,86,0.22); }
-        input[type="range"].roi-slider::-moz-range-thumb { width: 28px; height: 28px; }
-      }
-      @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-      .gradient-headline {
-        background: linear-gradient(90deg, #FFFFFF 0%, ${COLORS.orange} 35%, ${COLORS.sfBlue} 65%, #FFFFFF 100%);
-        background-size: 300% 100%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-        animation: gradientShift 7s ease infinite;
-      }
-      .feat-tabs { display:grid; grid-template-columns:1fr; gap:20px; }
-      @media (min-width: 920px) { .feat-tabs { grid-template-columns: minmax(320px, 0.9fr) 1.1fr; gap:28px; } }
-      .feat-row { transition: background 0.25s, border-color 0.25s, transform 0.2s; cursor: pointer; }
-      .feat-row:hover { transform: translateX(4px); }
-      @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
-      @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(218,119,86,0.4); } 50% { box-shadow: 0 0 0 14px rgba(218,119,86,0); } }
-      @keyframes unlockIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-      html { scroll-behavior: smooth; }
-      section[id] { scroll-margin-top: 110px; }
-      @keyframes menuOpen { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-      .fit-grid { display:grid; grid-template-columns:1fr; gap:20px; }
-      @media (min-width: 820px) { .fit-grid { grid-template-columns: 1.45fr 1fr; gap:28px; align-items:start; } }
-    `}</style>
-  );
-}
-
-/* ══════════════════════════ MAIN PAGE ══════════════════════════ */
-export default function SalesPage() {
-  const [scrollY, setScrollY] = useState(0);
-  const [showUrgency, setShowUrgency] = useState(true);
+function Nav() {
+  const scrolled = useScrolled();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const h = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
-  }, []);
+    if (!menuOpen) return;
+    const onKey = (e) => { if (e.key === "Escape") setMenuOpen(false); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
+  const close = () => setMenuOpen(false);
 
   return (
-    <div style={{ background: COLORS.bg, minHeight: "100vh", overflowX: "hidden", color: COLORS.textPrimary }}>
-      <SEO
-        title="CC for SF — Claude Code for Salesforce Admins"
-        description="The hands-on mini-course that teaches Salesforce Admins to build Flows, fields, and Apex with Claude Code in minutes. $97 one-time, 30-day guarantee."
-        path="/"
-        jsonLd={HOMEPAGE_JSON_LD}
-      />
-      <GlobalStyles />
+    <nav className={`nav ${scrolled ? "scrolled" : ""}`}>
+      <a href="#top" className="nav-mark" onClick={close}>
+        <span className="glyph">CC</span>
+        <span>CC&nbsp;<span style={{ color: "var(--ink-400)" }}>/</span>&nbsp;SF</span>
+      </a>
+      <div className="nav-links">
+        <a href="#model">The Model</a>
+        <a href="#build">What you'll build</a>
+        <a href="#walkthrough">Watch</a>
+        <a href="#curriculum">Curriculum</a>
+        <a href={ENROLL_HASH}>Pricing</a>
+        <ThemeToggle className="theme-toggle--nav" />
+        <a href={ENROLL_HASH} className="btn btn--primary nav-enroll" style={{ padding: "10px 18px" }}>
+          Enroll <span className="arrow">→</span>
+        </a>
+      </div>
 
-      {/* ── URGENCY BAR ── */}
-      {showUrgency && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, background: COLORS.orange, padding: "10px 20px", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#fff", textAlign: "center" }}>
-            Launch pricing: <span style={{ textDecoration: "line-through", opacity: 0.7 }}>$197</span> → <strong>$97</strong> — one-time, lifetime access. Price goes up soon.
-          </span>
-          <button onClick={() => setShowUrgency(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 16, marginLeft: 12, padding: "0 4px" }}>×</button>
+      <ThemeToggle className="theme-toggle--mobile" />
+
+      <button
+        type="button"
+        className={`nav-burger ${menuOpen ? "nav-burger--open" : ""}`}
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        aria-controls="ccsf-mobile-menu"
+        onClick={() => setMenuOpen((v) => !v)}
+      >
+        <span /><span /><span />
+      </button>
+
+      <div
+        id="ccsf-mobile-menu"
+        className={`nav-mobile ${menuOpen ? "nav-mobile--open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!menuOpen}
+      >
+        <a href="#model" onClick={close}>The Model</a>
+        <a href="#build" onClick={close}>What you'll build</a>
+        <a href="#walkthrough" onClick={close}>Watch</a>
+        <a href="#curriculum" onClick={close}>Curriculum</a>
+        <a href="#faq" onClick={close}>FAQ</a>
+        <a href={ENROLL_HASH} onClick={close}>Pricing</a>
+        <a href={ENROLL_HASH} className="btn btn--primary nav-mobile-cta" onClick={close}>
+          Get Lifetime Access for $97 <span className="arrow">→</span>
+        </a>
+      </div>
+    </nav>
+  );
+}
+
+function StickyEnroll() {
+  const scrolled = useScrolled(600);
+  return (
+    <a
+      href={ENROLL_HASH}
+      className={`sticky-enroll ${scrolled ? "sticky-enroll--show" : ""}`}
+      aria-label="Enroll, get lifetime access for $97"
+    >
+      <span className="sticky-enroll-text">Get Lifetime Access: $97</span>
+      <span className="arrow">→</span>
+    </a>
+  );
+}
+
+function HeroComposition() {
+  return (
+    <div className="hero-comp">
+      <svg className="hero-annotations" viewBox="0 0 600 640" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <pattern id="ccsf-dotpat" width="14" height="14" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.6" fill="rgba(26,25,22,0.18)" />
+          </pattern>
+        </defs>
+        <rect width="600" height="640" fill="url(#ccsf-dotpat)" opacity="0.5" />
+        <g stroke="rgba(26,25,22,0.22)" strokeWidth="0.5" fill="none">
+          <line x1="0" y1="80" x2="600" y2="80" strokeDasharray="2,3" />
+          <line x1="0" y1="320" x2="600" y2="320" strokeDasharray="2,3" />
+          <line x1="0" y1="560" x2="600" y2="560" strokeDasharray="2,3" />
+        </g>
+        <g fontFamily="var(--mono)" fontSize="9" fill="rgba(26,25,22,0.45)" letterSpacing="1">
+          <text x="6" y="76">A: PROMPT</text>
+          <text x="6" y="316">B: CONTEXT</text>
+          <text x="6" y="556">C: OUTPUT</text>
+        </g>
+      </svg>
+
+      <div className="hero-card hero-card--prompt artifact">
+        <div className="artifact-header">
+          <span>prompt.md</span>
+          <span className="artifact-dots"><span /><span /><span /></span>
         </div>
-      )}
-
-      {/* ── NAV ── */}
-      <nav style={{ position: "fixed", top: showUrgency ? 37 : 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(10,10,10,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", height: 56 }}>
-          <a href="#top" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: "none" }}>
-            <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.5)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
-            <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.18)" }}>__c</span>
-          </a>
-          <HamburgerMenu />
+        <div style={{ padding: "18px 20px", fontFamily: "var(--mono)", fontSize: "12.5px", lineHeight: 1.65, color: "var(--ink-800)" }}>
+          <span style={{ color: "var(--ink-400)" }}>{">"} </span>
+          Build a validation rule preventing<br />
+          <span style={{ paddingLeft: "14px" }}>opportunities from closing without</span><br />
+          <span style={{ paddingLeft: "14px" }}>a primary contact role.</span>
+          <span className="cursor-blink">▍</span>
         </div>
-      </nav>
+      </div>
 
-      {/* ── HERO ── */}
-      <section id="top" style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
-        {/* noise texture */}
-        <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: "128px 128px" }} />
-        {/* glow orbs */}
-        <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 600, background: `radial-gradient(circle, rgba(218,119,86,0.12) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(60px)" }} />
-        <div style={{ position: "absolute", top: "40%", right: "-10%", width: 300, height: 300, background: `radial-gradient(circle, rgba(1,118,211,0.1) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(50px)" }} />
+      <div className="hero-card hero-card--meta artifact">
+        <div className="artifact-header">
+          <span>org · metadata</span>
+          <span style={{ color: "var(--accent)" }}>● connected</span>
+        </div>
+        <div style={{ padding: "14px 18px" }}>
+          <div className="meta-tree">
+            <div className="meta-row"><span className="meta-key">objects/</span><span className="meta-val">94</span></div>
+            <div className="meta-row meta-row--child"><span className="meta-key">Opportunity.object</span><span className="meta-val">read</span></div>
+            <div className="meta-row meta-row--child"><span className="meta-key">OpportunityContactRole</span><span className="meta-val">scan</span></div>
+            <div className="meta-row"><span className="meta-key">flows/</span><span className="meta-val">28</span></div>
+            <div className="meta-row"><span className="meta-key">validationRules/</span><span className="meta-val">142</span></div>
+          </div>
+        </div>
+      </div>
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <div className="hero-grid">
-            {/* LEFT: copy + CTA */}
-            <div className="hero-left">
-              {/* badge */}
-              <div style={{ animation: "fadeUp 0.5s ease both", display: "inline-flex", alignItems: "center", gap: 8, background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 100, padding: "8px 18px", marginBottom: 20 }}>
-                <span style={{ color: COLORS.green, fontSize: 8, animation: "blink 1.4s infinite" }}>●</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary }}>CLAUDE CODE for SALESFORCE</span>
-              </div>
+      <div className="hero-card hero-card--output artifact">
+        <div className="artifact-header">
+          <span>RequirePrimaryContactRole.rule</span>
+          <span style={{ color: "var(--ink-500)" }}>generated · 4s</span>
+        </div>
+        <div style={{ padding: "16px 18px", fontFamily: "var(--mono)", fontSize: "11.5px", lineHeight: 1.7, color: "var(--ink-800)" }}>
+          <div><span style={{ color: "var(--ink-400)" }}>1</span>&nbsp;&nbsp;<span style={{ color: "var(--accent)" }}>AND</span>(</div>
+          <div><span style={{ color: "var(--ink-400)" }}>2</span>&nbsp;&nbsp;&nbsp;&nbsp;ISPICKVAL(StageName, <span style={{ color: "#0B6E5F" }}>"Closed Won"</span>),</div>
+          <div><span style={{ color: "var(--ink-400)" }}>3</span>&nbsp;&nbsp;&nbsp;&nbsp;NOT(<span style={{ color: "var(--accent)" }}>HasPrimaryContact__c</span>)</div>
+          <div><span style={{ color: "var(--ink-400)" }}>4</span>&nbsp;&nbsp;)</div>
+        </div>
+      </div>
 
-              <h1 style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.1s", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(32px, 5.4vw, 52px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.05, marginBottom: 20, letterSpacing: -1 }}>
-                What if your next Flow
-                <br />
-                <span style={{ color: COLORS.orange }}>was one prompt away?</span>
-              </h1>
+      <svg className="hero-connectors" viewBox="0 0 600 640" aria-hidden="true">
+        <g stroke="var(--accent)" strokeWidth="1" fill="none" strokeDasharray="3,4">
+          <path d="M 320 130 L 320 200" />
+          <path d="M 320 380 L 320 460" />
+        </g>
+        <g fill="var(--accent)">
+          <circle cx="320" cy="130" r="3" />
+          <circle cx="320" cy="200" r="3" />
+          <circle cx="320" cy="380" r="3" />
+          <circle cx="320" cy="460" r="3" />
+        </g>
+      </svg>
 
-              <p style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.2s", fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(15px, 2vw, 18px)", color: COLORS.textSecondary, lineHeight: 1.55, maxWidth: 480, marginBottom: 28 }}>
-                Claude Code × Salesforce. Ship Flows, fields, and Apex <strong style={{ color: COLORS.textPrimary }}>10× faster</strong> — straight from your terminal.
-              </p>
+      <div className="hero-corner-tag tag">
+        <span className="dot" /> Live composition
+      </div>
+    </div>
+  );
+}
 
-              {/* primary CTA */}
-              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", marginBottom: 18, width: "100%", maxWidth: 440 }}>
-                <CTAButton large full>Get Instant Access — $97</CTAButton>
-              </div>
-
-              {/* trust row */}
-              <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.4s", display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "inherit" }}>
-                {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{t}</span>
-                  </div>
-                ))}
-              </div>
+function Hero() {
+  return (
+    <section className="hero" id="top">
+      <div className="grid-overlay" />
+      <div className="shell hero-grid">
+        <div className="hero-copy">
+          <div className="hero-meta hero-meta--coords-only">
+            <div className="hero-coords">
+              <span>37.7749° N</span>
+              <span>/</span>
+              <span>SF·26</span>
             </div>
+          </div>
 
-            {/* RIGHT: animated terminal */}
-            <div className="hero-right" style={{ animation: "fadeUp 0.7s ease 0.3s both" }}>
-              <HeroVideo />
+          <h1 className="display">
+            The modern<br />
+            Salesforce Admin<br />
+            doesn't just manage the org.<br />
+            <em>They prompt it.</em>
+          </h1>
+
+          <p className="lead" style={{ marginTop: "40px" }}>
+            Stop Clicking. Start Prompting. Build &amp; Deploy Salesforce Flows in
+            5&nbsp;Minutes. No Code Required.
+          </p>
+
+          <div className="hero-ctas">
+            <a href={ENROLL_HASH} className="btn btn--primary">
+              Get Lifetime Access for $97 <span className="arrow">→</span>
+            </a>
+            <a href="#model" className="btn btn--ghost">
+              See how it works
+            </a>
+          </div>
+
+          <div className="hero-proof">
+            <div className="proof-item">
+              <span className="proof-num">01</span>
+              <span className="proof-label">No terminal experience required</span>
+            </div>
+            <div className="proof-item">
+              <span className="proof-num">02</span>
+              <span className="proof-label">Built for Salesforce Admins</span>
+            </div>
+            <div className="proof-item">
+              <span className="proof-num">03</span>
+              <span className="proof-label">Hands-on mini-course</span>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* ── STATS STRIP ── */}
-      <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "0 20px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}>
-          {[
-            ["$20/mo", "Claude Code cost"],
-            ["5 min", "To deploy your first Flow"],
-            ["0 lines", "Of code you need to write"],
-          ].map(([num, label], i) => (
-            <div key={i} style={{ padding: "28px 20px", textAlign: "center", borderRight: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
-              <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.orange, marginBottom: 4 }}>{num}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{label}</div>
-            </div>
-          ))}
+        <div className="hero-visual">
+          <HeroComposition />
         </div>
       </div>
 
-      {/* ── TOOLS MARQUEE ── */}
-      <div style={{ padding: "40px 0", overflow: "hidden", position: "relative" }}>
-        {/* fade edges */}
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(90deg, ${COLORS.bg}, transparent)`, zIndex: 2 }} />
-        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 80, background: `linear-gradient(270deg, ${COLORS.bg}, transparent)`, zIndex: 2 }} />
-        <div style={{ display: "flex", animation: "marquee 30s linear infinite", width: "max-content" }}>
-          {[...Array(2)].map((_, setIdx) => (
-            <div key={setIdx} style={{ display: "flex", gap: 12, paddingRight: 12 }}>
-              {["Flows", "Apex Triggers", "Validation Rules", "Custom Fields", "Permission Sets", "Page Layouts", "LWC", "SOQL Queries", "Quick Actions", "Record-Triggered Flows", "Screen Flows", "Approval Processes"].map((tool, i) => (
-                <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: "10px 20px", whiteSpace: "nowrap", display: "flex", alignItems: "center", height: 42 }}>
-                  {tool}
-                </div>
-              ))}
-            </div>
-          ))}
+      <div className="hero-footer shell">
+        <div className="measure-line measure-line--full">
+          <span>SECTION 01 / HERO</span>
         </div>
       </div>
+    </section>
+  );
+}
 
-      {/* ── PROBLEM (3×2 grid) ── */}
-      <Section id="problem" style={{ background: "radial-gradient(ellipse 80% 70% at 10% 10%, rgba(218,119,86,0.22), transparent 55%), radial-gradient(ellipse 60% 60% at 92% 95%, rgba(1,118,211,0.16), transparent 55%), #0a0a0a" }}>
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <SectionLabel>The Problem</SectionLabel>
-          <H2 center>You know Salesforce. You just can't move fast enough.</H2>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-          {[
-            { icon: "🖱️", title: "15 clicks. One field.", desc: "Create the field. Add it to the layout. Update the permission set. Assign the profile. Test in sandbox. Push to prod. You wanted a picklist. You got an afternoon." },
-            { icon: "⏳", title: "Stuck in Jira ticket purgatory", desc: "You know the business logic cold. But you're writing tickets, pinging devs, and waiting two weeks for a change you could describe in two sentences." },
-            { icon: "🔀", title: "Staring at the Flow canvas", desc: "You know what it should do. But elements, loops, and decision trees turn a 10-minute idea into a 3-hour build — plus the debugging when something breaks in UAT." },
-            { icon: "🔍", title: "Googling validation syntax", desc: "ISPICKVAL or TEXT? AND or &&? You know the logic. You're losing 20 minutes every time to syntax you'll forget again next week." },
-            { icon: "📈", title: "Your backlog is getting worse", desc: "Leadership keeps asking what's taking so long. Every sprint ends with more added than shipped. The AI-fluent admin next door is shipping twice as fast." },
-            { icon: "🤖", title: "AI already changed the job", desc: "Agentforce. Einstein Copilot. Anthropic MCP. Admins who can talk to their org in plain English are about to leap past the ones still hunting through Setup menus." },
-          ].map((item, i) => (
-            <ProblemCard key={i} {...item} />
-          ))}
-        </div>
-      </Section>
+function Marquee() {
+  const items = [
+    "Flow builder, faster",
+    "Validation rules in plain English",
+    "Metadata-aware",
+    "Sandbox-safe",
+    "Built for admins",
+    "No dev queue",
+    "Claude Code as partner",
+    "Org-aware execution",
+  ];
+  const doubled = [...items, ...items];
+  return (
+    <div className="marquee">
+      <div className="marquee-track">
+        {doubled.map((t, i) => <span className="marquee-item" key={i}>{t}</span>)}
+      </div>
+    </div>
+  );
+}
 
-      {/* ── AGITATE ── */}
-      <Section style={{ background: COLORS.surface }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <SectionLabel>Sound Familiar?</SectionLabel>
-          <H2>I used to be scared of Flows.</H2>
-          <SubText>Real talk. Flows terrified me. The canvas, the decision elements, the loops. I'd stare at it for 20 minutes and still not know where to start.</SubText>
-          <SubText>Then LLMs came along and I thought okay, this changes everything. And it did help. I could ask ChatGPT how to build a flow and get step-by-step directions.</SubText>
-          <SubText>But here's the thing nobody talks about. Reading those directions, building it click by click, troubleshooting when something broke... that still took hours. I was getting the right answers. I just couldn't move fast enough to implement them.</SubText>
-          <div style={{ background: COLORS.surface2, borderRadius: 12, padding: "24px 28px", borderLeft: `3px solid ${COLORS.orange}`, marginTop: 28 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.7, color: COLORS.textPrimary, margin: 0, fontWeight: 500 }}>
-              Now I just tell Claude to build the flow. It goes into my org, creates it, and deploys it. All I do is go check that it works. What used to take me an afternoon takes 5 minutes.
+function Friction() {
+  const frictions = [
+    { n: "01", title: "The dev queue", body: "Every non-trivial change waits two weeks behind a Jira ticket. Momentum dies in the backlog." },
+    { n: "02", title: "The click-tax", body: "Repetitive setup, picklist-by-picklist, page-layout-by-page-layout. Hours on work that should take minutes." },
+    { n: "03", title: "The context loss", body: "Documentation drifts. Tribal knowledge walks out the door. Each new request starts from zero." },
+    { n: "04", title: "The fear ceiling", body: "Flow Builder. Apex. Triggers. The line between “admin work” and “developer work” has been gatekeeping leverage." },
+  ];
+  return (
+    <section className="section section-divider reveal" id="friction">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">02</span>The legacy workflow</div>
+          <div className="block-head-meta">A problem statement</div>
+        </div>
+
+        <div className="friction-grid">
+          <div className="friction-lead">
+            <h2 className="display">
+              Admin work, as<br />
+              <em>currently designed,</em><br />
+              is a bottleneck.
+            </h2>
+            <p className="lead" style={{ marginTop: "32px" }}>
+              Finally bridge the gap between "I know what the business needs" and "I don't
+              know how to write the Apex for it." Be your own developer.
             </p>
           </div>
-        </div>
-      </Section>
 
-      {/* ── HEADLESS FUTURE (Benioff proof) ── */}
-      <Section style={{ background: "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(1,118,211,0.25), transparent 55%), linear-gradient(180deg, #0d1320 0%, #0a0a0f 100%)" }}>
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <SectionLabel>The future is headless</SectionLabel>
-          <H2 center>If you can't run Salesforce from a terminal, you're already behind.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.65, color: COLORS.textSecondary, maxWidth: 640, margin: "12px auto 0" }}>
-            Benioff made it official: <strong style={{ color: COLORS.textPrimary }}>Salesforce Headless 360</strong> exposes every object, workflow, and agent as an API, MCP, and CLI. The browser is no longer the interface. Admins who can't prompt their org are about to get lapped — this course is how you get ahead of it.
-          </p>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <BenioffTweet />
-        </div>
-      </Section>
-
-      {/* ── INSTRUCTOR (A Note From Amit) ── */}
-      <Section style={{ background: COLORS.bg }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <div style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ width: 88, height: 88, borderRadius: 16, overflow: "hidden", flexShrink: 0, border: `2px solid ${COLORS.border}` }}>
-              <img src="amit-headshot.png" alt="Amit — 8x Salesforce Certified GTM Engineer and creator of CC for SF" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
-            <div style={{ flex: 1, minWidth: 240 }}>
-              <SectionLabel>A Note From Amit</SectionLabel>
-              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 4 }}>Amit</h3>
-              <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.orange, marginBottom: 6 }}>8x Salesforce Certified · GTM Engineer · AI Tools Builder</p>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `rgba(1,118,211,0.1)`, border: `1px solid rgba(1,118,211,0.2)`, borderRadius: 100, padding: "4px 12px", marginBottom: 16 }}>
-                <span style={{ fontSize: 10, color: COLORS.sfBlue }}>●</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.sfBlue, fontWeight: 600 }}>8x Salesforce Certifications</span>
-              </div>
-              <SubText>I've spent years in the Salesforce ecosystem doing RevOps, sales operations, and CRM architecture. I was the admin who was scared of Flows. When Claude Code came out, everything changed. I went from filing Jira tickets and waiting two weeks to just... building the thing myself. This course is everything I wish someone had shown me on day one.</SubText>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ── BEFORE / AFTER ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.20) 0%, #151319 38%, #151319 62%, rgba(34,197,94,0.18) 100%)" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>What Changes</SectionLabel>
-          <H2 center>Things you'll stop doing.</H2>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
-          <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textMuted, letterSpacing: 1.5, marginBottom: 20 }}>BEFORE</div>
-            {["15 clicks to create one field", "Manually updating permission sets", "Googling validation rule syntax", "Waiting 2 weeks for a developer", "Building flows click by click", "Reading docs and hoping it works"].map((t, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "center" }}>
-                <span style={{ color: "#EF4444", fontSize: 16, fontWeight: 800 }}>✗</span>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted, lineHeight: 1.5 }}>{t}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `2px solid ${COLORS.borderHover}`, boxShadow: `0 8px 40px rgba(218,119,86,0.06)` }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>AFTER</div>
-            {[
-              '"Create a picklist field on Contact called Lead Source Detail"',
-              '"Add it to the Sales Console page layout and the SDR permission set"',
-              '"Write a validation rule that requires it when Status is Qualified"',
-              '"Build me a flow that assigns leads by region"',
-              '"Deploy all of it to my org"',
-              "Go grab coffee. Come back. Check that it works.",
-            ].map((t, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "center" }}>
-                <span style={{ color: "#22C55E", fontSize: 16, fontWeight: 800 }}>✓</span>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary, lineHeight: 1.5 }}>{t}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ── WHAT YOU GET (interactive tabs) ── */}
-      <Section id="whats-included" style={{ background: COLORS.bg }}>
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <SectionLabel>What You Get</SectionLabel>
-          <H2 center>Everything you need to start using Claude Code with Salesforce.</H2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textMuted, marginTop: 8 }}>Click a module on the left. Watch it run.</p>
-        </div>
-        <FeatureShowcase />
-      </Section>
-
-      {/* ── SOCIAL PROOF ── */}
-      <Section id="reviews" style={{ background: COLORS.surface }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>Early Reactions</SectionLabel>
-          <H2 center>What people are saying.</H2>
-        </div>
-        <TestimonialCarousel items={[
-          { name: "Sarah K.", role: "Salesforce Admin · Series B SaaS", quote: "I built a lead routing flow in 10 minutes that would have taken me an entire afternoon. I keep looking for the catch.", accent: "#DA7756" },
-          { name: "Marcus T.", role: "Sr. Admin · Healthcare", quote: "I've been an admin for 6 years and never touched a terminal. Did the setup and had my first flow deployed before lunch.", accent: "#8B5CF6" },
-          { name: "Priya R.", role: "RevOps Lead · FinTech", quote: "Showed my VP the before and after. We cancelled the Agentforce eval the same week.", accent: "#0176D3" },
-        ]} />
-      </Section>
-
-      {/* ── BONUSES (single bundle card) ── */}
-      <Section style={{ background: "radial-gradient(ellipse 85% 55% at 50% -10%, rgba(218,119,86,0.30), transparent 55%), linear-gradient(180deg, #131320 0%, #0a0a0a 100%)" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>Bonuses</SectionLabel>
-          <H2 center>Included free when you enroll today.</H2>
-        </div>
-        <BonusBundle items={[
-          { icon: "📄", title: "CLAUDE.md Starter Template", desc: "The exact config file I use to connect Claude Code to my Salesforce org. Copy, paste, go.", value: 29 },
-          { icon: "💬", title: "Prompt Library", desc: "20+ tested prompts for Flows, fields, validation rules, Apex, and more. Ready to use.", value: 49 },
-          { icon: "🤝", title: "Private Community Access", desc: "A members-only Slack where admins share prompts, debug live, and trade what's working. Lifetime seat.", value: 299 },
-        ]} />
-      </Section>
-
-      {/* ── THE MATH ── */}
-      <Section style={{ background: "linear-gradient(135deg, rgba(218,119,86,0.22) 0%, #151319 35%, #151319 65%, rgba(1,118,211,0.22) 100%)" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>The Math</SectionLabel>
-          <H2 center className="gradient-headline">You're already paying more than this in wasted time.</H2>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
-          <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.textMuted, letterSpacing: 1.5, marginBottom: 20 }}>THE OLD WAY</div>
-            {[["Agentforce license", "$125-$550/mo"], ["Extra SF license needed?", "Yes"], ["Implementation partner", "$50K-$150K"], ["Time to first automation", "8-12 weeks"], ["Who owns it?", "IT + vendor"]].map(([k, v], i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}`, alignItems: "center" }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textMuted }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 600, color: "#EF4444" }}>{v}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{ background: COLORS.surface2, borderRadius: 12, padding: 28, border: `2px solid ${COLORS.borderHover}`, boxShadow: `0 8px 40px rgba(218,119,86,0.06)` }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 1.5, marginBottom: 20 }}>WITH CLAUDE CODE</div>
-            {[["Claude subscription", "$20/mo (Pro) · Max recommended"], ["Extra SF license needed?", "None. Zero. Nada."], ["This course", "$97 once"], ["Time to first automation", "Under an hour"], ["Who owns it?", "You"]].map(([k, v], i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid ${COLORS.border}` }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textPrimary }}>{k}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(12.5px, 3vw, 13px)", fontWeight: 700, color: COLORS.orange }}>{v}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ── WHO THIS IS FOR ── */}
-      <Section style={{ background: COLORS.surface }}>
-        <div className="fit-grid">
-          {/* left: perfect fit — larger, green-tinted */}
-          <div style={{
-            background: "linear-gradient(180deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02) 60%, transparent)",
-            border: `1px solid rgba(34,197,94,0.22)`,
-            borderRadius: 16,
-            padding: "28px 30px",
-            boxShadow: "0 8px 28px rgba(34,197,94,0.06)",
-          }}>
-            <SectionLabel>Perfect For</SectionLabel>
-            <H2>This is for you if…</H2>
-            <div style={{ marginTop: 14 }}>
-              <CheckItem>You're a Salesforce admin who knows the platform but wants to move faster</CheckItem>
-              <CheckItem>You've heard about Claude Code but have no idea where to start</CheckItem>
-              <CheckItem>You're tired of filing tickets and waiting for devs to build what you already know how to spec</CheckItem>
-              <CheckItem>You've never opened a terminal and that's fine</CheckItem>
-              <CheckItem>You want to be the person on your team who figured this out first</CheckItem>
-            </div>
-          </div>
-
-          {/* right: not for you — narrower, muted */}
-          <div style={{
-            background: COLORS.surface2,
-            border: `1px solid ${COLORS.border}`,
-            borderRadius: 16,
-            padding: "22px 24px",
-            alignSelf: "start",
-          }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: 2, color: "#EF4444", textTransform: "uppercase", marginBottom: 10 }}>Not a fit</div>
-            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(20px, 3vw, 26px)", fontWeight: 800, color: COLORS.textPrimary, lineHeight: 1.2, letterSpacing: -0.3, marginBottom: 14 }}>Probably not for you if…</h3>
-            {["You're already a Salesforce developer using VS Code daily", "You're looking for cert prep (this is practical, not exam study)", "You want a course about Agentforce or Einstein (this is a third-party tool)"].map((t, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12, alignItems: "flex-start" }}>
-                <span style={{ color: "#EF4444", fontSize: 14, fontWeight: 800, marginTop: 1, lineHeight: 1.5 }}>✗</span>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, lineHeight: 1.55, color: COLORS.textSecondary }}>{t}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ── GUARANTEE ── */}
-      <Section style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.20), transparent 55%), #0a0a0a" }}>
-        <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: "40px 32px" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🛡️</div>
-          <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: COLORS.textPrimary, marginBottom: 12 }}>30-Day Risk-Free Guarantee</h3>
-          <SubText center>Go through the whole course. Try the prompts in your own org. If you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days and I'll refund every penny. No questions. No hoops. I'd rather you try it risk-free than wonder "what if."</SubText>
-        </div>
-      </Section>
-
-      {/* ── PRICING CARD ── */}
-      <Section id="pricing" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(218,119,86,0.32), transparent 55%), radial-gradient(ellipse 70% 50% at 50% 100%, rgba(1,118,211,0.22), transparent 55%), #0d0d1a" }}>
-        <div style={{ maxWidth: 500, margin: "0 auto" }}>
-          <div style={{ background: COLORS.surface2, borderRadius: 16, overflow: "hidden", border: `2px solid ${COLORS.orange}`, position: "relative" }}>
-            {/* orange glow */}
-            <div style={{ position: "absolute", top: "-30%", left: "50%", transform: "translateX(-50%)", width: 400, height: 400, background: `radial-gradient(circle, rgba(218,119,86,0.08) 0%, transparent 60%)`, borderRadius: "50%", filter: "blur(60px)", pointerEvents: "none" }} />
-
-            {/* header */}
-            <div style={{ background: COLORS.orange, padding: "16px 28px", textAlign: "center" }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: 0.5 }}>FULL COURSE ACCESS</span>
-            </div>
-
-            <div style={{ padding: "36px 32px 32px", position: "relative" }}>
-              {/* price */}
-              <div style={{ textAlign: "center", marginBottom: 20 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 8 }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 22, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
-                  <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 52, fontWeight: 800, color: "#fff", letterSpacing: -3 }}>$97</span>
+          <ol className="friction-list">
+            {frictions.map((f) => (
+              <li className="friction-item" key={f.n}>
+                <div className="friction-num">{f.n}</div>
+                <div className="friction-body">
+                  <h4 className="friction-title">{f.title}</h4>
+                  <p className="friction-text">{f.body}</p>
                 </div>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>One-time payment · Lifetime access</span>
-              </div>
-
-              {/* employer reimbursement blurb */}
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, background: `rgba(34,197,94,0.08)`, border: `1px solid rgba(34,197,94,0.2)`, borderRadius: 10, padding: "12px 14px", marginBottom: 24 }}>
-                <span style={{ fontSize: 16, lineHeight: "22px" }}>💼</span>
-                <div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: COLORS.green, marginBottom: 2 }}>Most companies cover this</div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: COLORS.textSecondary, lineHeight: 1.5 }}>Most employers offer an education or training stipend that covers the cost of this course. Ask your manager — receipt provided.</div>
-                </div>
-              </div>
-
-              {/* features */}
-              <div style={{ marginBottom: 28 }}>
-                {[
-                  "Full video course library",
-                  "CLAUDE.md starter template",
-                  "20+ copy-paste prompts",
-                  "Real Salesforce org demos",
-                  "Debugging & troubleshooting module",
-                  "All future updates included",
-                  "30-day money-back guarantee",
-                ].map((f, i) => (
-                  <div key={i} style={{ display: "flex", gap: 10, padding: "10px 0", borderBottom: `1px solid ${COLORS.border}`, alignItems: "center" }}>
-                    <span style={{ color: COLORS.green, fontSize: 14, fontWeight: 700 }}>✓</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textPrimary }}>{f}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* near-CTA micro testimonial */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 10, marginBottom: 14 }}>
-                <div style={{ display: "flex" }}>
-                  {["#DA7756", "#8B5CF6", "#0176D3"].map((bg, i) => (
-                    <div key={i} style={{ width: 26, height: 26, borderRadius: "50%", background: `linear-gradient(135deg, ${bg}, ${COLORS.surface3})`, border: `2px solid ${COLORS.surface2}`, marginLeft: i === 0 ? 0 : -8, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 11, fontWeight: 800 }}>
-                      {["S", "M", "P"][i]}
-                    </div>
-                  ))}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                    {[...Array(5)].map((_, s) => (<span key={s} style={{ color: COLORS.gold, fontSize: 12 }}>★</span>))}
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, fontWeight: 700, color: COLORS.textSecondary, marginLeft: 4 }}>5.0 from early access</span>
-                  </div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, fontStyle: "italic" }}>"Built a routing flow in 10 minutes." — Sarah K., Admin</div>
-                </div>
-              </div>
-
-              {/* "Safe for your org" trust block — pulled out of FAQ */}
-              <div style={{ background: `rgba(34,197,94,0.06)`, border: `1px solid rgba(34,197,94,0.22)`, borderRadius: 10, padding: "12px 14px", marginBottom: 18, display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <svg width="18" height="20" viewBox="0 0 20 22" fill="none" aria-hidden="true" style={{ flexShrink: 0, marginTop: 2 }}>
-                  <path d="M10 1L2 4v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V4l-8-3z" stroke={COLORS.green} strokeWidth="1.6" fill="rgba(34,197,94,0.08)" strokeLinejoin="round" />
-                  <path d="M6.5 10.5l2.5 2.5 4.5-5" stroke={COLORS.green} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                </svg>
-                <div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: COLORS.green, marginBottom: 4 }}>Safe for your org</div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: COLORS.textSecondary, lineHeight: 1.5 }}>
-                    Course works in a <strong style={{ color: COLORS.textPrimary }}>sandbox</strong>, respects your existing <strong style={{ color: COLORS.textPrimary }}>permission sets + security model</strong>, and never bypasses your deployment process. Nothing hits production without you.
-                  </div>
-                </div>
-              </div>
-
-              <CTAButton large full>ENROLL NOW - $97</CTAButton>
-
-              {/* Secure checkout trust row */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 16 }}>
-                <LockIcon />
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, fontWeight: 600, color: COLORS.textSecondary, letterSpacing: 0.3 }}>Secure checkout · SSL encrypted</span>
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                <CardVisa />
-                <CardMastercard />
-                <CardAmex />
-                <CardDiscover />
-                <CardApplePay />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ── ROI CALCULATOR ── */}
-      <Section style={{ background: COLORS.bg }}>
-        <ROICalculator />
-      </Section>
-
-      {/* ── FAQ ── */}
-      <Section id="faq" style={{ background: COLORS.bg }} maxWidth={680}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <SectionLabel>FAQ</SectionLabel>
-          <H2 center>Frequently asked questions.</H2>
-        </div>
-        {FAQS.map((item) => <FAQItem key={item.q} q={item.q} a={item.a} />)}
-      </Section>
-
-      {/* ── FINAL CTA ── */}
-      <section style={{ padding: "80px 20px", position: "relative", overflow: "hidden", textAlign: "center", background: COLORS.surface }}>
-        <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: `radial-gradient(circle, rgba(218,119,86,0.1) 0%, transparent 60%)`, borderRadius: "50%", filter: "blur(80px)" }} />
-        <div style={{ maxWidth: 600, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(26px, 5vw, 42px)", fontWeight: 800, color: "#FFFFFF", lineHeight: 1.12, marginBottom: 16, letterSpacing: -0.5 }}>
-            Stop clicking.<br />Start prompting.
-          </h2>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, color: COLORS.textSecondary, lineHeight: 1.6, marginBottom: 32 }}>
-            $97 one-time. Lifetime access. 30-day money-back guarantee.
-          </p>
-          <CTAButton large>Get Instant Access - $97</CTAButton>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer style={{ background: COLORS.bg, padding: "32px 20px", borderTop: `1px solid ${COLORS.border}` }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700 }}>
-            <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.35)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
-            <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.12)" }}>__c</span>
-          </div>
-          <div style={{ display: "flex", gap: 20 }}>
-            {[
-              { label: "Blog", href: "/blog" },
-              { label: "About", href: "/about" },
-              { label: "Terms", href: "/terms" },
-              { label: "Privacy", href: "/privacy" },
-              { label: "Refund Policy", href: "/refund" },
-            ].map((item, i) => (
-              <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{item.label}</a>
+              </li>
             ))}
-          </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.12)" }}>© 2026 AI with Amit</span>
+          </ol>
         </div>
-      </footer>
-    </div>
+      </div>
+    </section>
   );
 }
 
-/* ══════════════════════════ SUB-COMPONENTS ══════════════════════════ */
-
-function ProblemCard({ icon, title, desc }) {
-  const [hover, setHover] = useState(false);
+function ModelDiagram() {
+  const stages = [
+    { label: "Prompt", body: "Plain English request from the admin", code: "PROMPT" },
+    { label: "Claude Code", body: "Reads your project context", code: "AGENT" },
+    { label: "Org Context", body: "Metadata, schemas, flows, rules", code: "META" },
+    { label: "Reviewed Output", body: "You read it. You approve it.", code: "DIFF" },
+    { label: "Sandbox", body: "Validate before production", code: "SBX" },
+    { label: "Production", body: "Deploy with confidence", code: "PROD" },
+  ];
   return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      style={{
-        position: "relative",
-        background: hover
-          ? `radial-gradient(circle at top left, rgba(218,119,86,0.18) 0%, rgba(218,119,86,0.06) 40%, ${COLORS.surface} 90%)`
-          : `radial-gradient(circle at top left, rgba(218,119,86,0.10) 0%, rgba(218,119,86,0.02) 35%, ${COLORS.surface} 85%)`,
-        border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`,
-        borderRadius: 12,
-        padding: 24,
-        transition: "all 0.35s ease",
-        transform: hover ? "translateY(-3px)" : "translateY(0)",
-        boxShadow: hover
-          ? "0 16px 44px rgba(218,119,86,0.18), 0 0 0 1px rgba(218,119,86,0.15) inset"
-          : "0 6px 18px rgba(218,119,86,0.06), 0 0 0 1px rgba(218,119,86,0.05) inset",
-        overflow: "hidden",
-      }}
-    >
-      {/* soft orange glow pocket */}
-      <div aria-hidden style={{ position: "absolute", top: -60, right: -60, width: 180, height: 180, background: `radial-gradient(circle, rgba(218,119,86,${hover ? 0.22 : 0.12}) 0%, transparent 65%)`, borderRadius: "50%", filter: "blur(20px)", pointerEvents: "none", transition: "background 0.35s ease" }} />
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <div style={{ fontSize: 28, marginBottom: 14 }}>{icon}</div>
-        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{title}</h3>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
-      </div>
-    </div>
-  );
-}
-
-function FlipCard({ icon, title, desc, scene }) {
-  const [flipped, setFlipped] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setFlipped(true)}
-      onMouseLeave={() => setFlipped(false)}
-      onClick={() => setFlipped(f => !f)}
-      style={{ perspective: 1200, cursor: "pointer", minHeight: 180 }}
-    >
-      <div style={{
-        position: "relative",
-        width: "100%",
-        minHeight: 180,
-        transformStyle: "preserve-3d",
-        WebkitTransformStyle: "preserve-3d",
-        transition: "transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
-        transform: flipped ? "rotateY(180deg)" : "rotateY(0)",
-      }}>
-        {/* FRONT */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden",
-          display: "flex",
-          gap: 16,
-          padding: 20,
-          background: COLORS.surface,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 12,
-        }}>
-          <div style={{ fontSize: 24, flexShrink: 0, marginTop: 2 }}>{icon}</div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 6 }}>{title}</h3>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0 }}>{desc}</p>
+    <div className="model-diagram">
+      {stages.map((s, i) => (
+        <div className="model-stage" key={s.code}>
+          <div className="model-stage-num">{String(i + 1).padStart(2, "0")}</div>
+          <div className="model-stage-card">
+            <div className="model-stage-code">{s.code}</div>
+            <div className="model-stage-label">{s.label}</div>
+            <div className="model-stage-body">{s.body}</div>
           </div>
-          <div style={{ position: "absolute", bottom: 10, right: 14, fontSize: 9.5, color: COLORS.textMuted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1.2 }}>HOVER ↻</div>
-        </div>
-        {/* BACK */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          backfaceVisibility: "hidden",
-          WebkitBackfaceVisibility: "hidden",
-          transform: "rotateY(180deg)",
-          background: COLORS.surface,
-          border: `1px solid ${COLORS.borderHover}`,
-          borderRadius: 12,
-          overflow: "hidden",
-        }}>
-          <Scene lines={scene} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Scene({ lines }) {
-  const perLine = 0.7;
-  const hold = 2.2;
-  const total = lines.length * perLine + hold;
-  return (
-    <div style={{
-      width: "100%",
-      height: "100%",
-      minHeight: 180,
-      padding: "18px 18px 16px",
-      background: "#050508",
-      fontFamily: "'JetBrains Mono', monospace",
-      fontSize: 11.5,
-      lineHeight: 1.7,
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column",
-      gap: 3,
-    }}>
-      <div style={{ fontSize: 9, letterSpacing: 1.5, color: COLORS.orange, marginBottom: 10, textTransform: "uppercase", fontWeight: 700 }}>
-        <span style={{ color: COLORS.green }}>●</span> live in your terminal
-      </div>
-      {lines.map((ln, i) => (
-        <div key={i} style={{
-          opacity: 0,
-          color: ln.c || COLORS.textSecondary,
-          whiteSpace: "pre-wrap",
-          animation: `sceneReveal ${total}s ${i * perLine}s infinite`,
-        }}>
-          {ln.t}
-          {ln.blink && <span style={{ animation: "caretBlink 1s infinite" }}>│</span>}
+          {i < stages.length - 1 && <div className="model-arrow">→</div>}
         </div>
       ))}
     </div>
   );
 }
 
-function BonusBundle({ items }) {
-  const total = items.reduce((s, it) => s + it.value, 0);
-  const [ref, visible] = useInView(0.15);
-
-  return (
-    <div ref={ref} style={{ maxWidth: 820, margin: "0 auto", position: "relative" }}>
-      {/* pulsing FREE sticker */}
-      <div style={{
-        position: "absolute",
-        top: -26,
-        right: -6,
-        width: 108,
-        height: 108,
-        borderRadius: "50%",
-        background: `linear-gradient(135deg, ${COLORS.orange}, #C4613F)`,
-        color: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'Bricolage Grotesque', sans-serif",
-        fontWeight: 800,
-        zIndex: 2,
-        transform: "rotate(-8deg)",
-        boxShadow: "0 12px 32px rgba(218,119,86,0.35)",
-        animation: "pulseGlow 2.4s ease-in-out infinite",
-      }}>
-        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginBottom: 2 }}>BUNDLE</div>
-        <div style={{ fontSize: 24, lineHeight: 1 }}>${total}</div>
-        <div style={{ fontSize: 12, opacity: 0.9, letterSpacing: 1.5, marginTop: 2 }}>FREE</div>
-      </div>
-
-      <div style={{
-        background: "linear-gradient(180deg, #15151D, #0d0d13)",
-        border: `1px solid ${COLORS.border}`,
-        borderRadius: 20,
-        padding: "36px 36px 28px",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* orange corner glow */}
-        <div style={{ position: "absolute", top: "-50%", right: "-20%", width: 400, height: 400, background: "radial-gradient(circle, rgba(218,119,86,0.12) 0%, transparent 65%)", borderRadius: "50%", filter: "blur(40px)", pointerEvents: "none" }} />
-
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: COLORS.orange, letterSpacing: 2, marginBottom: 20, textTransform: "uppercase" }}>
-            <span style={{ color: COLORS.green }}>●</span>  Your enrollment unlocks
-          </div>
-
-          {items.map((it, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 20,
-                padding: "22px 0",
-                borderBottom: i < items.length - 1 ? `1px dashed ${COLORS.border}` : "none",
-                opacity: visible ? 1 : 0,
-                animation: visible ? `unlockIn 0.6s ease ${i * 0.15}s both` : "none",
-              }}
-            >
-              <div style={{
-                flexShrink: 0,
-                width: 52,
-                height: 52,
-                borderRadius: 12,
-                background: COLORS.surface2,
-                border: `1px solid ${COLORS.border}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-              }}>{it.icon}</div>
-
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: COLORS.textMuted }}>0{i + 1}</span>
-                  <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: "#fff", margin: 0 }}>{it.title}</h3>
-                </div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.5, margin: 0 }}>{it.desc}</p>
-              </div>
-
-              <div style={{
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-              }}>
-                <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 20, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>
-                  ${it.value}
-                </span>
-                <span style={{ fontSize: 12, color: COLORS.green, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 0.3 }}>✓ incl.</span>
-              </div>
-            </div>
-          ))}
-
-          {/* total strip */}
-          <div style={{
-            marginTop: 20,
-            padding: "16px 20px",
-            background: `linear-gradient(90deg, rgba(218,119,86,0.18), rgba(218,119,86,0.05))`,
-            border: `1px solid ${COLORS.borderHover}`,
-            borderRadius: 12,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 12,
-          }}>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, letterSpacing: 0.3 }}>
-              Total bundle value
-            </span>
-            <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.textMuted, textDecoration: "line-through", letterSpacing: -0.5 }}>${total}</span>
-              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 32, fontWeight: 800, color: COLORS.orange, letterSpacing: -0.5 }}>FREE</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textSecondary }}>with enrollment</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BonusCard({ icon, title, desc, value }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{ background: COLORS.surface, border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`, borderRadius: 12, padding: 24, transition: "all 0.3s ease", transform: hover ? "translateY(-3px)" : "translateY(0)", display: "flex", flexDirection: "column" }}>
-      <div style={{ fontSize: 32, marginBottom: 14 }}>{icon}</div>
-      <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>{title}</h3>
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: COLORS.textSecondary, lineHeight: 1.6, margin: 0, flex: 1 }}>{desc}</p>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.orange, marginTop: 14, fontWeight: 600 }}>{value}</div>
-    </div>
-  );
-}
-
-function TestimonialCarousel({ items }) {
-  const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setI((n) => (n + 1) % items.length), 7000);
-    return () => clearInterval(id);
-  }, [paused, items.length]);
-
-  const prev = () => { setI((n) => (n - 1 + items.length) % items.length); setPaused(true); };
-  const next = () => { setI((n) => (n + 1) % items.length); setPaused(true); };
-  const pick = (n) => { setI(n); setPaused(true); };
-
-  const t = items[i];
-
-  return (
-    <div style={{ maxWidth: 820, margin: "0 auto", position: "relative" }}>
-      <div
-        key={i}
-        style={{
-          background: COLORS.surface2,
-          border: `1px solid ${COLORS.border}`,
-          borderLeft: `4px solid ${t.accent}`,
-          borderRadius: 16,
-          padding: "40px 44px",
-          animation: "carouselSlide 0.5s ease",
-          position: "relative",
-        }}
-      >
-        {/* big quote mark */}
-        <div style={{ position: "absolute", top: 18, right: 28, fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 96, lineHeight: 1, color: t.accent, opacity: 0.18, fontWeight: 800 }}>"</div>
-        <div style={{ display: "flex", gap: 2, marginBottom: 18 }}>
-          {[...Array(5)].map((_, s) => (<span key={s} style={{ color: COLORS.gold, fontSize: 16 }}>★</span>))}
-        </div>
-        <blockquote style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(18px, 2.4vw, 24px)", lineHeight: 1.45, color: "#fff", margin: 0, marginBottom: 24, fontWeight: 500, letterSpacing: -0.3 }}>
-          "{t.quote}"
-        </blockquote>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 48, height: 48, borderRadius: "50%", background: `linear-gradient(135deg, ${t.accent}, ${COLORS.surface3})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, flexShrink: 0 }}>{t.name.charAt(0)}</div>
-          <div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, color: COLORS.textPrimary }}>{t.name}</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>{t.role}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* controls */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, marginTop: 22 }}>
-        <button onClick={prev} aria-label="Previous testimonial" style={{ width: 40, height: 40, borderRadius: "50%", border: `1px solid ${COLORS.border}`, background: COLORS.surface, color: COLORS.textSecondary, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>←</button>
-        <div style={{ display: "flex", gap: 6 }}>
-          {items.map((_, n) => (
-            <button
-              key={n}
-              onClick={() => pick(n)}
-              aria-label={`Go to testimonial ${n + 1}`}
-              style={{ width: n === i ? 28 : 8, height: 8, padding: 0, borderRadius: 4, border: "none", background: n === i ? COLORS.orange : "rgba(255,255,255,0.15)", cursor: "pointer", transition: "width 0.3s, background 0.3s" }}
-            />
-          ))}
-        </div>
-        <button onClick={next} aria-label="Next testimonial" style={{ width: 40, height: 40, borderRadius: "50%", border: `1px solid ${COLORS.border}`, background: COLORS.surface, color: COLORS.textSecondary, cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}>→</button>
-      </div>
-    </div>
-  );
-}
-
-function TestimonialCard({ name, role, quote }) {
-  const [hover, setHover] = useState(false);
-  const gradients = { S: `linear-gradient(135deg, ${COLORS.orange}, #E8956A)`, M: `linear-gradient(135deg, #7C3AED, #A78BFA)`, P: `linear-gradient(135deg, ${COLORS.sfBlue}, #38BDF8)` };
-  return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{ background: COLORS.surface2, border: `1px solid ${hover ? COLORS.borderHover : COLORS.border}`, borderRadius: 12, padding: 24, transition: "all 0.3s ease", transform: hover ? "translateY(-3px)" : "translateY(0)", display: "flex", flexDirection: "column", gap: 16 }}>
-      <Stars />
-      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, lineHeight: 1.7, color: COLORS.textSecondary, margin: 0, fontStyle: "italic", flex: 1 }}>"{quote}"</p>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ width: 38, height: 38, borderRadius: "50%", background: gradients[name[0]] || gradients.S, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 700, color: "#fff" }}>{name[0]}</span>
-        </div>
-        <div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{name}</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: COLORS.textMuted }}>{role}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Hamburger menu (smooth-scrolls to page sections) ── */
-function HamburgerMenu() {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
-    };
-    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
-    document.addEventListener("mousedown", onClickOutside);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onClickOutside);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  const links = [
-    { label: "Watch demo", href: "#top" },
-    { label: "The problem", href: "#problem" },
-    { label: "What's included", href: "#whats-included" },
-    { label: "Reviews", href: "#reviews" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "FAQ", href: "#faq" },
-    { label: "Blog", href: "/blog" },
-    { label: "About", href: "/about" },
+function ProjectFiles() {
+  const files = [
+    {
+      n: "01",
+      name: "claude.md",
+      label: "The voice.",
+      body: "Tone, naming conventions, what \"good\" looks like in your org. The model writes the way you write.",
+    },
+    {
+      n: "02",
+      name: "project.md",
+      label: "The map.",
+      body: "Objects, fields, flows, business processes you actually run. Written once, referenced forever.",
+    },
+    {
+      n: "03",
+      name: "agents.md",
+      label: "The crew.",
+      body: "Specialized agents for flow review, security audit, documentation, migration. Wired up, ready to call.",
+    },
   ];
 
-  const onLink = () => setOpen(false);
+  const claudeMdContent = `# CC for SF · org
+
+> Voice. Naming. Guardrails.
+
+## Voice
+- Plain language. Short sentences.
+- Show the diff before you propose.
+
+## Conventions
+- Custom fields end in __c
+- Flows live in /flows
+- Validation rules use AND() / NOT()
+
+## Guardrails
+- Sandbox first. Always.
+- No bulk DML without review.`;
 
   return (
-    <div ref={menuRef} style={{ position: "relative" }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-        style={{
-          width: 40,
-          height: 40,
-          border: `1px solid ${COLORS.border}`,
-          background: open ? COLORS.surface2 : "rgba(255,255,255,0.03)",
-          borderRadius: 8,
-          cursor: "pointer",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 4,
-          transition: "background 0.2s, border-color 0.2s",
-        }}
-      >
-        <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "transform 0.25s, opacity 0.25s",
-          transform: open ? "translateY(6px) rotate(45deg)" : "none",
-        }} />
-        <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "opacity 0.2s",
-          opacity: open ? 0 : 1,
-        }} />
-        <span style={{
-          width: 18, height: 2, background: COLORS.textPrimary, borderRadius: 1,
-          transition: "transform 0.25s",
-          transform: open ? "translateY(-6px) rotate(-45deg)" : "none",
-        }} />
-      </button>
-
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 12px)",
-            right: 0,
-            minWidth: 240,
-            background: "rgba(14,14,18,0.96)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            border: `1px solid ${COLORS.border}`,
-            borderRadius: 12,
-            padding: 8,
-            boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-            animation: "menuOpen 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
-            transformOrigin: "top right",
-          }}
-        >
-          {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={onLink}
-              style={{
-                display: "block",
-                padding: "10px 14px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 14.5,
-                fontWeight: 500,
-                color: COLORS.textSecondary,
-                textDecoration: "none",
-                borderRadius: 8,
-                transition: "background 0.15s, color 0.15s",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(218,119,86,0.08)"; e.currentTarget.style.color = COLORS.textPrimary; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = COLORS.textSecondary; }}
-            >
-              {l.label}
-            </a>
-          ))}
-          <div style={{ height: 1, background: COLORS.border, margin: "8px 6px" }} />
-          <a
-            href="#pricing"
-            onClick={onLink}
-            style={{
-              display: "block",
-              margin: "4px 4px 2px",
-              padding: "12px 14px",
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 14.5,
-              fontWeight: 800,
-              color: "#fff",
-              background: COLORS.orange,
-              textAlign: "center",
-              textDecoration: "none",
-              borderRadius: 8,
-              letterSpacing: 0.3,
-              boxShadow: "0 4px 16px rgba(218,119,86,0.3)",
-            }}
-          >
-            Get Access <span style={{ marginLeft: 4 }}>→</span>
-          </a>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Feature showcase (interactive tabs) ── */
-const FEATURES = [
-  {
-    icon: "⚡",
-    title: "Zero to connected in minutes",
-    desc: "Install Claude Code and connect it to your Salesforce org. No terminal experience required.",
-    scene: [
-      { t: "$ npm i -g @anthropic-ai/claude-code", c: "#6B7280" },
-      { t: "$ claude", c: "#A5D6FF" },
-      { t: "→ Connecting to dev-org.__c", c: "#a0a0a0" },
-      { t: "✓ Authenticated via sfdx", c: "#22C55E" },
-      { t: "✓ 47 objects loaded", c: "#22C55E" },
-      { t: "Ready ▌", c: "#E2E8F0", blink: true },
-    ],
-  },
-  {
-    icon: "🏗️",
-    title: "Fields, layouts, permissions",
-    desc: "Create custom fields, add them to page layouts, and update permission sets with a single prompt.",
-    scene: [
-      { t: "> Add Lead_Source_Detail__c", c: "#DA7756" },
-      { t: "  picklist to Contact", c: "#A5D6FF" },
-      { t: "Creating field…", c: "#a0a0a0" },
-      { t: "✓ Field created", c: "#22C55E" },
-      { t: "✓ Added to Sales Console layout", c: "#22C55E" },
-      { t: "✓ SDR permission set updated", c: "#22C55E" },
-    ],
-  },
-  {
-    icon: "🔄",
-    title: "Flows from plain English",
-    desc: "Describe what the flow should do. Claude builds it and deploys it directly to your org.",
-    scene: [
-      { t: "> Build a flow that routes", c: "#DA7756" },
-      { t: "  leads by region to owners", c: "#A5D6FF" },
-      { t: "Generating Record-Triggered Flow…", c: "#a0a0a0" },
-      { t: "  → Decision: Region", c: "#666666" },
-      { t: "  → 4 assignment branches", c: "#666666" },
-      { t: "✓ Deployed to dev-org", c: "#22C55E" },
-    ],
-  },
-  {
-    icon: "📝",
-    title: "Validation rules & Apex",
-    desc: "Write validation rules and Apex triggers without knowing the syntax. Describe the logic, get working code.",
-    scene: [
-      { t: "> Require CloseDate when", c: "#DA7756" },
-      { t: "  Stage = Closed Won", c: "#A5D6FF" },
-      { t: "Writing validation rule…", c: "#a0a0a0" },
-      { t: "AND(", c: "#E2E8F0" },
-      { t: '  ISPICKVAL(Stage,"Closed Won"),', c: "#E2E8F0" },
-      { t: "  ISBLANK(CloseDate))", c: "#E2E8F0" },
-      { t: "✓ Deployed", c: "#22C55E" },
-    ],
-  },
-  {
-    icon: "🐛",
-    title: "When AI gets it wrong",
-    desc: "It will. Here's the process to debug and get Claude back on track when it misfires.",
-    scene: [
-      { t: "$ deploy Account_Status__c trigger", c: "#6B7280" },
-      { t: "✗ Unknown field 'Status'", c: "#EF4444" },
-      { t: "> That's the custom one —", c: "#DA7756" },
-      { t: "  use Status__c", c: "#A5D6FF" },
-      { t: "Retrying with corrected API name…", c: "#a0a0a0" },
-      { t: "✓ Deployed, 4/4 tests passing", c: "#22C55E" },
-    ],
-  },
-  {
-    icon: "📋",
-    title: "Real prompts you can steal",
-    desc: "Copy-paste prompts from my actual Salesforce org. Adapt them to yours and start shipping.",
-    scene: [
-      { t: "[01] Create picklist on Contact…", c: "#A5D6FF" },
-      { t: "[02] Build lead routing flow…", c: "#A5D6FF" },
-      { t: "[03] Validation: require close date…", c: "#A5D6FF" },
-      { t: "[04] Trigger: sync Account → Opp…", c: "#A5D6FF" },
-      { t: "[05] Flow: escalate stale cases…", c: "#A5D6FF" },
-      { t: "…20+ more in the prompt library", c: "#DA7756" },
-    ],
-  },
-];
-
-function FeatureShowcase() {
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setActive((i) => (i + 1) % FEATURES.length), 6000);
-    return () => clearInterval(id);
-  }, [paused]);
-
-  const handlePick = (i) => {
-    setActive(i);
-    setPaused(true);
-  };
-
-  const feat = FEATURES[active];
-
-  return (
-    <div className="feat-tabs">
-      {/* LEFT: tab list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {FEATURES.map((f, i) => {
-          const on = i === active;
-          return (
-            <button
-              key={i}
-              className="feat-row"
-              onClick={() => handlePick(i)}
-              style={{
-                display: "flex",
-                gap: 14,
-                alignItems: "flex-start",
-                padding: "16px 18px",
-                background: on ? "linear-gradient(90deg, rgba(218,119,86,0.14), rgba(218,119,86,0.04))" : COLORS.surface,
-                border: `1px solid ${on ? COLORS.borderHover : COLORS.border}`,
-                borderLeft: `3px solid ${on ? COLORS.orange : "transparent"}`,
-                borderRadius: 10,
-                textAlign: "left",
-                cursor: "pointer",
-                color: COLORS.textPrimary,
-                fontFamily: "inherit",
-              }}
-            >
-              <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1, filter: on ? "none" : "grayscale(0.3)", transition: "filter 0.2s" }}>{f.icon}</span>
-              <span style={{ flex: 1 }}>
-                <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15.5, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4 }}>{f.title}</span>
-                <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.5 }}>{f.desc}</span>
-              </span>
-              <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: on ? COLORS.orange : "rgba(255,255,255,0.15)", marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span>
-            </button>
-          );
-        })}
+    <div className="model-files">
+      <div className="model-files-meta">
+        <div className="eyebrow">Project structure</div>
+        <div className="block-head-meta">Three files · one folder</div>
       </div>
 
-      {/* RIGHT: live terminal demo */}
-      <div style={{ height: "fit-content", alignSelf: "start" }}>
-        <div style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
-          <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
-            <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — {feat.title.toLowerCase().replace(/[^a-z]+/g, "-").slice(0, 24)}</span>
-          </div>
-          <div key={active} style={{ padding: "22px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.85, minHeight: 260 }}>
-            {feat.scene.map((ln, i) => (
-              <div key={i} style={{
-                opacity: 0,
-                color: ln.c || COLORS.textSecondary,
-                whiteSpace: "pre-wrap",
-                animation: `sceneReveal 5.5s ${i * 0.45}s infinite`,
-              }}>
-                {ln.t}
-                {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
-              </div>
+      <div className="model-files-grid">
+        <div className="model-files-copy">
+          <h3 className="display">
+            Open VS Code.<br />
+            Drop in your org.<br />
+            <em>That's the install.</em>
+          </h3>
+          <p className="lead" style={{ marginTop: "20px" }}>
+            Claude Code reads three plain text files the way a new hire reads
+            onboarding docs. Write them once. The model speaks fluent your-org
+            from then on.
+          </p>
+
+          <ol className="files-list">
+            {files.map((f) => (
+              <li className="files-item" key={f.n}>
+                <div className="files-item-num">{f.n}</div>
+                <div>
+                  <div className="files-item-name"><span className="files-mono">{f.name}</span></div>
+                  <div className="files-item-label">{f.label}</div>
+                  <div className="files-item-body">{f.body}</div>
+                </div>
+              </li>
             ))}
-          </div>
+          </ol>
+
+          <p className="files-closer">Three files. No syntax. No magic. Just context.</p>
         </div>
-        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 16 }}>
-          {FEATURES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => handlePick(i)}
-              aria-label={`Show feature ${i + 1}`}
-              style={{
-                width: i === active ? 24 : 8,
-                height: 8,
-                padding: 0,
-                borderRadius: 4,
-                border: "none",
-                background: i === active ? COLORS.orange : "rgba(255,255,255,0.15)",
-                cursor: "pointer",
-                transition: "width 0.3s, background 0.3s",
-              }}
-            />
-          ))}
+
+        <div className="vscode" aria-label="VS Code wireframe">
+          <div className="vscode-titlebar">
+            <span className="vscode-traffic"><span /><span /><span /></span>
+            <span className="vscode-titlebar-text">ccforsf-org / claude.md</span>
+            <span className="vscode-titlebar-meta">VS&nbsp;Code</span>
+          </div>
+          <div className="vscode-body">
+            <div className="vscode-activitybar" aria-hidden="true">
+              <span className="vscode-act vscode-act--active">▢</span>
+              <span className="vscode-act">⌕</span>
+              <span className="vscode-act">⎇</span>
+              <span className="vscode-act">⊕</span>
+            </div>
+            <div className="vscode-sidebar">
+              <div className="vscode-sidebar-h">EXPLORER</div>
+              <div className="vscode-sidebar-folder">▾ ccforsf-org</div>
+              <div className="vscode-sidebar-file vscode-sidebar-file--active">
+                <span className="vscode-fi">md</span>
+                <span>claude.md</span>
+              </div>
+              <div className="vscode-sidebar-file">
+                <span className="vscode-fi">md</span>
+                <span>project.md</span>
+              </div>
+              <div className="vscode-sidebar-file">
+                <span className="vscode-fi">md</span>
+                <span>agents.md</span>
+              </div>
+              <div className="vscode-sidebar-folder vscode-sidebar-folder--collapsed">▸ flows</div>
+              <div className="vscode-sidebar-folder vscode-sidebar-folder--collapsed">▸ objects</div>
+              <div className="vscode-sidebar-folder vscode-sidebar-folder--collapsed">▸ permissionsets</div>
+            </div>
+            <div className="vscode-editor">
+              <div className="vscode-tabs" aria-hidden="true">
+                <div className="vscode-tab vscode-tab--active">claude.md</div>
+              </div>
+              <pre className="vscode-code">{claudeMdContent}</pre>
+            </div>
+          </div>
+          <div className="vscode-statusbar">
+            <span>main</span>
+            <span>UTF-8</span>
+            <span>Markdown</span>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ── ROI calculator (interactive) ── */
-function ROICalculator() {
-  const [salary, setSalary] = useState(120000);
-  const [hoursPerWeek, setHoursPerWeek] = useState(5);
-  const [weeksPerYear, setWeeksPerYear] = useState(50);
+function TypewriterHeadline() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [letters, setLetters] = useState(TYPEWRITER_WORDS[0]);
+  const [deleting, setDeleting] = useState(false);
 
-  const hourlyRate = salary / (40 * weeksPerYear);
-  const hoursSavedPerYear = hoursPerWeek * weeksPerYear;
-  const weeklyValue = hourlyRate * hoursPerWeek;
-  const monthlyValue = weeklyValue * 4.33;
-  const annualValue = hourlyRate * hoursSavedPerYear;
-  const COURSE = 97;
-  const roi = Math.round(annualValue / COURSE);
-  const paybackDays = weeklyValue > 0 ? Math.max(1, Math.ceil((COURSE / weeklyValue) * 7)) : 0;
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    if (prefersReducedMotion) return undefined;
 
-  const money = (n) => "$" + Math.round(n).toLocaleString();
+    const fullWord = TYPEWRITER_WORDS[wordIndex];
+    let delay = deleting ? 42 : 74;
+
+    if (!deleting && letters === fullWord) {
+      delay = 1200;
+    } else if (deleting && letters === "") {
+      delay = 220;
+    }
+
+    const timeout = window.setTimeout(() => {
+      if (!deleting && letters === fullWord) {
+        setDeleting(true);
+        return;
+      }
+
+      if (deleting && letters === "") {
+        setDeleting(false);
+        setWordIndex((i) => (i + 1) % TYPEWRITER_WORDS.length);
+        return;
+      }
+
+      setLetters((current) => (
+        deleting ? fullWord.slice(0, Math.max(0, current.length - 1)) : fullWord.slice(0, current.length + 1)
+      ));
+    }, delay);
+
+    return () => window.clearTimeout(timeout);
+  }, [deleting, letters, wordIndex]);
 
   return (
-    <div>
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <SectionLabel>ROI Calculator</SectionLabel>
-        <H2 center>What 5 hours back per week is actually worth.</H2>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: COLORS.textSecondary, maxWidth: 560, margin: "10px auto 0", lineHeight: 1.55 }}>
-          Drag the sliders. Watch the math move. The course pays for itself faster than you'd think.
-        </p>
-      </div>
+    <h2 className="display model-typewriter-headline">
+      Ship{" "}
+      <em className="typewriter-word" aria-live="polite">
+        {letters || "\u00a0"}
+      </em>
+      <br />
+      at the speed of light.
+    </h2>
+  );
+}
 
-      <div style={{ maxWidth: 920, margin: "0 auto", background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 16, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
-        <div className="roi-grid">
-          <div>
-            <RoiSlider label="Your annual salary" value={salary} onChange={setSalary} min={40000} max={300000} step={5000} display={money(salary)} hint="US admin median is ~$110k–$140k per Salesforce Ben." />
-            <RoiSlider label="Hours saved per week" value={hoursPerWeek} onChange={setHoursPerWeek} min={1} max={20} step={1} display={`${hoursPerWeek} hrs`} hint="Most students hit 5–10 within the first month." />
-            <RoiSlider label="Weeks worked per year" value={weeksPerYear} onChange={setWeeksPerYear} min={40} max={52} step={1} display={`${weeksPerYear} weeks`} hint="Accounts for PTO, holidays, sick days." />
-          </div>
-          <div style={{ background: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: "20px 22px" }}>
-            <MetricRow label="Your hourly rate" value={money(hourlyRate) + "/hr"} />
-            <MetricRow label="Hours saved per year" value={hoursSavedPerYear.toLocaleString() + " hrs"} />
-            <div style={{ height: 1, background: COLORS.border, margin: "14px 0" }} />
-            <MetricRow label="Weekly $ value of saved time" value={money(weeklyValue)} />
-            <MetricRow label="Monthly $ value" value={money(monthlyValue)} />
-            <MetricRow label="Annual $ value" value={money(annualValue)} big />
-            <div style={{ height: 1, background: COLORS.border, margin: "14px 0" }} />
-            <MetricRow label="Return on $97 course" value={roi + "×"} highlight />
-            <MetricRow label="Course pays for itself in" value={paybackDays + (paybackDays === 1 ? " day" : " days")} highlight />
-          </div>
+function NewModel() {
+  return (
+    <section className="section section-divider reveal" id="model">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">03</span>The new operating model</div>
+          <div className="block-head-meta">Prompt-driven · Metadata-aware · Sandbox-validated</div>
         </div>
 
-        <div style={{ marginTop: 22, padding: "16px 18px", background: `rgba(218,119,86,0.08)`, border: `1px solid rgba(218,119,86,0.22)`, borderRadius: 12 }}>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.6, color: COLORS.textPrimary, margin: 0 }}>
-            At <strong>{money(salary)}/yr</strong> and <strong>{hoursPerWeek} hrs/week</strong> saved, you'd pocket <strong style={{ color: COLORS.orange }}>{money(annualValue)}</strong> this year. The course is $97 — that's a <strong style={{ color: COLORS.orange }}>{roi}× return</strong> in year one, paid back in <strong>{paybackDays} {paybackDays === 1 ? "day" : "days"}</strong>.
+        <div className="model-intro">
+          <TypewriterHeadline />
+          <p className="lead" style={{ marginTop: "28px", maxWidth: "62ch" }}>
+            One prompt. One reviewable diff. One deploy. The kind of work that used to
+            mean a Jira ticket, two sprints of waiting, and an apology email to the VP of
+            Sales, done before your second coffee.
           </p>
         </div>
 
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: COLORS.textMuted, textAlign: "center", marginTop: 14 }}>
-          Hourly rate based on 40-hour work weeks. Your mileage varies; the math doesn't.
+        <ModelDiagram />
+
+        <ProjectFiles />
+      </div>
+    </section>
+  );
+}
+
+function HeadlessFuture() {
+  return (
+    <section className="section section-divider reveal" id="headless">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">Signal</span>The future is headless</div>
+          <div className="block-head-meta">API-first · CLI-ready · AI-native</div>
+        </div>
+
+        <div className="headless-grid">
+          <div className="headless-copy">
+            <h2 className="display">
+              The UI is dying.<br />
+              <em>Admins who adapt win.</em>
+            </h2>
+            <div className="headless-body">
+              <p>
+                Salesforce is moving to APIs, CLI, and AI-first workflows.
+                Clicking through Setup will not be enough anymore.
+              </p>
+              <p>
+                Admins who can command Salesforce will build faster, earn more,
+                and stay in demand.
+              </p>
+              <p>
+                This is how you get ahead before everyone else catches on.
+              </p>
+            </div>
+          </div>
+
+          <figure className="headless-media">
+            <div className="headless-image-wrap">
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet="/images/benioff-400.avif 400w, /images/benioff-800.avif 800w"
+                  sizes="(max-width: 800px) 100vw, 600px"
+                />
+                <source
+                  type="image/webp"
+                  srcSet="/images/benioff-400.webp 400w, /images/benioff-800.webp 800w"
+                  sizes="(max-width: 800px) 100vw, 600px"
+                />
+                <img
+                  src="/benioff.png"
+                  alt="Conference speaker on stage"
+                  className="headless-image"
+                  width="930"
+                  height="479"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <div className="headless-scanlines" aria-hidden="true" />
+              <div className="headless-tweet" aria-label="Marc Benioff tweet excerpt">
+                <div className="headless-tweet-meta">
+                  <span>Marc Benioff</span>
+                  <span>@Benioff</span>
+                </div>
+                <p>
+                  Welcome Salesforce Headless 360. No browser required.
+                  Our API is the UI. Salesforce, Agentforce, and Slack are now
+                  exposed through APIs, MCP, and CLI.
+                </p>
+              </div>
+              <figcaption className="headless-caption">
+                Salesforce signal · Headless workflows
+              </figcaption>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BuildPanel({ idx, title, kind, prompt, artifact, tag }) {
+  return (
+    <article className="build-panel">
+      <div className="build-panel-meta">
+        <div className="eyebrow"><span className="num">{idx}</span>{kind}</div>
+        <div className="tag"><span className="dot" />{tag}</div>
+      </div>
+      <h3 className="display">{title}</h3>
+
+      <div className="build-panel-artifact artifact">
+        <div className="artifact-header">
+          <span>{artifact.file}</span>
+          <span style={{ color: "var(--ink-500)" }}>{artifact.meta}</span>
+        </div>
+        <div className="build-prompt">
+          <div className="build-prompt-label">YOU</div>
+          <div className="build-prompt-text">{prompt}</div>
+        </div>
+        <div className="build-output">
+          <div className="build-output-label">CLAUDE CODE</div>
+          <pre className="build-output-code">{artifact.code}</pre>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function BacklogMock() {
+  const tickets = [
+    { id: "T-2841", pri: "high", title: "Territory routing flow for net-new Leads", owner: "Sarah K.", age: "14d", type: "Flow" },
+    { id: "T-2837", pri: "high", title: "Validation: Close Date required at Negotiation", owner: "Marcus R.", age: "9d", type: "Rule" },
+    { id: "T-2829", pri: "med",  title: "Audit profiles with Modify All on Account", owner: "Priya S.", age: "22d", type: "Audit" },
+    { id: "T-2818", pri: "high", title: "Migrate Quote Builder Aura → LWC", owner: "DevOps", age: "31d", type: "LWC" },
+    { id: "T-2807", pri: "low",  title: "Document active Opportunity flows", owner: "Unassigned", age: "6d", type: "Docs" },
+    { id: "T-2792", pri: "med",  title: "Permission set: Finance read-only on Opp", owner: "Sarah K.", age: "18d", type: "Perms" },
+    { id: "T-2774", pri: "high", title: "Apex test class for CommissionTrigger", owner: "Marcus R.", age: "27d", type: "Apex" },
+  ];
+  return (
+    <div className="backlog-mock" aria-label="Salesforce admin backlog mock-up">
+      <div className="backlog-mock-frame">
+        <div className="backlog-mock-tabs">
+          <span className="backlog-mock-tab backlog-mock-tab--active">
+            <span className="backlog-mock-tab-icon">★</span>
+            Admin Backlog
+          </span>
+          <span className="backlog-mock-tab-meta">42 items · sorted by Priority</span>
+        </div>
+
+        <div className="backlog-mock-toolbar">
+          <span className="backlog-mock-pill">List View · Recently Modified</span>
+          <span className="backlog-mock-search">⌕ Search this list…</span>
+        </div>
+
+        <div className="backlog-mock-table">
+          <div className="backlog-mock-row backlog-mock-row--head">
+            <div>#</div>
+            <div>P</div>
+            <div>Subject</div>
+            <div>Owner</div>
+            <div>Age</div>
+            <div>Type</div>
+          </div>
+          {tickets.map((t) => (
+            <div className="backlog-mock-row" key={t.id}>
+              <div className="backlog-mock-id">{t.id}</div>
+              <div>
+                <span className={`backlog-mock-pri backlog-mock-pri--${t.pri}`}>
+                  {t.pri === "high" ? "High" : t.pri === "med" ? "Med" : "Low"}
+                </span>
+              </div>
+              <div className="backlog-mock-subject">{t.title}</div>
+              <div className="backlog-mock-owner">{t.owner}</div>
+              <div className="backlog-mock-age">{t.age}</div>
+              <div className="backlog-mock-type">{t.type}</div>
+            </div>
+          ))}
+          <div className="backlog-mock-row backlog-mock-row--more">
+            <div />
+            <div />
+            <div className="backlog-mock-subject" style={{ color: "var(--ink-500)" }}>
+              + 35 more &nbsp;&nbsp;·&nbsp;&nbsp; oldest item: 89&nbsp;days
+            </div>
+            <div /><div /><div />
+          </div>
+        </div>
+      </div>
+      <div className="backlog-mock-caption">
+        <span className="backlog-mock-caption-eyebrow">Live list view · BrightPath sandbox</span>
+        <span>Every row is a Tuesday afternoon you don't get back.</span>
+      </div>
+    </div>
+  );
+}
+
+function WhatYouBuild() {
+  const builds = [
+    {
+      idx: "01",
+      kind: "Flow",
+      tag: "Generated",
+      title: "A complete Flow from a sentence.",
+      prompt: "When a high-value opportunity is created, notify the AE manager and create a follow-up task on the account owner.",
+      artifact: {
+        file: "HighValueOpportunityFollowUp.flow-meta.xml",
+        meta: "32 lines · validated",
+        code: `<Flow xmlns="urn:sf...">
+  <decisions>
+    <name>Is_High_Value</name>
+    <rules>
+      <conditions>
+        <field>Amount</field>
+        <operator>GreaterThan</operator>
+        <value>50000</value>
+      </conditions>
+    </rules>
+  </decisions>
+  <actionCalls>
+    <name>Notify_Manager</name>
+    ...`,
+      },
+    },
+    {
+      idx: "02",
+      kind: "Validation Rule",
+      tag: "Drafted",
+      title: "Validation rules that read like spec.",
+      prompt: "Don't allow a case to be closed unless it has a resolution code AND the customer has been emailed in the last 24 hours.",
+      artifact: {
+        file: "Case_RequireResolution.rule",
+        meta: "4 conditions",
+        code: `AND(
+  ISPICKVAL(Status, "Closed"),
+  ISBLANK(ResolutionCode__c) ||
+  LastEmailDate__c <
+    NOW() - 1
+)`,
+      },
+    },
+    {
+      idx: "03",
+      kind: "Permissions",
+      tag: "Audited",
+      title: "Permission audits, in seconds.",
+      prompt: "List every profile that has Modify All on the Account object and tell me why that's a problem.",
+      artifact: {
+        file: "permission-audit.md",
+        meta: "12 profiles · 3 risks",
+        code: `# Modify All: Account
+- System Administrator ✓ (expected)
+- Sales Ops Lead ⚠ (review)
+- Integration_API ⚠ (over-scoped)
+- Legacy Marketing ⛔ (revoke)
+
+Risks:
+1. Integration user has...`,
+      },
+    },
+    {
+      idx: "04",
+      kind: "Documentation",
+      tag: "Generated",
+      title: "Org documentation that stays current.",
+      prompt: "Document every active flow on the Opportunity object. Include trigger, purpose, and downstream effects.",
+      artifact: {
+        file: "opportunity-flows.md",
+        meta: "8 flows · auto-generated",
+        code: `# Opportunity Flows
+
+## 1. Opportunity_StageChange
+- Trigger: Record-Triggered, after update
+- Purpose: Sync stage to forecast
+- Affects: Forecast__c, Activity
+- Owner: rev-ops@`,
+      },
+    },
+  ];
+
+  return (
+    <section className="section section-divider reveal" id="build">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">04</span>What you'll build</div>
+          <div className="block-head-meta">Four case studies · real artifacts</div>
+        </div>
+
+        <div className="build-intro-grid">
+          <div className="build-intro">
+            <h2 className="display">
+              Backlog anxiety<br />
+              is <em>real.</em>
+            </h2>
+            <p className="lead" style={{ marginTop: "24px" }}>
+              That feeling when your "Quick Wins" list has 42 items and your Tuesday is
+              booked with back-to-back meetings. Each module ends with a real, deployable
+              artifact, the kind of thing you'd normally file a ticket for. Claude Code
+              isn't just a tool; it's how you get your lunch break back.
+            </p>
+          </div>
+
+          <BacklogMock />
+        </div>
+      </div>
+
+      <BuildStack builds={builds} />
+    </section>
+  );
+}
+
+function BuildStack({ builds }) {
+  const trackRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const winH = window.innerHeight || document.documentElement.clientHeight;
+      const total = el.offsetHeight - winH;
+      const scrolled = Math.max(0, -rect.top);
+      const p = total > 0 ? Math.min(1, scrolled / total) : 0;
+      setProgress(p);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  const count = builds.length;
+  const activeIdx = Math.min(count - 1, Math.floor(progress * count));
+
+  const goTo = (i) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const card = el.querySelector(`[data-build-card="${i}"]`);
+    const top = card
+      ? card.getBoundingClientRect().top + window.scrollY - 96
+      : el.offsetTop + ((el.offsetHeight - window.innerHeight) * (i / count));
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
+  return (
+    <div className="build-track" ref={trackRef}>
+      <div className="shell build-sticky-shell">
+        <div className="build-stack-meta">
+          <div className="eyebrow">
+            <span className="num">{String(activeIdx + 1).padStart(2, "0")}</span>
+            {builds[activeIdx].kind}<span className="build-scroll-hint"> · scroll to advance</span>
+          </div>
+          <div className="block-head-meta">
+            {String(activeIdx + 1).padStart(2, "0")} <span style={{ opacity: 0.4 }}>/ {String(count).padStart(2, "0")}</span>
+          </div>
+        </div>
+
+        <div className="build-stack" style={{ "--build-count": count }}>
+          {builds.map((b, i) => (
+            <div
+              key={b.idx}
+              data-build-card={i}
+              id={`build-panel-${i}`}
+              role="tabpanel"
+              aria-labelledby={`build-tab-${i}`}
+              aria-hidden={i !== activeIdx}
+              className={`build-stack-card${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}${i > activeIdx ? " is-future" : ""}`}
+              style={{
+                "--card-index": i,
+                "--reverse-index": count - i,
+                zIndex: 10 + i,
+              }}
+            >
+              <BuildPanel {...b} />
+            </div>
+          ))}
+        </div>
+
+        <div className="build-progress" role="tablist" aria-label="What you'll build">
+          {builds.map((b, i) => (
+            <button
+              key={b.idx}
+              type="button"
+              role="tab"
+              id={`build-tab-${i}`}
+              aria-selected={i === activeIdx}
+              aria-controls={`build-panel-${i}`}
+              tabIndex={i === activeIdx ? 0 : -1}
+              onClick={() => goTo(i)}
+              className={`build-progress-step${i === activeIdx ? " is-active" : ""}${i < activeIdx ? " is-past" : ""}`}
+            >
+              <span className="build-progress-num">{b.idx}</span>
+              <span className="build-progress-label">{b.kind}</span>
+              <span className="build-progress-bar" aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const WALKTHROUGH_EMBED_URL = "https://iframe.mediadelivery.net/embed/649324/252378e4-2c62-497a-9a8c-f3e06e7db083?autoplay=true&preload=true&playsinline=true&muted=false&responsive=true";
+
+function VideoModal({ open, onClose, src, title }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="video-modal-overlay" role="dialog" aria-modal="true" aria-label={title} onClick={onClose}>
+      <div className="video-modal-frame" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="video-modal-close" onClick={onClose} aria-label="Close video">×</button>
+        <div className="video-modal-aspect">
+          <iframe
+            src={src}
+            title={title}
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+            playsInline
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Walkthrough() {
+  const [videoOpen, setVideoOpen] = useState(false);
+  const beats = [
+    {
+      t: "00:12",
+      label: "The prompt",
+      body: "“Hey Claude, create a contact-role flow on the Opportunity object. When an opportunity is closed, update the contact's role.”",
+    },
+    {
+      t: "00:38",
+      label: "Flow generated",
+      body: "Claude reads the org via Salesforce DX, drafts UpdateContactRoleOnClosedWon, and auto-optimizes the trigger so it only fires on the transition to Closed Won.",
+    },
+    {
+      t: "01:25",
+      label: "Tested in the org",
+      body: "Open the flow in Setup. It's there. Confirm record-triggered, after-save, decision-maker assignment.",
+    },
+    {
+      t: "02:40",
+      label: "End-to-end",
+      body: "Relate a Contact to the Opportunity (Claude does it via anonymous Apex), close the deal, watch the Contact's role flip to Decision Maker.",
+    },
+  ];
+
+  return (
+    <section className="section section-divider reveal" id="walkthrough">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">05</span>Live walkthrough</div>
+          <div className="block-head-meta">An hour's work · in three minutes</div>
+        </div>
+
+        <div className="walkthrough-intro">
+          <h2 className="display">
+            From a sentence<br />
+            to a deployed <em>Flow.</em>
+          </h2>
+          <p className="lead" style={{ marginTop: "24px" }}>
+            A real recording from my dev org. One prompt builds the flow,
+            connects it to Salesforce DX, and runs the test loop end-to-end.
+            The kind of thing that used to eat a full afternoon.
+          </p>
+        </div>
+
+        <figure className="walkthrough-frame artifact">
+          <div className="artifact-header">
+            <span>UpdateContactRoleOnClosedWon.flow-meta.xml</span>
+            <span style={{ color: "var(--accent)" }}>● live · 3 min</span>
+          </div>
+          <div className="walkthrough-video">
+            <button
+              type="button"
+              className="walkthrough-poster walkthrough-poster-button has-thumb"
+              aria-label="Play demo video"
+              onClick={() => setVideoOpen(true)}
+            >
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet="/images/walkthrough-thumb-400.avif 400w, /images/walkthrough-thumb-800.avif 800w, /images/walkthrough-thumb-1200.avif 1200w"
+                  sizes="(max-width: 1000px) 100vw, 1000px"
+                />
+                <source
+                  type="image/webp"
+                  srcSet="/images/walkthrough-thumb-400.webp 400w, /images/walkthrough-thumb-800.webp 800w, /images/walkthrough-thumb-1200.webp 1200w"
+                  sizes="(max-width: 1000px) 100vw, 1000px"
+                />
+                <img
+                  className="walkthrough-poster-img"
+                  src="/walkthrough-thumb.png"
+                  alt="Demo: Claude Code generating Salesforce metadata in VS Code"
+                  width="1870"
+                  height="920"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <div className="walkthrough-poster-overlay" aria-hidden="true" />
+              <div className="walkthrough-play" aria-hidden="true">▶</div>
+              <div className="walkthrough-poster-label">Demo recording · 3 min</div>
+              <div className="walkthrough-poster-sub">Click to watch the full walkthrough.</div>
+            </button>
+          </div>
+          <figcaption className="walkthrough-caption">
+            <span style={{ fontFamily: "var(--mono)", fontSize: "10px", letterSpacing: "0.12em", color: "var(--ink-500)", textTransform: "uppercase" }}>
+              Caption
+            </span>
+            <span style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "16px", color: "var(--ink-800)" }}>
+              “I used to be deathly afraid of flows. Now all I do is test them. Claude does the build.”
+            </span>
+          </figcaption>
+        </figure>
+
+        <div className="walkthrough-beats">
+          {beats.map((b, i) => (
+            <div className="walkthrough-beat" key={b.t}>
+              <div className="walkthrough-beat-meta">
+                <span className="walkthrough-beat-num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="walkthrough-beat-time">{b.t}</span>
+              </div>
+              <div className="walkthrough-beat-label">{b.label}</div>
+              <div className="walkthrough-beat-body">{b.body}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <VideoModal
+        open={videoOpen}
+        onClose={() => setVideoOpen(false)}
+        src={WALKTHROUGH_EMBED_URL}
+        title="Claude Code for Salesforce: live walkthrough"
+      />
+    </section>
+  );
+}
+
+function Curriculum() {
+  const [open, setOpen] = useState(0);
+  const phases = [
+    {
+      phase: "Phase I",
+      title: "Foundation & data model",
+      duration: "Capstone: BrightPath Solar",
+      modules: [
+        { n: "1.1", t: "Why Claude Code, why now", d: "The shift from point-and-click to prompt-driven admin work, set inside the BrightPath capstone scenario." },
+        { n: "1.2", t: "Install, connect, first prompt", d: "Walk-through inside VS Code. Authenticate to a Salesforce DX sandbox. Get your first artifact deployed." },
+        { n: "1.3", t: "Custom fields on Account, Contact, Opportunity", d: "Ship the BrightPath field set: Customer Type, Utility Provider, System Size, Financing Method, and more from a single prompt." },
+      ],
+    },
+    {
+      phase: "Phase II",
+      title: "Custom objects & schema",
+      duration: "6 objects · 25+ fields",
+      modules: [
+        { n: "2.1", t: "Custom objects + relationships", d: "Build Site Survey, Installation, Warranty Claim, Equipment, Incentive Program, and Incentive Application, with master-detail and lookup wiring." },
+        { n: "2.2", t: "Record types + page layouts", d: "Residential vs Commercial accounts. Three opportunity record types: Residential Install, Commercial Install, Service/Warranty." },
+        { n: "2.3", t: "Permission sets + custom app", d: "Sales Rep, Operations, and Admin personas. Build the BrightPath Solar app with custom tabs in one prompt." },
+        { n: "2.4", t: "Validation rules", d: "Stage-gated amounts, future-only schedule dates, and warranty expiration logic. Drafted, deployed, tested." },
+      ],
+    },
+    {
+      phase: "Phase III",
+      title: "Flows from English",
+      duration: "4 production flows",
+      modules: [
+        { n: "3.1", t: "Lead Intake screen flow", d: "Three-screen wizard that creates Account + Contact + Opportunity in one go, with a live savings estimate." },
+        { n: "3.2", t: "Post-Survey auto-update", d: "Record-triggered flow that promotes the Opportunity to Proposal, files panel-upgrade tasks, and Chatter-warns on heavy shade." },
+        { n: "3.3", t: "Installation milestone notifications", d: "Branching flow that emails the customer on inspection scheduling and closes the deal on inspection passed." },
+        { n: "3.4", t: "Warranty expiration scheduled flow", d: "Daily 7am job that surfaces 90-day warranty expirations and pings the Customer Success manager with a summary." },
+      ],
+    },
+    {
+      phase: "Phase IV",
+      title: "Apex, LWC & ops",
+      duration: "Triggers · Batch · LWC",
+      modules: [
+        { n: "4.1", t: "Apex trigger: Commission Calculator", d: "Tiered commission logic with cash bonus and lease/PPA penalty. Handler-class pattern, bulkified to 200+ records, 90% test coverage." },
+        { n: "4.2", t: "Apex trigger: Installation Validator", d: "Forward-only status progression, permit-number gating, and completed-survey enforcement, with custom errors and full negative-path tests." },
+        { n: "4.3", t: "Batch + Schedulable: Production Estimator", d: "Nightly job that calculates annual kWh production and 25-year lifetime savings on every Closed Won deal." },
+        { n: "4.4", t: "Lightning Web Component: Installation Timeline", d: "A wired LWC that visualizes status from Permit Submitted → Inspection Passed, with an On Hold amber state. CSS-only, responsive." },
+        { n: "4.5", t: "Dummy data + reports + dashboard", d: "100+ records seeded across all objects. Pipeline-by-financing-method report, install-status tracker, and a live BrightPath Operations dashboard." },
+      ],
+    },
+  ];
+
+  return (
+    <section className="section section-divider reveal" id="curriculum">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">06</span>Course architecture</div>
+          <div className="block-head-meta">Four phases · BrightPath Solar capstone</div>
+        </div>
+
+        <div className="curriculum-intro">
+          <h2 className="display">
+            A system, not<br />
+            <em>a syllabus.</em>
+          </h2>
+          <p className="lead" style={{ marginTop: "24px", maxWidth: "62ch" }}>
+            You'll build a complete Salesforce org for a fictional solar installer,
+            BrightPath Energy, alongside the lessons. Six custom objects, 25+ fields,
+            four flows, two Apex triggers, a batch job, and a Lightning Web Component.
+            Everything you'd ship at a real job, shipped here first.
+          </p>
+        </div>
+
+        <div className="curriculum">
+          {phases.map((p, i) => {
+            const isOpen = open === i;
+            const btnId = `phase-head-${i}`;
+            const panelId = `phase-body-${i}`;
+            return (
+              <div className={`phase ${isOpen ? "phase--open" : ""}`} key={p.phase}>
+                <button
+                  type="button"
+                  id={btnId}
+                  className="phase-head"
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                >
+                  <div className="phase-head-l">
+                    <span className="phase-tag">{p.phase}</span>
+                    <span className="phase-title">{p.title}</span>
+                  </div>
+                  <div className="phase-head-r">
+                    <span className="phase-duration">{p.duration}</span>
+                    <span className="phase-count">{p.modules.length} modules</span>
+                    <span className="phase-toggle" aria-hidden="true">{isOpen ? "−" : "+"}</span>
+                  </div>
+                </button>
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={btnId}
+                  aria-hidden={!isOpen}
+                  className="phase-body"
+                  style={{ maxHeight: isOpen ? "1200px" : "0px" }}
+                >
+                  <div className="phase-body-inner">
+                    {p.modules.map((m) => (
+                      <div className="module" key={m.n}>
+                        <div className="module-n">{m.n}</div>
+                        <div className="module-content">
+                          <div className="module-t">{m.t}</div>
+                          <div className="module-d">{m.d}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Demo() {
+  const examplePrompt = "Write a validation rule that requires a Close Date in the future for any Opportunity in 'Negotiation' stage.";
+  const exampleOutput = `AND(
+  ISPICKVAL(StageName, "Negotiation"),
+  OR(
+    ISBLANK(CloseDate),
+    CloseDate <= TODAY()
+  )
+)`;
+
+  const otherExamples = [
+    "Draft a Flow that creates a follow-up task when a Lead is converted but the account has no opportunities.",
+    "List the metadata changes I'd need to add a 'Health Score' field to Account, with formula and page layout updates.",
+    "Audit which permission sets grant access to the SSN__c field on Contact and flag anything risky.",
+  ];
+
+  return (
+    <section className="section section--tight section-divider reveal" id="demo">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">07</span>What it looks like</div>
+          <div className="block-head-meta">Prompt → reviewable artifact</div>
+        </div>
+
+        <div className="demo-grid">
+          <div className="demo-copy">
+            <h2 className="display">
+              The kind of thing<br />
+              an <em>admin would say.</em>
+            </h2>
+            <p className="lead" style={{ marginTop: "20px" }}>
+              A snapshot of the prompt-to-artifact loop you'll run every day in the
+              course. The example on the right is real output from a real org. Below:
+              other prompts admins use to put Claude to work.
+            </p>
+            <div className="demo-examples">
+              <div className="eyebrow" style={{ marginBottom: "12px" }}>Other things admins ask Claude</div>
+              {otherExamples.map((e, i) => (
+                <div className="demo-ex" key={i}>
+                  <span className="demo-ex-arrow">→</span>
+                  <span>{e}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="demo-panel artifact">
+            <div className="artifact-header">
+              <span>demo · prompt → artifact</span>
+              <span style={{ color: "var(--accent)" }}>● example</span>
+            </div>
+            <div className="demo-input-wrap">
+              <pre className="demo-input">{examplePrompt}</pre>
+            </div>
+            <div className="demo-output">
+              <pre className="demo-output-code">{exampleOutput}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Safety() {
+  const principles = [
+    { n: "01", t: "Review everything", d: "Every diff is yours to read before it ships. The model proposes; you dispose." },
+    { n: "02", t: "Sandbox first", d: "Validate against a sandbox org. Promote only what passes." },
+    { n: "03", t: "Partner, not autopilot", d: "Claude Code is leverage on top of your judgment, not a replacement for it." },
+    { n: "04", t: "Governance respected", d: "Existing Salesforce permissions, profiles, and SOX controls all still apply." },
+  ];
+
+  return (
+    <section className="section section-divider reveal" id="safety">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">08</span>Safety & trust</div>
+          <div className="block-head-meta">How to operate without breaking things</div>
+        </div>
+
+        <div className="safety-grid">
+          <div className="safety-lead">
+            <h2 className="display">
+              Speed,<br />
+              without <em>chaos.</em>
+            </h2>
+            <p className="lead" style={{ marginTop: "24px" }}>
+              The course is structured around four operating principles. They're how you
+              keep the leverage of AI without giving up the discipline that production orgs
+              demand.
+            </p>
+          </div>
+
+          <div className="safety-list">
+            {principles.map((p) => (
+              <div className="safety-item" key={p.n}>
+                <div className="safety-n">{p.n}</div>
+                <div>
+                  <h4 className="safety-t">{p.t}</h4>
+                  <p className="safety-d">{p.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Instructor() {
+  return (
+    <section className="section section-divider section--dark reveal" id="instructor">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">09</span>Instructor</div>
+          <div className="block-head-meta">Built by an operator</div>
+        </div>
+
+        <div className="instructor-grid">
+          <div className="instructor-portrait">
+            <div className="portrait-frame">
+              <picture>
+                <source
+                  type="image/avif"
+                  srcSet="/images/amit-headshot-400.avif 400w, /images/amit-headshot-800.avif 800w"
+                  sizes="(max-width: 900px) 100vw, 400px"
+                />
+                <source
+                  type="image/webp"
+                  srcSet="/images/amit-headshot-400.webp 400w, /images/amit-headshot-800.webp 800w"
+                  sizes="(max-width: 900px) 100vw, 400px"
+                />
+                <img
+                  className="portrait-photo"
+                  src="/amit-headshot.png"
+                  alt="Amit, instructor. 8× Salesforce Certified, GTM Engineer."
+                  width="1024"
+                  height="1024"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+              <div className="portrait-grid" />
+              <div className="portrait-caption">
+                <span>Amit</span>
+                <span>SF·26</span>
+              </div>
+            </div>
+            <div className="instructor-creds">
+              <div className="cred"><span className="cred-n">8×</span><span>Salesforce Certified</span></div>
+              <div className="cred"><span className="cred-n">·</span><span>GTM Engineer</span></div>
+              <div className="cred"><span className="cred-n">·</span><span>AI Tools Builder</span></div>
+            </div>
+          </div>
+
+          <div className="instructor-note">
+            <h2 className="display">
+              Stop being a<br />
+              <em>"point-and-click"</em> admin.<br />
+              Start being a Salesforce<br />
+              <em>architect.</em>
+            </h2>
+            <div className="instructor-body">
+              <p>
+                I've spent years in the Salesforce ecosystem doing RevOps, sales operations,
+                and CRM architecture. I was the admin who was scared of Flows. When Claude
+                Code came out, everything changed.
+              </p>
+              <p>
+                I went from filing Jira tickets and waiting two weeks to just… building the
+                thing myself. This course is everything I wish someone had shown me on day one.
+              </p>
+              <div className="instructor-sign">- Amit</div>
+              <div className="instructor-work-pills" aria-label="Past operator roles">
+                <span>Avan Grid · Solo Admin</span>
+                <span>Slalom · Salesforce Consultant</span>
+                <span>dice.com · Business Systems Director</span>
+                <span>webAI · RevOps Manager</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Testimonials() {
+  const quotes = [
+    {
+      body: "I shipped a Flow on a Wednesday that's been on the backlog since March. The PM didn't believe me until I sent the diff.",
+      name: "Sarah K.",
+      role: "Sr. Salesforce Admin · Mid-market SaaS",
+      rot: -3.2,
+    },
+    {
+      body: "I was scared of writing Apex. Now I read the diff Claude gives me, ship it to the sandbox, and ship to prod when it passes. The fear was the bottleneck, not the language.",
+      name: "Marcus R.",
+      role: "Salesforce Architect · FinTech",
+      rot: 1.8,
+    },
+    {
+      body: "Three years of 'we should clean up our permission sets.' Done in a single afternoon. Claude audited every profile and gave me the redlines.",
+      name: "Priya S.",
+      role: "RevOps Lead · Industrial",
+      rot: -1.6,
+    },
+    {
+      body: "I used to file Jira tickets. Now I close them.",
+      name: "Devin H.",
+      role: "Solo Admin · 200-seat org",
+      rot: 2.6,
+    },
+    {
+      body: "The flip moment: Claude wrote a validation rule, ran it against my sandbox, found the edge case I missed, and patched it. I just watched.",
+      name: "Jordan T.",
+      role: "Salesforce Admin · Healthcare",
+      rot: -2.1,
+    },
+    {
+      body: "First flow I shipped from a prompt: territory routing for inbound leads. Took 18 minutes. My manager asked who I hired.",
+      name: "Amelia C.",
+      role: "RevOps Manager · B2B SaaS",
+      rot: 3.0,
+    },
+  ];
+  const quoteRows = [quotes.slice(0, 3), quotes.slice(3)];
+
+  return (
+    <section className="section section-divider reveal" id="testimonials">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">10</span>Field reports</div>
+          <div className="block-head-meta">Beta cohort · names abbreviated at request</div>
+        </div>
+
+        <div className="testimonials-intro">
+          <h2 className="display">
+            Proof from admins<br />
+            <em>who stopped waiting.</em>
+          </h2>
+          <p className="lead" style={{ marginTop: "20px", maxWidth: "62ch" }}>
+            Composite quotes drawn from beta-cohort interviews, paraphrased and
+            anonymized at the participants' request. Every one came from a working
+            Salesforce admin who shipped real artifacts during the course.
+          </p>
+        </div>
+
+        <div className="testimonials-wall" aria-label="Beta cohort testimonial cards">
+          {quoteRows.map((row, rowIdx) => (
+            <div
+              className={`testimonials-marquee testimonials-marquee--${rowIdx === 0 ? "right" : "left"}`}
+              key={rowIdx}
+            >
+              <div className="testimonials-marquee-track">
+                {[...row, ...row].map((q, i) => (
+                  <figure
+                    key={`${rowIdx}-${i}`}
+                    className="testimonial-paper"
+                    style={{ "--rot": `${q.rot}deg` }}
+                    aria-hidden={i >= row.length}
+                  >
+                    <blockquote className="testimonial-paper-body">{q.body}</blockquote>
+                    <figcaption className="testimonial-paper-cap">
+                      <div className="testimonial-paper-avatar" aria-hidden="true">
+                        {q.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+                      </div>
+                      <div className="testimonial-paper-meta">
+                        <div className="testimonial-paper-name">{q.name}</div>
+                        <div className="testimonial-paper-role">{q.role}</div>
+                      </div>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="testimonials-foot">
+          <span className="testimonials-foot-eyebrow">Disclosure</span>
+          <span>
+            Quotes are paraphrased composites from beta-cohort interviews. Real names
+            withheld for privacy. Aggregated public testimonials with full attribution
+            ship after Cohort 02.
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ThrivecartEmbed() {
+  useEffect(() => {
+    const id = THRIVECART_EMBED_ID;
+    if (document.getElementById(id)) return;
+    const s = document.createElement("script");
+    s.async = true;
+    s.id = id;
+    s.src = "//tinder.thrivecart.com/embed/v2/thrivecart.js";
+    document.body.appendChild(s);
+  }, []);
+
+  return (
+    <div
+      className="tc-v2-embeddable-target"
+      data-thrivecart-account="webpay"
+      data-thrivecart-tpl="v2"
+      data-thrivecart-product="57"
+      data-thrivecart-embeddable={THRIVECART_EMBED_ID}
+    />
+  );
+}
+
+function PricingBonuses() {
+  const bonuses = [
+    {
+      tag: "Bonus 01",
+      label: "The Inner Circle",
+      sub: "Private Slack for course members.",
+      title: "When 'just ask the team' isn't an option.",
+      body: "You're the solo admin. Or the senior on a two-person team. Either way, there's no Slack channel to drop your weird Flow error into at 4:55pm on a Friday. This one is. Working admins, the instructor, and the kind of community where 'is this CPU-time limit normal?' gets answered in 12 minutes, not 12 days.",
+      worth: "$499",
+      tagline: "Lifetime access",
+    },
+    {
+      tag: "Bonus 02",
+      label: "The Production Vault",
+      sub: "Real Claude Code transcripts from real orgs.",
+      title: "Every Salesforce prompt I've shipped.",
+      body: "The unedited Claude Code sessions I run against production Salesforce orgs: the prompts that worked, the dead ends I had to back out of, the recovery patterns when Claude got it wrong. The kind of senior-architect ride-along that normally costs $5,000 in consulting time.",
+      worth: "$799",
+      tagline: "Field-tested sessions",
+    },
+    {
+      tag: "Bonus 03",
+      label: "The Plugin Pack",
+      sub: "Handpicked Claude Code plugins for serious leverage.",
+      title: "My personal plugin stack for faster Claude Code work.",
+      body: "You get the exact plugins I use to make Claude Code more useful across real projects, including Superpowers and Claude Mem. These are the productivity boosters, memory tools, workflow helpers, and repo habits I trust when I want Claude to move faster without losing context.",
+      worth: "$249",
+      tagline: "Curated by Amit",
+    },
+  ];
+
+  return (
+    <div className="pricing-bonuses">
+      <div className="pricing-bonuses-head">
+        <div className="eyebrow"><span className="num">+ 03</span>Bonuses · included free</div>
+        <div className="block-head-meta">$1,547 in extras · yours at no extra cost</div>
+      </div>
+
+      <div className="pricing-bonuses-intro">
+        <h3 className="display">
+          The extras that make this<br />
+          <em>a no-brainer.</em>
+        </h3>
+        <p className="lead" style={{ marginTop: "20px", maxWidth: "62ch" }}>
+          Course alone gets you the skill. These bonuses get you the unfair advantage:
+          the community, the receipts, and the tools I personally won't ship without.
         </p>
       </div>
-    </div>
-  );
-}
 
-function RoiSlider({ label, value, onChange, min, max, step, display, hint }) {
-  return (
-    <div style={{ marginBottom: 22 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-        <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: COLORS.textSecondary, letterSpacing: 0.2 }}>{label}</label>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, color: COLORS.orange, letterSpacing: 0.3 }}>{display}</span>
-      </div>
-      <input type="range" className="roi-slider" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
-      {hint && (<div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, marginTop: 6, lineHeight: 1.5 }}>{hint}</div>)}
-    </div>
-  );
-}
-
-function MetricRow({ label, value, big, highlight }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "8px 0" }}>
-      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: highlight ? COLORS.textPrimary : COLORS.textSecondary, fontWeight: highlight ? 600 : 400 }}>{label}</span>
-      <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: highlight ? 22 : (big ? 26 : 16), fontWeight: highlight || big ? 800 : 700, color: highlight ? COLORS.orange : (big ? "#fff" : COLORS.textPrimary), letterSpacing: big || highlight ? -0.5 : 0 }}>{value}</span>
-    </div>
-  );
-}
-
-/* ── Benioff tweet card (static Twitter-style recreation) ── */
-function BenioffTweet() {
-  const TWEET_URL = "https://x.com/Benioff/status/2044981547267395620";
-  return (
-    <a
-      href={TWEET_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: "block",
-        width: "100%",
-        maxWidth: 560,
-        background: "#15202B",
-        border: "1px solid #38444D",
-        borderRadius: 16,
-        padding: 20,
-        textDecoration: "none",
-        color: "#E7E9EA",
-        fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
-      }}
-    >
-      {/* header: avatar, name, handle, x logo */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
-        <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #1D9BF0, #0176D3, #0a0a0a)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "#fff", letterSpacing: 0.5 }}>MB</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-            <span style={{ fontWeight: 700, fontSize: 15, color: "#fff" }}>Marc Benioff</span>
-            <VerifiedBadge />
-            <span style={{ fontSize: 15, color: "#8B98A5" }}>@Benioff · 19h</span>
-          </div>
-        </div>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true" style={{ flexShrink: 0 }}>
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-        </svg>
-      </div>
-
-      {/* tweet body */}
-      <div style={{ fontSize: 15, lineHeight: 1.45, color: "#E7E9EA", marginBottom: 14 }}>
-        <strong style={{ color: "#fff" }}>Welcome Salesforce Headless 360: No Browser Required!</strong> Our API is the UI. Entire Salesforce &amp; Agentforce &amp; Slack platforms are now exposed as APIs, MCP, &amp; CLI. All AI agents can access data, workflows, and tasks directly in Slack, Voice, or anywhere else with Salesforce Headless… <span style={{ color: "#1D9BF0" }}>Show more</span>
-      </div>
-
-      {/* article preview card */}
-      <div style={{ border: "1px solid #38444D", borderRadius: 16, overflow: "hidden", marginBottom: 14 }}>
-        <div style={{ position: "relative", height: 180, background: "linear-gradient(180deg, #3d5a80 0%, #293241 100%)", overflow: "hidden" }}>
-          {/* stylized skyscraper silhouette */}
-          <svg viewBox="0 0 560 180" preserveAspectRatio="xMidYMid slice" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden="true">
-            <defs>
-              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#98c1d9" />
-                <stop offset="100%" stopColor="#3d5a80" />
-              </linearGradient>
-              <linearGradient id="buildingGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#1a2c4c" />
-                <stop offset="100%" stopColor="#0a1628" />
-              </linearGradient>
-            </defs>
-            <rect width="560" height="180" fill="url(#skyGrad)" />
-            {/* tower (abstracted Salesforce Tower shape) */}
-            <polygon points="280,30 360,180 200,180" fill="url(#buildingGrad)" opacity="0.92" />
-            <polygon points="280,30 330,180 230,180" fill="#0a1628" opacity="0.5" />
-            {/* smaller buildings */}
-            <rect x="60" y="130" width="80" height="50" fill="#0a1628" opacity="0.7" />
-            <rect x="430" y="110" width="70" height="70" fill="#0a1628" opacity="0.75" />
-            <rect x="510" y="140" width="50" height="40" fill="#0a1628" opacity="0.65" />
-            {/* window lights */}
-            {Array.from({ length: 28 }).map((_, i) => (
-              <rect key={i} x={268 + (i % 4) * 5} y={60 + Math.floor(i / 4) * 14} width="2" height="6" fill="#FFD166" opacity={0.6 + (i % 3) * 0.1} />
-            ))}
-          </svg>
-          <div style={{ position: "absolute", bottom: 10, left: 12, right: 12, color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1.3, textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}>
-            Salesforce launches Headless 360 to turn its entire platform into APIs, MCP, and CLI
-          </div>
-        </div>
-        <div style={{ padding: "10px 14px", fontSize: 13, color: "#8B98A5", background: "#15202B" }}>
-          From venturebeat.com
-        </div>
-      </div>
-
-      {/* engagement row */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "#8B98A5", fontSize: 13, paddingTop: 4 }}>
-        <TweetStat icon="💬" value="251" />
-        <TweetStat icon="🔁" value="881" />
-        <TweetStat icon="♥" value="4.1K" />
-        <TweetStat icon="📊" value="2.7M" />
-        <TweetStat icon="🔖" />
-        <TweetStat icon="↗" />
-      </div>
-    </a>
-  );
-}
-
-function VerifiedBadge() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 22 22" aria-hidden="true" style={{ flexShrink: 0 }}>
-      <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1D9BF0"/>
-    </svg>
-  );
-}
-
-function TweetStat({ icon, value }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-      <span style={{ opacity: 0.85 }}>{icon}</span>
-      {value && <span>{value}</span>}
-    </span>
-  );
-}
-
-/* ── hero video (clickable thumbnail — wire to Loom/Wistia src when ready) ── */
-function HeroVideo() {
-  return (
-    <div style={{ width: "100%", maxWidth: 560 }}>
-      <a
-        href="#demo"
-        aria-label="Watch full demo"
-        style={{
-          display: "block",
-          position: "relative",
-          borderRadius: 14,
-          overflow: "hidden",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.1)",
-          border: `1px solid ${COLORS.border}`,
-          aspectRatio: "16 / 9",
-          background: "linear-gradient(135deg, #1E1E2E 0%, #0E0E14 100%)",
-          textDecoration: "none",
-          cursor: "pointer",
-        }}
-      >
-        {/* subtle grid overlay */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(rgba(218,119,86,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(218,119,86,0.04) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-        {/* glow */}
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 320, height: 320, background: `radial-gradient(circle, rgba(218,119,86,0.22) 0%, transparent 70%)`, borderRadius: "50%", filter: "blur(30px)" }} />
-
-        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 20 }}>
-          <div style={{
-            width: 82,
-            height: 82,
-            borderRadius: "50%",
-            background: COLORS.orange,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: `0 12px 40px ${COLORS.orangeGlow}`,
-            animation: "pulseGlow 2.4s ease-in-out infinite",
-          }}>
-            <svg width="28" height="32" viewBox="0 0 28 32" fill="#fff" aria-hidden="true" style={{ marginLeft: 4 }}>
-              <path d="M26 14.268L2 .536v30.928L26 17.732a2 2 0 0 0 0-3.464z" />
-            </svg>
-          </div>
-          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-            <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(16px, 2vw, 19px)", fontWeight: 700, color: "#fff", marginBottom: 6 }}>
-              Watch: Full Flow built in under 5 minutes
+      <div className="pricing-bonuses-grid">
+        {bonuses.map((b) => (
+          <article key={b.tag} className="bonus-card">
+            <div className="bonus-card-head">
+              <span className="bonus-card-tag">{b.tag}</span>
+              <span className="bonus-card-worth">value <strong>{b.worth}</strong></span>
             </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textSecondary, letterSpacing: 0.5 }}>
-              0:60 · Real Salesforce org demo
+            <div className="bonus-card-label">{b.label}</div>
+            <h4 className="bonus-card-title">{b.title}</h4>
+            <div className="bonus-card-sub">{b.sub}</div>
+            <p className="bonus-card-body">{b.body}</p>
+            <div className="bonus-card-foot">
+              <span className="bonus-card-included">✓ Included</span>
+              <span className="bonus-card-tagline">{b.tagline}</span>
             </div>
-          </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="pricing-bonuses-stack">
+        <div className="bonus-stack-row">
+          <span>Course · twelve modules + capstone</span>
+          <span className="bonus-stack-val">$497</span>
         </div>
-      </a>
+        <div className="bonus-stack-row">
+          <span>Bonus 01 · The Inner Circle (lifetime)</span>
+          <span className="bonus-stack-val">$499</span>
+        </div>
+        <div className="bonus-stack-row">
+          <span>Bonus 02 · The Production Vault</span>
+          <span className="bonus-stack-val">$799</span>
+        </div>
+        <div className="bonus-stack-row">
+          <span>Bonus 03 · The Plugin Pack</span>
+          <span className="bonus-stack-val">$249</span>
+        </div>
+        <div className="bonus-stack-row bonus-stack-row--total">
+          <span>Total stacked value</span>
+          <span className="bonus-stack-val">$2,044</span>
+        </div>
+        <div className="bonus-stack-row bonus-stack-row--your">
+          <span>Your price today</span>
+          <span className="bonus-stack-val bonus-stack-val--accent">$97</span>
+        </div>
+      </div>
     </div>
   );
 }
 
-/* ── hero terminal (animated cascade) ── */
-function HeroTerminal() {
-  const lines = [
-    { t: "$ claude", c: "#A5D6FF" },
-    { t: "", c: "" },
-    { t: "> I need a Flow that assigns", c: COLORS.orange },
-    { t: "  leads by region to the right", c: "#A5D6FF" },
-    { t: "  owner and notifies them in Slack.", c: "#A5D6FF" },
-    { t: "", c: "" },
-    { t: "Reading dev-org metadata…", c: COLORS.textMuted },
-    { t: "Building Record-Triggered Flow…", c: COLORS.textMuted },
-    { t: "  → Decision: Region", c: COLORS.textMuted },
-    { t: "  → 4 assignment branches", c: COLORS.textMuted },
-    { t: "  → Slack notification action", c: COLORS.textMuted },
-    { t: "Deploying to dev-org…", c: COLORS.textMuted },
-    { t: "", c: "" },
-    { t: "✓ Route_Lead_By_Region · Active", c: COLORS.green },
-    { t: "✓ 4/4 tests passing", c: COLORS.green },
-    { t: "Complete.", c: "#E2E8F0", bold: true, blink: true },
+function Pricing() {
+  const includes = [
+    "BrightPath Solar capstone: full org build, end to end",
+    "6 custom objects + 25+ fields, fully wired with relationships",
+    "3 Account / Opportunity record types and page layouts",
+    "4 production Flows (screen, record-triggered, scheduled)",
+    "2 Apex triggers with handler classes · 90% test coverage",
+    "1 Apex batch + Schedulable job (annual production estimator)",
+    "1 Lightning Web Component (Installation Timeline)",
+    "Permission sets + custom app for 3 user personas",
+    "100+ records of seeded data · 2 reports + 1 live dashboard",
+    "Installation walkthrough for VS Code",
+    "Lifetime access · all future updates",
+    "CLAUDE.md Starter Template + Skill Pack for Salesforce",
   ];
-  const perLine = 0.45;
-  const hold = 4;
-  const total = lines.length * perLine + hold;
 
   return (
-    <div style={{ width: "100%", maxWidth: 540, background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.08)", border: `1px solid ${COLORS.border}` }}>
-      {/* title bar */}
-      <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
-        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
-        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
-        <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — claude</span>
-      </div>
-      {/* body */}
-      <div style={{ padding: "18px 22px 22px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, lineHeight: 1.8, minHeight: 360 }}>
-        {lines.map((ln, i) => {
-          if (!ln.t) return <div key={i} style={{ height: 8 }} />;
-          return (
-            <div key={i} style={{
-              opacity: 0,
-              color: ln.c || COLORS.textSecondary,
-              fontWeight: ln.bold ? 700 : 400,
-              whiteSpace: "pre-wrap",
-              animation: `sceneReveal ${total}s ${i * perLine}s infinite`,
-            }}>
-              {ln.t}
-              {ln.blink && <span style={{ animation: "caretBlink 1s infinite", marginLeft: 2 }}>│</span>}
+    <section className="section section-divider reveal" id="enroll">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">11</span>Enrollment</div>
+          <div className="block-head-meta">One tier · everything included</div>
+        </div>
+
+        <div className="pricing-card">
+          <div className="pricing-l">
+            <div className="tag" style={{ marginBottom: "24px" }}><span className="dot" />Open · Cohort 01</div>
+            <h2 className="display">
+              Claude Code<br />
+              for <em>Salesforce</em>.
+            </h2>
+            <p className="lead" style={{ marginTop: "24px", maxWidth: "48ch" }}>
+              Built for admins who want technical leverage without becoming a developer.
+              One price. Everything included. Lifetime access.
+            </p>
+
+            <ul className="pricing-includes">
+              {includes.map((i, idx) => (
+                <li key={idx}>
+                  <span className="pricing-check">✓</span>
+                  <span>{i}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="pricing-r">
+            <div className="pricing-price-block">
+              <div className="eyebrow">Launch price · USD</div>
+              <div className="pricing-price">
+                <span className="dollar">$</span>
+                <span className="num">97</span>
+                <span className="reg">reg. $197</span>
+              </div>
+              <div className="pricing-sub">One-time · lifetime access</div>
             </div>
-          );
-        })}
+
+            <div className="pricing-thrivecart-wrap">
+              <div className="pricing-thrivecart-label">Secure checkout</div>
+              <ThrivecartEmbed />
+            </div>
+
+            <div className="pricing-guarantee">
+              <div className="eyebrow" style={{ marginBottom: "8px" }}>Guarantee</div>
+              <p style={{ fontSize: "13px", color: "var(--ink-600)", lineHeight: 1.5, margin: 0 }}>
+                30-day money-back, no questions asked. Go through the course; if you didn't
+                level up your admin skills, email me for a full refund.
+              </p>
+            </div>
+
+            <p style={{ fontFamily: "var(--mono)", fontSize: "10px", letterSpacing: "0.06em", color: "var(--ink-500)", marginTop: 12, lineHeight: 1.5 }}>
+              Requires a Claude Pro subscription ($20/month).
+              No Salesforce add-on license required beyond Enterprise / Unlimited / Developer edition.
+            </p>
+          </div>
+        </div>
+
+        <PricingBonuses />
       </div>
-    </div>
+    </section>
   );
 }
 
-/* ── trust badges: SSL lock + card brand logos ── */
-function LockIcon() {
+function FAQ() {
+  const [openIdx, setOpenIdx] = useState(-1);
   return (
-    <svg width="12" height="14" viewBox="0 0 14 16" fill="none" aria-hidden="true">
-      <rect x="1.5" y="7" width="11" height="8" rx="1.5" stroke={COLORS.green} strokeWidth="1.4" fill="rgba(34,197,94,0.08)" />
-      <path d="M4 7V4.5a3 3 0 0 1 6 0V7" stroke={COLORS.green} strokeWidth="1.4" strokeLinecap="round" />
-      <circle cx="7" cy="11" r="1" fill={COLORS.green} />
-    </svg>
-  );
-}
+    <section className="section section-divider reveal" id="faq">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">12</span>Frequently asked</div>
+          <div className="block-head-meta">Practical objections, answered</div>
+        </div>
 
-function CardVisa() {
-  return (
-    <svg width="38" height="24" viewBox="0 0 38 24" aria-label="Visa">
-      <rect width="38" height="24" rx="4" fill="#fff" />
-      <text x="19" y="16" textAnchor="middle" fill="#1A1F71" fontFamily="Helvetica, Arial, sans-serif" fontSize="10" fontWeight="900" fontStyle="italic" letterSpacing="0.5">VISA</text>
-    </svg>
-  );
-}
-
-function CardMastercard() {
-  return (
-    <svg width="38" height="24" viewBox="0 0 38 24" aria-label="Mastercard">
-      <rect width="38" height="24" rx="4" fill="#fff" />
-      <circle cx="16" cy="12" r="6" fill="#EB001B" />
-      <circle cx="22" cy="12" r="6" fill="#F79E1B" />
-      <path d="M19 7.5a6 6 0 0 1 0 9 6 6 0 0 1 0-9z" fill="#FF5F00" />
-    </svg>
-  );
-}
-
-function CardAmex() {
-  return (
-    <svg width="38" height="24" viewBox="0 0 38 24" aria-label="American Express">
-      <rect width="38" height="24" rx="4" fill="#006FCF" />
-      <text x="19" y="16" textAnchor="middle" fill="#fff" fontFamily="Helvetica, Arial, sans-serif" fontSize="8.5" fontWeight="900" letterSpacing="0.5">AMEX</text>
-    </svg>
-  );
-}
-
-function CardDiscover() {
-  return (
-    <svg width="46" height="24" viewBox="0 0 46 24" aria-label="Discover">
-      <rect width="46" height="24" rx="4" fill="#fff" />
-      <text x="19" y="15.5" textAnchor="middle" fill="#222" fontFamily="Helvetica, Arial, sans-serif" fontSize="6.5" fontWeight="800" letterSpacing="0.2">DISCOVER</text>
-      <circle cx="39" cy="12" r="3.5" fill="#FF6000" />
-    </svg>
-  );
-}
-
-function CardApplePay() {
-  return (
-    <svg width="40" height="24" viewBox="0 0 40 24" aria-label="Apple Pay">
-      <rect width="40" height="24" rx="4" fill="#000" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
-      <path d="M10.3 9.3c-.3.4-.8.7-1.3.6-.1-.5.2-1 .4-1.3.3-.4.9-.7 1.3-.7.1.5-.1 1-.4 1.4zm.4.7c-.7 0-1.3.4-1.6.4-.4 0-.9-.4-1.5-.4-.8 0-1.5.5-1.9 1.2-.8 1.4-.2 3.5.6 4.6.4.5.9 1.1 1.5 1.1.6 0 .8-.4 1.5-.4.7 0 .9.4 1.5.4.6 0 1-.5 1.4-1 .4-.6.6-1.1.6-1.1-.1 0-1.2-.5-1.2-1.9 0-1.2 1-1.8 1-1.8-.5-.8-1.4-.9-1.9-.9z" fill="#fff" />
-      <text x="26" y="16" textAnchor="middle" fill="#fff" fontFamily="Helvetica, Arial, sans-serif" fontSize="8" fontWeight="500">Pay</text>
-    </svg>
-  );
-}
-
-function TerminalBlock({ title, lines }) {
-  return (
-    <div style={{ background: "#1E1E2E", borderRadius: 12, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.4)", border: `1px solid ${COLORS.border}` }}>
-      <div style={{ padding: "10px 16px", background: "rgba(255,255,255,0.03)", display: "flex", gap: 6, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF5F57" }} />
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#FEBC2E" }} />
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840" }} />
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.25)", marginLeft: 10 }}>{title}</span>
+        <div className="faq-grid">
+          <div className="faq-lead">
+            <h2 className="display">
+              Questions, <em>answered.</em>
+            </h2>
+            <p className="lead" style={{ marginTop: "20px" }}>
+              The honest version of every question that gets asked before enrollment.
+            </p>
+          </div>
+          <div className="faq-list">
+            {FAQS.map((f, i) => {
+              const isOpen = openIdx === i;
+              const btnId = `faq-q-${i}`;
+              const panelId = `faq-a-${i}`;
+              return (
+                <div className={`faq-item ${isOpen ? "faq-item--open" : ""}`} key={i}>
+                  <button
+                    type="button"
+                    id={btnId}
+                    className="faq-q"
+                    onClick={() => setOpenIdx(isOpen ? -1 : i)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                  >
+                    <span className="faq-q-num">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="faq-q-text">{f.q}</span>
+                    <span className="faq-toggle" aria-hidden="true">{isOpen ? "−" : "+"}</span>
+                  </button>
+                  <div
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={btnId}
+                    aria-hidden={!isOpen}
+                    className="faq-a-wrap"
+                    style={{ maxHeight: isOpen ? "600px" : "0px" }}
+                  >
+                    <div className="faq-a">{f.a}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-      <div style={{ padding: "20px 24px", fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 3.2vw, 13.5px)", lineHeight: 1.9 }}>
-        {lines.map((line, i) => {
-          if (line.type === "blank") return <br key={i} />;
-          if (line.type === "prompt") return <div key={i}><span style={{ color: COLORS.orange }}>❯</span> <span style={{ color: "#A5D6FF" }}>{line.text}</span></div>;
-          if (line.type === "prompt-cont") return <div key={i}><span style={{ color: "#A5D6FF" }}>{line.text}</span></div>;
-          if (line.type === "muted") return <div key={i} style={{ color: "rgba(255,255,255,0.35)" }}>{line.text}</div>;
-          if (line.type === "success") return <div key={i}><span style={{ color: COLORS.green }}>✓</span> <span style={{ color: "#E2E8F0" }}>{line.text}</span></div>;
-          if (line.type === "label") return <div key={i}><span style={{ color: "rgba(255,255,255,0.5)" }}>{line.text}</span><span style={{ color: "#E2E8F0" }}>{line.value}</span></div>;
-          if (line.type === "step") return <div key={i} style={{ color: "rgba(255,255,255,0.35)", fontSize: 12 }}>{"  "}{line.text}</div>;
-          return null;
-        })}
+    </section>
+  );
+}
+
+function FeaturedGuides() {
+  const guides = getFeaturedHomepageGuides();
+  if (!guides.length) return null;
+  return (
+    <section className="section section-divider reveal" id="start-here" aria-labelledby="start-here-title">
+      <div className="shell">
+        <div className="block-head">
+          <div className="eyebrow"><span className="num">11</span>Start here</div>
+          <div className="block-head-meta">Three guides · free, no signup</div>
+        </div>
+        <div className="featured-guides-grid">
+          <div className="featured-guides-lead">
+            <h2 id="start-here-title" className="display">
+              Read these <em>first.</em>
+            </h2>
+            <p className="lead" style={{ marginTop: "20px" }}>
+              The shortest path from "I've never used Claude Code" to "I just shipped a flow from a prompt." Each post is a self-contained tutorial — no fluff, no signup wall.
+            </p>
+          </div>
+          <div className="featured-guides-list">
+            {guides.map((g, i) => (
+              <a
+                key={g.slug}
+                href={`/blog/${g.slug}`}
+                className="featured-guide"
+              >
+                <div className="featured-guide-num">{String(i + 1).padStart(2, "0")}</div>
+                <div className="featured-guide-body">
+                  <div className="featured-guide-title">{g.title}</div>
+                  <div className="featured-guide-blurb">{g.blurb}</div>
+                  <div className="featured-guide-link">Read the guide <span aria-hidden="true">→</span></div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
+    </section>
+  );
+}
+
+function FinalCTA() {
+  return (
+    <section className="section final-cta" id="cta">
+      <div className="shell">
+        <div className="final-cta-inner">
+          <div className="eyebrow"><span className="num">13</span>One last thing</div>
+          <h2 className="display final-cta-title">
+            The admins who learn this<br />
+            <em>this year</em> will be the<br />
+            architects of next year.
+          </h2>
+          <div className="final-cta-buttons">
+            <a href={ENROLL_HASH} className="btn btn--primary" style={{ padding: "20px 36px", fontSize: "15px" }}>
+              Start Building with Claude <span className="arrow">→</span>
+            </a>
+            <a href="#curriculum" className="btn btn--ghost" style={{ padding: "20px 36px", fontSize: "15px", borderColor: "var(--bone-300)", color: "var(--bone-100)" }}>
+              See the curriculum
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="shell">
+        <div className="footer-grid">
+          <div className="footer-mark">
+            <div className="footer-glyph">CC</div>
+            <div className="footer-mark-text">
+              <div className="serif-italic" style={{ fontSize: "22px", color: "var(--bone-100)" }}>CC for SF</div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: "11px", letterSpacing: "0.06em", color: "var(--ink-400)", marginTop: "8px" }}>
+                Claude Code · for Salesforce Admins
+              </div>
+            </div>
+          </div>
+          <div className="footer-cols">
+            <div className="footer-col">
+              <div className="footer-col-h">Course</div>
+              <a href="#model">The model</a>
+              <a href="#curriculum">Curriculum</a>
+              <a href={ENROLL_HASH}>Pricing</a>
+              <a href="#faq">FAQ</a>
+            </div>
+            <div className="footer-col">
+              <div className="footer-col-h">Resources</div>
+              <a href="/blog">Blog</a>
+              <a href="/about">About</a>
+            </div>
+            <div className="footer-col">
+              <div className="footer-col-h">Legal</div>
+              <a href="/terms">Terms</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/refund">Refund Policy</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <div>© 2026 · CC for SF</div>
+          <div style={{ fontFamily: "var(--mono)" }}>SF·26 / 37.7749° N</div>
+          <div>Not affiliated with Salesforce, Inc. or Anthropic, PBC.</div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ══════════════════════════ APP ══════════════════════════ */
+
+export default function SalesPage() {
+  useReveal();
+
+  return (
+    <div className="ccsf-root">
+      <SEO
+        title="CC for SF: Claude Code for Salesforce Admins"
+        description="Hands-on mini-course. Use Claude Code to ship Flows, validation rules, and metadata work from plain English. No developer in the loop. $97 one-time, 30-day guarantee."
+        path="/"
+        jsonLd={HOMEPAGE_JSON_LD}
+      />
+
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      <Nav />
+      <StickyEnroll />
+      <main id="main-content" tabIndex={-1}>
+        <Hero />
+        <Marquee />
+        <Friction />
+        <NewModel />
+        <HeadlessFuture />
+        <WhatYouBuild />
+        <Walkthrough />
+        <Curriculum />
+        <Demo />
+        <Safety />
+        <Instructor />
+        <Testimonials />
+        <Pricing />
+        <FeaturedGuides />
+        <FAQ />
+        <FinalCTA />
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -1,9 +1,22 @@
 ---
 title: "Claude Code vs Agentforce: when to use which for Salesforce work"
-description: "Both let AI do Salesforce work. One costs $20/month and lives in your terminal. One costs $125-$550/user/month and lives in your org. Here's the actual decision framework."
+description: "Both let AI do Salesforce work. One lives in your terminal on a $20/month Claude Pro plan. One costs $125-$550/user/month and lives in your org. Here's the actual decision framework."
 date: 2026-04-20
 author: Amit
 heroImage: /amit-headshot.png
+tldr:
+  - "Agentforce ($125–$550 per user per month) is for in-org agents that talk to users. Claude Code ($20/month) is for admins building the org from a terminal."
+  - "Use Claude Code to ship metadata, Flows, validation rules, Apex. Use Agentforce to ship a customer-facing or rep-facing AI experience."
+  - "They are complementary, not competitors. Most teams will use both."
+faq:
+  - q: "Can Claude Code do everything Agentforce can?"
+    a: "No. Agentforce is built for in-org runtime agents — chat with customers, summarize support cases, take actions on records as a logged-in user. Claude Code is build-time tooling that lives in your terminal. They solve different problems."
+  - q: "Does Agentforce require Salesforce-managed AI?"
+    a: "Yes — it runs on Salesforce's Atlas Reasoning Engine and Einstein layer. Claude Code calls Anthropic's models directly via your Pro plan."
+  - q: "Is one cheaper than the other for the same outcome?"
+    a: "For admin and dev work, Claude Code is dramatically cheaper. For runtime agents, you cannot substitute Claude Code — that is what Agentforce is for."
+  - q: "Will Claude Code deprecate Agentforce?"
+    a: "No. They are orthogonal. The bet for 2026 is admins using Claude Code to ship while Agentforce runs the in-org agents the team has already built."
 ---
 
 If you're a Salesforce Admin looking at AI tools in 2026, the two names that keep coming up are **Agentforce** (Salesforce's official agent platform) and **Claude Code** (Anthropic's terminal-based coding agent). They sound like they do the same thing. They don't.
@@ -14,7 +27,7 @@ This is the decision framework I wish someone had given me when I was comparing 
 
 **Agentforce** is a Salesforce product. It lives inside your org, you configure it via Setup and Agent Script, and the agents it creates run inside Salesforce to help *your users* (sales reps, service agents, customers). It's priced per-user, roughly $125–$550/user/month depending on the SKU, plus implementation.
 
-**Claude Code** is a CLI tool from Anthropic. You run it from your own terminal. It connects to your Salesforce org via the Salesforce DX CLI, and it helps *you* — the admin or builder — do your job faster. You pay $20/month for a Claude Pro subscription (Claude Max is highly recommended for longer agent runs). No per-user Salesforce add-on.
+**Claude Code** is a CLI tool from Anthropic. You run it from your own terminal. It connects to your Salesforce org via the Salesforce DX CLI, and it helps *you* — the admin or builder — do your job faster. You pay $20/month for a Claude Pro subscription. No per-user Salesforce add-on.
 
 One is a product your org runs for users. The other is a tool you run for yourself.
 
@@ -35,7 +48,7 @@ The split is clean once you see it: **Claude Code is for building Salesforce. Ag
 
 ## Why the cost comparison is misleading
 
-People look at "$20/month vs $125/user/month" and think Claude Code is 6× cheaper. That's not the right comparison — they're doing different jobs.
+People look at "$20/month vs $125/user/month per seat" and think Claude Code is barely cheaper. That's not the right comparison — they're doing different jobs.
 
 A more honest framing:
 
@@ -61,7 +74,7 @@ Claude Code is the editor. Agentforce is the runtime. They're not competing — 
 ## Licensing and prerequisites
 
 **Claude Code needs:**
-- A Claude subscription: Pro ($20/month) or Max (recommended for long runs)
+- A Claude Pro subscription ($20/month) — required to use Claude Code
 - A Salesforce org that supports DX — Enterprise, Unlimited, or Developer edition
 - A terminal (macOS, Linux, or Windows via WSL)
 
@@ -77,7 +90,7 @@ The procurement path alone is the difference between a Tuesday afternoon decisio
 
 ## Bottom line
 
-If you're an admin trying to move faster on daily work, **start with Claude Code**. It's a $20 experiment. You'll know in a week whether it fits your workflow.
+If you're an admin trying to move faster on daily work, **start with Claude Code**. $20/month on the Claude Pro plan is a one-month experiment — you'll know inside a week whether the workflow fits.
 
 If you're building a customer-facing or employee-facing agent as a product, that's **Agentforce territory** — and you probably want Claude Code on your laptop to help you build it.
 
