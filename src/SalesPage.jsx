@@ -1069,7 +1069,7 @@ function BuildStack({ builds }) {
   );
 }
 
-const WALKTHROUGH_EMBED_URL = "https://iframe.mediadelivery.net/embed/649324/252378e4-2c62-497a-9a8c-f3e06e7db083?autoplay=true&preload=true&playsinline=true&muted=false&responsive=true";
+const WALKTHROUGH_EMBED_URL = "https://player.mediadelivery.net/embed/649324/964a7aed-07dc-42ef-ae34-2c358caa9f51?autoplay=true&loop=true&muted=true&preload=true&responsive=true";
 
 function VideoModal({ open, onClose, src, title }) {
   useEffect(() => {

@@ -325,8 +325,11 @@
     pointer-events: none;
   }
   .ccsf-root .nav.scrolled {
-    background: transparent;
-    border-bottom-color: transparent;
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom-color: var(--border);
+    pointer-events: auto;
   }
   .ccsf-root .nav-mark,
   .ccsf-root .theme-toggle,
