@@ -404,6 +404,8 @@ const RIBBON_HOVER_SPEED = 0.022;  // slowed-down speed when desktop user hovers
 const RIBBON_REPS = 12;            // how many times to repeat the tagline list inside textPath
 
 function Marquee() {
+  const sectionRef = useRef(null);
+  const stageRef = useRef(null);
   const textPathRef = useRef(null);
   const pathRef = useRef(null);
   const speedRef = useRef(RIBBON_BASE_SPEED);
@@ -468,6 +470,77 @@ function Marquee() {
     };
   }, []);
 
+  // Desktop-only mouse-follow parallax. Tracks cursor over the section,
+  // lerps a transform on the stage. Skipped on touch devices.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!canHover) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const section = sectionRef.current;
+    const stage = stageRef.current;
+    if (!section || !stage) return;
+
+    let targetX = 0, targetY = 0; // -1..1
+    let curX = 0, curY = 0;
+    let raf = 0;
+    let active = false;
+
+    const apply = () => {
+      const tx = curX * 36;          // px
+      const ty = curY * 18;          // px
+      const rot = curX * 2.4;        // deg
+      stage.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) rotate(${rot.toFixed(2)}deg)`;
+    };
+
+    const tick = () => {
+      // Lerp toward target with damping
+      curX += (targetX - curX) * 0.09;
+      curY += (targetY - curY) * 0.09;
+      apply();
+      // Stop the loop when essentially at rest and not active
+      const settled = Math.abs(curX - targetX) < 0.001 && Math.abs(curY - targetY) < 0.001;
+      if (active || !settled) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        raf = 0;
+      }
+    };
+
+    const ensureLoop = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    const onMove = (e) => {
+      const r = section.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;   // 0..1
+      const y = (e.clientY - r.top) / r.height;   // 0..1
+      targetX = Math.max(-1, Math.min(1, (x - 0.5) * 2));
+      targetY = Math.max(-1, Math.min(1, (y - 0.5) * 2));
+      ensureLoop();
+    };
+    const onEnter = () => { active = true; ensureLoop(); };
+    const onLeave = () => {
+      active = false;
+      targetX = 0;
+      targetY = 0;
+      ensureLoop();
+    };
+
+    section.addEventListener("mouseenter", onEnter);
+    section.addEventListener("mouseleave", onLeave);
+    section.addEventListener("mousemove", onMove);
+
+    return () => {
+      section.removeEventListener("mouseenter", onEnter);
+      section.removeEventListener("mouseleave", onLeave);
+      section.removeEventListener("mousemove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+      stage.style.transform = "";
+    };
+  }, []);
+
   const handleEnter = () => { speedRef.current = RIBBON_HOVER_SPEED; };
   const handleLeave = () => { speedRef.current = RIBBON_BASE_SPEED; };
 
@@ -475,10 +548,11 @@ function Marquee() {
     <section
       className="ribbon-section"
       aria-label="Course taglines"
+      ref={sectionRef}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      <div className="ribbon-stage">
+      <div className="ribbon-stage" ref={stageRef}>
         <svg
           className="ribbon-svg"
           viewBox="0 0 1600 460"
@@ -1765,10 +1839,64 @@ function ThrivecartEmbed() {
   );
 }
 
+/* Small SLDS-flavored object icons (Contact / Account / Opportunity) for bonus cards.
+   Colors approximate the Salesforce Lightning standard-icon palette so an admin
+   recognizes them at a glance. */
+function SObjectIcon({ kind }) {
+  const ICONS = {
+    contact: {
+      bg: "#A094ED",
+      label: "Contact",
+      glyph: (
+        <g fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="9" r="3.6" />
+          <path d="M5 19.5c0-3.6 3.1-6 7-6s7 2.4 7 6" />
+        </g>
+      ),
+    },
+    account: {
+      bg: "#F88962",
+      label: "Account",
+      glyph: (
+        <g fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5.5 21V8.2L12 4.5l6.5 3.7V21" />
+          <path d="M3.5 21h17" />
+          <path d="M9 12h2M13 12h2M9 16h2M13 16h2" />
+        </g>
+      ),
+    },
+    opportunity: {
+      bg: "#FCB95B",
+      label: "Opportunity",
+      glyph: (
+        <g fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3.8" y="7.5" width="16.4" height="12.5" rx="1.6" />
+          <path d="M9 7.5V5.6c0-.9.7-1.6 1.6-1.6h2.8c.9 0 1.6.7 1.6 1.6v1.9" />
+          <path d="M3.8 13h16.4" />
+        </g>
+      ),
+    },
+  };
+  const data = ICONS[kind] || ICONS.contact;
+  return (
+    <div
+      className="bonus-card-icon"
+      style={{ background: data.bg }}
+      role="img"
+      aria-label={`${data.label} icon`}
+    >
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        {data.glyph}
+      </svg>
+    </div>
+  );
+}
+
 function PricingBonuses() {
   const bonuses = [
     {
       tag: "Bonus 01",
+      icon: "contact",
       label: "The Inner Circle",
       title: "Private Slack for course members.",
       sub: "When 'just ask the team' isn't an option.",
@@ -1778,6 +1906,7 @@ function PricingBonuses() {
     },
     {
       tag: "Bonus 02",
+      icon: "account",
       label: "The Production Vault",
       title: "Real Claude Code transcripts from real orgs.",
       sub: "Every Salesforce prompt I've shipped.",
@@ -1787,6 +1916,7 @@ function PricingBonuses() {
     },
     {
       tag: "Bonus 03",
+      icon: "opportunity",
       label: "The Plugin Pack",
       title: "Handpicked Claude Code plugins for serious leverage.",
       sub: "My personal plugin stack for faster Claude Code work.",
@@ -1817,6 +1947,7 @@ function PricingBonuses() {
       <div className="pricing-bonuses-grid">
         {bonuses.map((b) => (
           <article key={b.tag} className="bonus-card">
+            <SObjectIcon kind={b.icon} />
             <div className="bonus-card-head">
               <span className="bonus-card-tag">{b.tag}</span>
               <span className="bonus-card-worth">value <strong>{b.worth}</strong></span>

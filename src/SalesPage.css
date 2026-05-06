@@ -2624,6 +2624,17 @@
     transform: translateY(-8px) rotate(-0.7deg);
   }
 }
+.ccsf-root .bonus-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  box-shadow: 0 4px 10px -4px rgba(26, 25, 22, 0.18);
+  margin-bottom: -4px;
+}
 .ccsf-root .bonus-card-head {
   display: flex;
   justify-content: space-between;
