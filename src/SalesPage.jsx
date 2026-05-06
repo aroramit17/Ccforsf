@@ -399,46 +399,14 @@ function Hero() {
 }
 
 const RIBBON_PATH = "M -120 230 C 240 60, 540 400, 820 200 S 1380 40, 1720 230";
+const RIBBON_BASE_SPEED = 0.085;   // % of path length per frame at 60fps
+const RIBBON_HOVER_SPEED = 0.022;  // slowed-down speed when desktop user hovers
+const RIBBON_REPS = 12;            // how many times to repeat the tagline list inside textPath
 
 function Marquee() {
-  const sectionRef = useRef(null);
-  const [progress, setProgress] = useState(0.5);
-  const [reduceMotion, setReduceMotion] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduceMotion(mq.matches);
-    const onChange = (e) => setReduceMotion(e.matches);
-    mq.addEventListener?.("change", onChange);
-    return () => mq.removeEventListener?.("change", onChange);
-  }, []);
-
-  useEffect(() => {
-    let raf = 0;
-    const compute = () => {
-      raf = 0;
-      const el = sectionRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const winH = window.innerHeight || document.documentElement.clientHeight;
-      const total = rect.height + winH;
-      const scrolled = winH - rect.top;
-      const p = Math.max(0, Math.min(1, scrolled / total));
-      setProgress(p);
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(compute);
-    };
-    compute();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
+  const textPathRef = useRef(null);
+  const pathRef = useRef(null);
+  const speedRef = useRef(RIBBON_BASE_SPEED);
 
   const items = [
     "Flow builder, faster",
@@ -450,19 +418,67 @@ function Marquee() {
     "Claude Code as partner",
     "Org-aware execution",
   ];
-  const ribbonText = [...items, ...items, ...items].join("    ✱    ");
+  const oneCycle = items.join("    ✱    ") + "    ✱    ";
+  const ribbonText = oneCycle.repeat(RIBBON_REPS);
 
-  const p = reduceMotion ? 0.5 : progress;
-  const translateY = (0.5 - p) * 280;
-  const rotate = (p - 0.5) * 5;
-  const startOffset = `${(1 - p) * 22}%`;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let raf = 0;
+    let offset = 0;
+    let cyclePercent = 12; // fallback; replaced after first measurement
+
+    const measure = () => {
+      const tp = textPathRef.current;
+      const path = pathRef.current;
+      if (!tp || !path) return;
+      try {
+        const pathLen = path.getTotalLength();
+        const textLen = tp.getComputedTextLength();
+        if (pathLen > 0 && textLen > 0) {
+          const cycleLen = textLen / RIBBON_REPS;
+          cyclePercent = (cycleLen / pathLen) * 100;
+        }
+      } catch {
+        /* getComputedTextLength can throw if not yet laid out */
+      }
+    };
+
+    const loop = () => {
+      offset -= speedRef.current;
+      if (offset <= -cyclePercent) offset += cyclePercent;
+      const tp = textPathRef.current;
+      if (tp) tp.setAttribute("startOffset", `${offset}%`);
+      raf = requestAnimationFrame(loop);
+    };
+
+    // Wait one frame so the textPath has been laid out before we measure
+    requestAnimationFrame(() => {
+      measure();
+      raf = requestAnimationFrame(loop);
+    });
+
+    const onResize = () => measure();
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  const handleEnter = () => { speedRef.current = RIBBON_HOVER_SPEED; };
+  const handleLeave = () => { speedRef.current = RIBBON_BASE_SPEED; };
 
   return (
-    <section className="ribbon-section" ref={sectionRef} aria-label="Course taglines">
-      <div
-        className="ribbon-stage"
-        style={{ transform: `translate3d(0, ${translateY.toFixed(1)}px, 0) rotate(${rotate.toFixed(2)}deg)` }}
-      >
+    <section
+      className="ribbon-section"
+      aria-label="Course taglines"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      <div className="ribbon-stage">
         <svg
           className="ribbon-svg"
           viewBox="0 0 1600 460"
@@ -470,16 +486,16 @@ function Marquee() {
           aria-hidden="true"
         >
           <defs>
-            <path id="ribbon-curve" d={RIBBON_PATH} fill="none" />
+            <path id="ribbon-curve" ref={pathRef} d={RIBBON_PATH} fill="none" />
             <linearGradient id="ribbon-grad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
               <stop offset="55%" stopColor="#F5F1E8" />
               <stop offset="100%" stopColor="#E5DFCD" />
             </linearGradient>
             <filter id="ribbon-shadow" x="-10%" y="-10%" width="120%" height="160%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
-              <feOffset dy="10" />
-              <feComponentTransfer><feFuncA type="linear" slope="0.22" /></feComponentTransfer>
+              <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
+              <feOffset dy="6" />
+              <feComponentTransfer><feFuncA type="linear" slope="0.18" /></feComponentTransfer>
               <feMerge>
                 <feMergeNode />
                 <feMergeNode in="SourceGraphic" />
@@ -491,11 +507,11 @@ function Marquee() {
               d={RIBBON_PATH}
               fill="none"
               stroke="url(#ribbon-grad)"
-              strokeWidth="76"
+              strokeWidth="40"
               strokeLinecap="round"
             />
             <text className="ribbon-text">
-              <textPath href="#ribbon-curve" startOffset={startOffset}>
+              <textPath ref={textPathRef} href="#ribbon-curve" startOffset="0%">
                 {ribbonText}
               </textPath>
             </text>
