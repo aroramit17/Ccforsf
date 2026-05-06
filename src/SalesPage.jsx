@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import SEO from "./components/SEO.jsx";
+import PromoBar from "./components/PromoBar.jsx";
 import { getFeaturedHomepageGuides } from "./lib/posts.js";
 import "./SalesPage.css";
 
@@ -397,7 +398,48 @@ function Hero() {
   );
 }
 
+const RIBBON_PATH = "M -120 230 C 240 60, 540 400, 820 200 S 1380 40, 1720 230";
+
 function Marquee() {
+  const sectionRef = useRef(null);
+  const [progress, setProgress] = useState(0.5);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduceMotion(mq.matches);
+    const onChange = (e) => setReduceMotion(e.matches);
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    let raf = 0;
+    const compute = () => {
+      raf = 0;
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const winH = window.innerHeight || document.documentElement.clientHeight;
+      const total = rect.height + winH;
+      const scrolled = winH - rect.top;
+      const p = Math.max(0, Math.min(1, scrolled / total));
+      setProgress(p);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(compute);
+    };
+    compute();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   const items = [
     "Flow builder, faster",
     "Validation rules in plain English",
@@ -408,13 +450,60 @@ function Marquee() {
     "Claude Code as partner",
     "Org-aware execution",
   ];
-  const doubled = [...items, ...items];
+  const ribbonText = [...items, ...items, ...items].join("    ✱    ");
+
+  const p = reduceMotion ? 0.5 : progress;
+  const translateY = (0.5 - p) * 280;
+  const rotate = (p - 0.5) * 5;
+  const startOffset = `${(1 - p) * 22}%`;
+
   return (
-    <div className="marquee">
-      <div className="marquee-track">
-        {doubled.map((t, i) => <span className="marquee-item" key={i}>{t}</span>)}
+    <section className="ribbon-section" ref={sectionRef} aria-label="Course taglines">
+      <div
+        className="ribbon-stage"
+        style={{ transform: `translate3d(0, ${translateY.toFixed(1)}px, 0) rotate(${rotate.toFixed(2)}deg)` }}
+      >
+        <svg
+          className="ribbon-svg"
+          viewBox="0 0 1600 460"
+          preserveAspectRatio="xMidYMid slice"
+          aria-hidden="true"
+        >
+          <defs>
+            <path id="ribbon-curve" d={RIBBON_PATH} fill="none" />
+            <linearGradient id="ribbon-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="55%" stopColor="#F5F1E8" />
+              <stop offset="100%" stopColor="#E5DFCD" />
+            </linearGradient>
+            <filter id="ribbon-shadow" x="-10%" y="-10%" width="120%" height="160%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
+              <feOffset dy="10" />
+              <feComponentTransfer><feFuncA type="linear" slope="0.22" /></feComponentTransfer>
+              <feMerge>
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <g filter="url(#ribbon-shadow)">
+            <path
+              d={RIBBON_PATH}
+              fill="none"
+              stroke="url(#ribbon-grad)"
+              strokeWidth="76"
+              strokeLinecap="round"
+            />
+            <text className="ribbon-text">
+              <textPath href="#ribbon-curve" startOffset={startOffset}>
+                {ribbonText}
+              </textPath>
+            </text>
+          </g>
+        </svg>
       </div>
-    </div>
+      <p className="ribbon-sr">{items.join(" · ")}</p>
+    </section>
   );
 }
 
@@ -1665,8 +1754,8 @@ function PricingBonuses() {
     {
       tag: "Bonus 01",
       label: "The Inner Circle",
-      sub: "Private Slack for course members.",
-      title: "When 'just ask the team' isn't an option.",
+      title: "Private Slack for course members.",
+      sub: "When 'just ask the team' isn't an option.",
       body: "You're the solo admin. Or the senior on a two-person team. Either way, there's no Slack channel to drop your weird Flow error into at 4:55pm on a Friday. This one is. Working admins, the instructor, and the kind of community where 'is this CPU-time limit normal?' gets answered in 12 minutes, not 12 days.",
       worth: "$499",
       tagline: "Lifetime access",
@@ -1674,8 +1763,8 @@ function PricingBonuses() {
     {
       tag: "Bonus 02",
       label: "The Production Vault",
-      sub: "Real Claude Code transcripts from real orgs.",
-      title: "Every Salesforce prompt I've shipped.",
+      title: "Real Claude Code transcripts from real orgs.",
+      sub: "Every Salesforce prompt I've shipped.",
       body: "The unedited Claude Code sessions I run against production Salesforce orgs: the prompts that worked, the dead ends I had to back out of, the recovery patterns when Claude got it wrong. The kind of senior-architect ride-along that normally costs $5,000 in consulting time.",
       worth: "$799",
       tagline: "Field-tested sessions",
@@ -1683,8 +1772,8 @@ function PricingBonuses() {
     {
       tag: "Bonus 03",
       label: "The Plugin Pack",
-      sub: "Handpicked Claude Code plugins for serious leverage.",
-      title: "My personal plugin stack for faster Claude Code work.",
+      title: "Handpicked Claude Code plugins for serious leverage.",
+      sub: "My personal plugin stack for faster Claude Code work.",
       body: "You get the exact plugins I use to make Claude Code more useful across real projects, including Superpowers and Claude Mem. These are the productivity boosters, memory tools, workflow helpers, and repo habits I trust when I want Claude to move faster without losing context.",
       worth: "$249",
       tagline: "Curated by Amit",
@@ -2025,6 +2114,7 @@ export default function SalesPage() {
       />
 
       <a href="#main-content" className="skip-link">Skip to main content</a>
+      <PromoBar />
       <Nav />
       <StickyEnroll />
       <main id="main-content" tabIndex={-1}>
