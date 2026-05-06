@@ -1,0 +1,91 @@
+name: Draft next blog post
+
+# Schedules a daily run that picks the next queued topic from
+# content/topic-queue.yaml, asks OpenAI to draft an MDX post, flips the
+# topic's status to "drafted", and opens a PR for review.
+#
+# Setup required (one-time):
+#   1. Add repo secret OPENAI_API_KEY (Settings -> Secrets and variables ->
+#      Actions). Note: this is a GitHub secret, NOT a Vercel env var --
+#      Vercel only handles the deployed site.
+#   2. Settings -> Actions -> General -> Workflow permissions ->
+#      "Read and write permissions" + "Allow GitHub Actions to create
+#      and approve pull requests".
+#
+# Manual run: Actions -> "Draft next blog post" -> Run workflow.
+
+on:
+  schedule:
+    # 14:00 UTC weekdays = 9am ET / 6am PT. Tweak as desired.
+    - cron: '0 14 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'OpenAI model (default gpt-5)'
+        required: false
+        default: 'gpt-5'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Pick next queued topic
+        id: pick
+        run: node scripts/pick-next-topic.mjs
+
+      - name: Skip if queue empty
+        if: steps.pick.outputs.has_topic != 'true'
+        run: |
+          echo "Topic queue has no 'queued' entries — nothing to draft."
+          echo 'Add topics with: npm run queue:add -- "Title" "Angle"'
+
+      - name: Draft post with OpenAI
+        if: steps.pick.outputs.has_topic == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ inputs.model || 'gpt-5' }}
+        run: node scripts/draft-blog-post.mjs
+
+      - name: Open draft PR
+        if: steps.pick.outputs.has_topic == 'true'
+        uses: peter-evans/create-pull-request@v6
+        env:
+          PR_TITLE: 'Draft: ${{ steps.pick.outputs.title }}'
+          BRANCH_NAME: drafts/${{ steps.pick.outputs.slug }}
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          delete-branch: true
+          commit-message: ${{ env.PR_TITLE }}
+          title: ${{ env.PR_TITLE }}
+          body: |
+            ## Auto-drafted blog post
+
+            Drafted by the daily blog pipeline (`.github/workflows/draft-blog-post.yml`).
+            Slug, title, angle and keywords are pulled from `content/topic-queue.yaml`.
+            Generation model: OpenAI (configurable via the workflow_dispatch input).
+
+            **Before merging:**
+            - [ ] Read end-to-end; trim hype and tighten sentences
+            - [ ] Verify any code / metadata example actually works
+            - [ ] Confirm internal links resolve
+            - [ ] After merge, flip the queue entry status from `drafted` to `shipped`
+          labels: |
+            blog
+            ai-drafted
