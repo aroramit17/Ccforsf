@@ -16,6 +16,23 @@
         } catch (e) {}
       })();
     </script>
+
+    <!-- Google tag (gtag.js) — gated on Do Not Track per CLAUDE.md Rule 6 -->
+    <script>
+      (function () {
+        var dnt = (navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.msDoNotTrack === "1");
+        if (dnt) return;
+        var s = document.createElement("script");
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=G-5M4FMP2VJP";
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ window.dataLayer.push(arguments); }
+        window.gtag = gtag;
+        gtag("js", new Date());
+        gtag("config", "G-5M4FMP2VJP");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
