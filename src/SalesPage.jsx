@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import SEO from "./components/SEO.jsx";
 import PromoBar from "./components/PromoBar.jsx";
 import { getFeaturedHomepageGuides } from "./lib/posts.js";
@@ -1248,7 +1249,143 @@ function BuildStack({ builds }) {
   );
 }
 
-const WALKTHROUGH_EMBED_URL = "https://player.mediadelivery.net/embed/649324/964a7aed-07dc-42ef-ae34-2c358caa9f51?autoplay=true&loop=true&muted=true&preload=true&responsive=true";
+const WALKTHROUGH_EMBED_URL = "https://player.mediadelivery.net/embed/649324/252378e4-2c62-497a-9a8c-f3e06e7db083?autoplay=true&loop=true&muted=true&preload=true&responsive=true";
+
+function FloatingVideo({ targetRef, src, title }) {
+  const containerRef = useRef(null);
+  const [dismissed, setDismissed] = useState(false);
+  const [mini, setMini] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || dismissed) return;
+    const target = targetRef.current;
+    const container = containerRef.current;
+    if (!target || !container) return;
+
+    const TRANSITION = "top 0.4s cubic-bezier(0.4,0,0.2,1), left 0.4s cubic-bezier(0.4,0,0.2,1), right 0.4s cubic-bezier(0.4,0,0.2,1), width 0.4s cubic-bezier(0.4,0,0.2,1), height 0.4s cubic-bezier(0.4,0,0.2,1), border-radius 0.4s ease, box-shadow 0.4s ease";
+    let isMini = true;
+    let rafId = null;
+    let transitionTimer = null;
+
+    const applyMini = () => {
+      container.style.transition = TRANSITION;
+      container.style.top = "84px";
+      container.style.left = "auto";
+      container.style.right = "16px";
+      container.style.width = "min(320px, 38vw)";
+      container.style.height = "calc(min(320px, 38vw) * 0.5625)";
+      container.style.borderRadius = "12px";
+      container.style.boxShadow = "0 14px 40px rgba(0,0,0,0.32), 0 4px 12px rgba(0,0,0,0.18)";
+      if (transitionTimer) clearTimeout(transitionTimer);
+      transitionTimer = setTimeout(() => {
+        // keep transition for resize comfort; cleared per-frame in inline mode
+      }, 420);
+    };
+
+    const applyInline = (rect) => {
+      container.style.transition = TRANSITION;
+      container.style.top = rect.top + "px";
+      container.style.left = rect.left + "px";
+      container.style.right = "auto";
+      container.style.width = rect.width + "px";
+      container.style.height = rect.height + "px";
+      container.style.borderRadius = "0px";
+      container.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+      if (transitionTimer) clearTimeout(transitionTimer);
+      transitionTimer = setTimeout(() => {
+        // After morphing into place, drop the transition so scroll-tracking
+        // can update top/left every frame without lerping.
+        container.style.transition = "none";
+      }, 420);
+    };
+
+    const trackInline = (rect) => {
+      container.style.top = rect.top + "px";
+      container.style.left = rect.left + "px";
+      container.style.width = rect.width + "px";
+      container.style.height = rect.height + "px";
+    };
+
+    const update = () => {
+      rafId = null;
+      const rect = target.getBoundingClientRect();
+      const inView = rect.bottom > 84 && rect.top < window.innerHeight - 40;
+      if (inView) {
+        if (isMini) {
+          isMini = false;
+          setMini(false);
+          applyInline(rect);
+        } else {
+          // continuous tracking — no transition, just position
+          trackInline(rect);
+        }
+      } else {
+        if (!isMini) {
+          isMini = true;
+          setMini(true);
+          applyMini();
+        }
+        // mini state is static; do nothing per frame
+      }
+    };
+
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(update);
+    };
+
+    // initial paint as mini
+    applyMini();
+    // measure once after mount in case the placeholder is already in view on load
+    requestAnimationFrame(update);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (transitionTimer) clearTimeout(transitionTimer);
+    };
+  }, [targetRef, dismissed, mounted]);
+
+  if (!mounted || dismissed) return null;
+
+  return createPortal(
+    <div
+      ref={containerRef}
+      className={`floating-video ${mini ? "is-mini" : "is-inline"}`}
+      role="region"
+      aria-label={title}
+      style={{ position: "fixed", zIndex: 50, overflow: "hidden", background: "#000" }}
+    >
+      <iframe
+        src={src}
+        title={title}
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
+        allowFullScreen
+        loading="lazy"
+        style={{ border: 0, width: "100%", height: "100%", display: "block" }}
+      />
+      {mini && (
+        <button
+          type="button"
+          className="floating-video-close"
+          aria-label="Close mini player"
+          onClick={() => setDismissed(true)}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      )}
+    </div>,
+    document.body
+  );
+}
 
 function VideoModal({ open, onClose, src, title }) {
   useEffect(() => {
@@ -1284,7 +1421,7 @@ function VideoModal({ open, onClose, src, title }) {
 }
 
 function Walkthrough() {
-  const [videoOpen, setVideoOpen] = useState(false);
+  const videoTargetRef = useRef(null);
   const beats = [
     {
       t: "00:12",
@@ -1333,40 +1470,16 @@ function Walkthrough() {
             <span>UpdateContactRoleOnClosedWon.flow-meta.xml</span>
             <span style={{ color: "var(--accent)" }}>● live · 3 min</span>
           </div>
-          <div className="walkthrough-video">
-            <button
-              type="button"
-              className="walkthrough-poster walkthrough-poster-button has-thumb"
-              aria-label="Play demo video"
-              onClick={() => setVideoOpen(true)}
-            >
-              <picture>
-                <source
-                  type="image/avif"
-                  srcSet="/images/walkthrough-thumb-400.avif 400w, /images/walkthrough-thumb-800.avif 800w, /images/walkthrough-thumb-1200.avif 1200w"
-                  sizes="(max-width: 1000px) 100vw, 1000px"
-                />
-                <source
-                  type="image/webp"
-                  srcSet="/images/walkthrough-thumb-400.webp 400w, /images/walkthrough-thumb-800.webp 800w, /images/walkthrough-thumb-1200.webp 1200w"
-                  sizes="(max-width: 1000px) 100vw, 1000px"
-                />
-                <img
-                  className="walkthrough-poster-img"
-                  src="/walkthrough-thumb.png"
-                  alt="Demo: Claude Code generating Salesforce metadata in VS Code"
-                  width="1870"
-                  height="920"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </picture>
-              <div className="walkthrough-poster-overlay" aria-hidden="true" />
-              <div className="walkthrough-play" aria-hidden="true">▶</div>
-              <div className="walkthrough-poster-label">Demo recording · 3 min</div>
-              <div className="walkthrough-poster-sub">Click to watch the full walkthrough.</div>
-            </button>
-          </div>
+          <div
+            ref={videoTargetRef}
+            className="walkthrough-video walkthrough-video-placeholder"
+            aria-hidden="true"
+          />
+          <FloatingVideo
+            targetRef={videoTargetRef}
+            src={WALKTHROUGH_EMBED_URL}
+            title="Claude Code for Salesforce: live walkthrough"
+          />
           <figcaption className="walkthrough-caption">
             <span style={{ fontFamily: "var(--mono)", fontSize: "10px", letterSpacing: "0.12em", color: "var(--ink-500)", textTransform: "uppercase" }}>
               Caption
@@ -1390,12 +1503,6 @@ function Walkthrough() {
           ))}
         </div>
       </div>
-      <VideoModal
-        open={videoOpen}
-        onClose={() => setVideoOpen(false)}
-        src={WALKTHROUGH_EMBED_URL}
-        title="Claude Code for Salesforce: live walkthrough"
-      />
     </section>
   );
 }
