@@ -1,0 +1,57 @@
+{
+  "home": {
+    "violationCount": 1,
+    "incompleteCount": 1,
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "nodes": 1
+      }
+    ],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds"
+      }
+    ]
+  },
+  "homeChecks": {
+    "skip-link-focused-on-tab": {
+      "pass": true,
+      "detail": "{\"tagName\":\"A\",\"href\":\"#main-content\",\"className\":\"skip-link\",\"text\":\"Skip to main content\"}"
+    },
+    "skip-link-visible-when-focused": {
+      "pass": true,
+      "detail": "{\"top\":8,\"left\":8,\"width\":177.6875,\"height\":36}"
+    },
+    "main-landmark-exists": {
+      "pass": true,
+      "detail": "{\"id\":\"main-content\",\"tagName\":\"MAIN\",\"tabIndex\":-1}"
+    },
+    "faq-buttons-aria": {
+      "pass": true,
+      "detail": "{\"found\":7,\"errors\":[]}"
+    },
+    "curriculum-buttons-aria": {
+      "pass": false,
+      "detail": "{\"found\":0,\"errors\":[\"No buttons with id phase-head-N found\"]}"
+    },
+    "build-tabs-aria": {
+      "pass": false,
+      "detail": "{\"found\":false,\"errors\":[\"No [role=tablist] found\"]}"
+    }
+  },
+  "blogpost": {
+    "violationCount": 0,
+    "violations": []
+  },
+  "blogpostChecks": {
+    "newsletter-input-exists": {
+      "pass": false,
+      "detail": "{\"found\":false,\"error\":\"No email input found\"}"
+    }
+  }
+}
