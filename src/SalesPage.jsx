@@ -2011,6 +2011,7 @@ function Pricing() {
 
   return (
     <section className="section section-divider reveal" id="enroll">
+      <span id="pricing" aria-hidden="true" style={{ position: "absolute", marginTop: "-80px" }} />
       <div className="shell">
         <div className="block-head">
           <div className="eyebrow"><span className="num">11</span>Enrollment</div>

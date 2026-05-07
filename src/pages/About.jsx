@@ -191,7 +191,7 @@ export default function About() {
                 I build the GTM operating system your revenue team is missing. Now I'm teaching admins to do the same with Claude Code.
               </p>
               <div className="about-cta-row">
-                <a href="/#pricing" style={{ display: 'inline-block', padding: '12px 22px', background: COLORS.orange, color: '#fff', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.3 }}>
+                <a href="/#enroll" style={{ display: 'inline-block', padding: '12px 22px', background: COLORS.orange, color: '#fff', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.3 }}>
                   Get the course →
                 </a>
               </div>
@@ -369,7 +369,7 @@ export default function About() {
               title="CC for SF"
               body="The course you're already on. Salesforce Admins learn to ship Flows, fields, validation rules, and Apex with Claude Code instead of the click-tax."
               footer={(
-                <a href="/#pricing" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: COLORS.orange, textDecoration: 'none' }}>
+                <a href="/#enroll" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: COLORS.orange, textDecoration: 'none' }}>
                   Get the course →
                 </a>
               )}
@@ -396,14 +396,14 @@ export default function About() {
             Ready to stop clicking and start prompting? The course is the whole reason this site exists.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
-            <a href="/#pricing" style={{ display: 'inline-block', padding: '14px 26px', background: COLORS.orange, color: '#fff', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.3 }}>
+            <a href="/#enroll" style={{ display: 'inline-block', padding: '14px 26px', background: COLORS.orange, color: '#fff', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.3 }}>
               Get the course →
             </a>
           </div>
         </div>
       </section>
 
-      <a href="/#pricing" className="about-sticky-cta" aria-label="Get Lifetime Access for $97">
+      <a href="/#enroll" className="about-sticky-cta" aria-label="Get Lifetime Access for $97">
         Get Lifetime Access · $97 <span aria-hidden="true">→</span>
       </a>
     </BlogLayout>

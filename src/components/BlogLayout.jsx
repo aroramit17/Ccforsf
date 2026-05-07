@@ -56,7 +56,7 @@ export default function BlogLayout({ children }) {
           <div style={{ display: 'flex', gap: 22, alignItems: 'center' }}>
             <a href="/blog" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textSecondary, textDecoration: 'none' }}>Blog</a>
             <a href="/about" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: COLORS.textSecondary, textDecoration: 'none' }}>About</a>
-            <a href="/#pricing" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, color: '#fff', background: COLORS.orange, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', letterSpacing: 0.3 }}>Get the course →</a>
+            <a href="/#enroll" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, color: '#fff', background: COLORS.orange, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', letterSpacing: 0.3 }}>Get the course →</a>
           </div>
         </div>
       </nav>

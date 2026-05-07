@@ -45,6 +45,19 @@
         "https://connect.facebook.net/en_US/fbevents.js");
         fbq("init", "2060896631449556");
         fbq("track", "PageView");
+
+        // InitiateCheckout: any click on a buy CTA (links to #enroll, #pricing,
+        // or thrivecart). Single delegated handler so we don't have to wire
+        // every individual button in React.
+        document.addEventListener("click", function (ev) {
+          var a = ev.target.closest && ev.target.closest("a[href]");
+          if (!a) return;
+          var href = a.getAttribute("href") || "";
+          if (/#(enroll|pricing)$/.test(href) || /thrivecart\.com/.test(href)) {
+            try { if (window.fbq) fbq("track", "InitiateCheckout"); } catch (e) {}
+            try { if (window.gtag) gtag("event", "begin_checkout"); } catch (e) {}
+          }
+        });
       })();
     </script>
     <noscript><img height="1" width="1" style="display:none"
