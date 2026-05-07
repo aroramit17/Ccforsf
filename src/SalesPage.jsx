@@ -175,9 +175,11 @@ function Nav() {
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.setAttribute("data-menu-open", "true");
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      document.body.removeAttribute("data-menu-open");
     };
   }, [menuOpen]);
 
@@ -200,8 +202,6 @@ function Nav() {
           Enroll <span className="arrow">→</span>
         </a>
       </div>
-
-      <ThemeToggle className="theme-toggle--mobile" />
 
       <button
         type="button"
@@ -227,6 +227,10 @@ function Nav() {
         <a href="#curriculum" onClick={close}>Curriculum</a>
         <a href="#faq" onClick={close}>FAQ</a>
         <a href={ENROLL_HASH} onClick={close}>Pricing</a>
+        <div className="nav-mobile-theme">
+          <span className="nav-mobile-theme-label">Theme</span>
+          <ThemeToggle />
+        </div>
         <a href={ENROLL_HASH} className="btn btn--primary nav-mobile-cta" onClick={close}>
           Get Lifetime Access for $97 <span className="arrow">→</span>
         </a>
