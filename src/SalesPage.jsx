@@ -203,6 +203,8 @@ function Nav() {
         </a>
       </div>
 
+      <ThemeToggle className="theme-toggle--mobile" />
+
       <button
         type="button"
         className={`nav-burger ${menuOpen ? "nav-burger--open" : ""}`}

@@ -340,7 +340,8 @@
   .ccsf-root .nav-burger {
     display: inline-flex;
     position: fixed;
-    top: 16px;
+    /* sits below the promo bar (32px when shown, 0px when dismissed) */
+    top: calc(var(--promo-bar-h, 0px) + 16px);
     right: 16px;
     z-index: 210;
     border-color: transparent;
@@ -541,7 +542,19 @@ body[data-menu-open="true"] .floating-video { display: none !important; }
 .ccsf-root .theme-toggle--mobile { display: none; }
 @media (max-width: 768px) {
   .ccsf-root .theme-toggle--nav { display: none; }
-  .ccsf-root .theme-toggle--mobile { display: inline-flex; margin-right: 4px; }
+  .ccsf-root .theme-toggle--mobile {
+    display: inline-flex;
+    position: fixed;
+    /* vertically centred against the 40px burger (centre at +20px from
+       its top); toggle is 34px tall so 16 + (40-34)/2 = 19 lines them up */
+    top: calc(var(--promo-bar-h, 0px) + 19px);
+    right: 64px; /* left of burger (right:16, w:40) with 8px gap */
+    z-index: 210;
+    pointer-events: auto;
+  }
+  /* Hide the standalone toggle while the drawer is open — the menu has
+     its own Theme row, no need for two controls. */
+  body[data-menu-open="true"] .ccsf-root .theme-toggle--mobile { display: none; }
 }
 
 /* Sticky Enroll: appears on scroll, hidden on hero */
