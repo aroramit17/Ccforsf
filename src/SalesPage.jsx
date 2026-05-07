@@ -102,7 +102,7 @@ function SubText({ children, center }) {
 function CTAButton({ children, large, full, onClick }) {
   const [hover, setHover] = useState(false);
   return (
-    <button onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: large ? "18px 44px" : "14px 32px", width: full ? "100%" : "auto", background: hover ? COLORS.orangeHover : COLORS.orange, color: "#fff", border: "none", borderRadius: 8, fontSize: large ? 17 : 15, fontWeight: 800, fontFamily: "'DM Sans', sans-serif", cursor: "pointer", transition: "all 0.25s ease", transform: hover ? "translateY(-2px)" : "translateY(0)", boxShadow: hover ? `0 8px 32px ${COLORS.orangeGlow}` : `0 4px 16px rgba(218,119,86,0.2)`, letterSpacing: 0.3 }}>
+    <button onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: large ? "18px 44px" : "14px 32px", width: full ? "100%" : "auto", background: hover ? COLORS.orangeHover : COLORS.orange, color: COLORS.bg, border: "none", borderRadius: 8, fontSize: large ? 17 : 15, fontWeight: 800, fontFamily: "'DM Sans', sans-serif", cursor: "pointer", transition: "transform 0.25s ease, box-shadow 0.25s ease", transform: hover ? "translateY(-2px)" : "translateY(0)", boxShadow: hover ? `0 8px 32px ${COLORS.orangeGlow}` : `0 4px 16px rgba(218,119,86,0.2)`, letterSpacing: 0.3 }}>
       {children} <span style={{ fontSize: large ? 20 : 17 }}>→</span>
     </button>
   );
@@ -121,15 +121,29 @@ function Stars() {
   return <div style={{ display: "flex", gap: 2, marginBottom: 10 }}>{[...Array(5)].map((_, i) => <span key={i} style={{ color: COLORS.gold, fontSize: 13 }}>★</span>)}</div>;
 }
 
-function FAQItem({ q, a }) {
+function FAQItem({ q, a, idx }) {
   const [open, setOpen] = useState(false);
+  const btnId = `faq-q-${idx}`;
+  const panelId = `faq-a-${idx}`;
   return (
-    <div style={{ borderBottom: `1px solid ${COLORS.border}`, cursor: "pointer" }} onClick={() => setOpen(!open)}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0" }}>
+    <div style={{ borderBottom: `1px solid ${COLORS.border}` }}>
+      <button
+        id={btnId}
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen(!open)}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", width: "100%", background: "none", border: "none", cursor: "pointer", color: "inherit", textAlign: "left" }}
+      >
         <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15.5, fontWeight: 600, color: COLORS.textPrimary, paddingRight: 16 }}>{q}</span>
-        <span style={{ fontSize: 18, color: COLORS.orange, fontWeight: 400, transition: "transform 0.3s", transform: open ? "rotate(180deg)" : "rotate(0)", flexShrink: 0 }}>▾</span>
-      </div>
-      <div style={{ maxHeight: open ? 400 : 0, overflow: "hidden", transition: "max-height 0.3s ease" }}>
+        <span aria-hidden="true" style={{ fontSize: 18, color: COLORS.orange, fontWeight: 400, transition: "transform 0.3s", transform: open ? "rotate(180deg)" : "rotate(0)", flexShrink: 0 }}>▾</span>
+      </button>
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={btnId}
+        style={{ maxHeight: open ? 400 : 0, overflow: "hidden", transition: "max-height 0.3s ease" }}
+      >
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, color: COLORS.textSecondary, lineHeight: 1.7, margin: "0 0 18px", paddingRight: 40 }}>{a}</p>
       </div>
     </div>
@@ -197,6 +211,33 @@ function GlobalStyles() {
       .feat-row { transition: background 0.25s, border-color 0.25s, transform 0.2s; cursor: pointer; }
       .feat-row:hover { transform: translateX(4px); }
       @keyframes carouselSlide { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+      .skip-link {
+        position: absolute;
+        top: -48px;
+        left: 8px;
+        padding: 8px 18px;
+        background: ${COLORS.bg};
+        color: ${COLORS.textPrimary};
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 2px solid ${COLORS.orange};
+        border-radius: 6px;
+        z-index: 10000;
+      }
+      .skip-link:focus { top: 8px; }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
       @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(218,119,86,0.4); } 50% { box-shadow: 0 0 0 14px rgba(218,119,86,0); } }
       @keyframes unlockIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     `}</style>
@@ -223,14 +264,15 @@ export default function SalesPage() {
         jsonLd={HOMEPAGE_JSON_LD}
       />
       <GlobalStyles />
+      <a href="#main-content" className="skip-link">Skip to main content</a>
 
       {/* ── URGENCY BAR ── */}
       {showUrgency && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, background: COLORS.orange, padding: "10px 20px", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#fff", textAlign: "center" }}>
-            Launch pricing: <span style={{ textDecoration: "line-through", opacity: 0.7 }}>$197</span> → <strong>$97</strong> — one-time, lifetime access. Price goes up soon.
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: COLORS.bg, textAlign: "center" }}>
+            Launch pricing: <span style={{ textDecoration: "line-through" }}>$197</span> → <strong>$97</strong> — one-time, lifetime access. Price goes up soon.
           </span>
-          <button onClick={() => setShowUrgency(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 16, marginLeft: 12, padding: "0 4px" }}>×</button>
+          <button onClick={() => setShowUrgency(false)} aria-label="Dismiss announcement" style={{ background: "none", border: "none", color: "rgba(0,0,0,0.6)", cursor: "pointer", fontSize: 16, marginLeft: 12, padding: "0 4px" }}>×</button>
         </div>
       )}
 
@@ -238,17 +280,21 @@ export default function SalesPage() {
       <nav style={{ position: "fixed", top: showUrgency ? 37 : 0, left: 0, right: 0, zIndex: 150, padding: "0 20px", background: scrollY > 50 ? "rgba(10,10,10,0.92)" : "transparent", backdropFilter: scrollY > 50 ? "blur(16px)" : "none", transition: "all 0.4s ease", borderBottom: scrollY > 50 ? `1px solid ${COLORS.border}` : "none" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", height: 56 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5 }}>
-            <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.5)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
-            <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.18)" }}>__c</span>
+            <span aria-hidden="true">
+              <span style={{ color: COLORS.orange }}>cc</span>
+              <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
+              <span style={{ color: "rgba(255,255,255,0.5)" }}>for</span>
+              <span style={{ color: "rgba(255,255,255,0.25)" }}>_</span>
+              <span style={{ color: COLORS.sfBlue }}>sf</span>
+              <span style={{ color: "rgba(255,255,255,0.18)" }}>__c</span>
+            </span>
+            <span className="sr-only">CC for SF</span>
           </div>
           <CTAButton>Get Access</CTAButton>
         </div>
       </nav>
 
+      <main id="main-content" tabIndex={-1}>
       {/* ── HERO ── */}
       <section style={{ padding: showUrgency ? "140px 20px 56px" : "110px 20px 56px", position: "relative", overflow: "hidden" }}>
         {/* noise texture */}
@@ -280,7 +326,7 @@ export default function SalesPage() {
               {/* pricing + CTA */}
               <div style={{ animation: "fadeUp 0.6s ease both", animationDelay: "0.3s", marginBottom: 18, width: "100%", maxWidth: 440 }}>
                 <div className="hero-price-row" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, justifyContent: "inherit" }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 20, color: COLORS.textMuted, textDecoration: "line-through" }}>$197</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 20, color: COLORS.textSecondary, textDecoration: "line-through" }}>$197</span>
                   <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: -2 }}>$97</span>
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: COLORS.green, background: `rgba(34,197,94,0.12)`, padding: "4px 10px", borderRadius: 100 }}>SAVE 50%</span>
                 </div>
@@ -292,7 +338,7 @@ export default function SalesPage() {
                 {["∞ Lifetime Access", "Video Modules", "30-Day Guarantee"].map((t, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ color: COLORS.green, fontSize: 12 }}>✓</span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{t}</span>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textSecondary }}>{t}</span>
                   </div>
                 ))}
               </div>
@@ -316,7 +362,7 @@ export default function SalesPage() {
           ].map(([num, label], i) => (
             <div key={i} style={{ padding: "28px 20px", textAlign: "center", borderRight: i < 2 ? `1px solid ${COLORS.border}` : "none" }}>
               <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800, color: COLORS.orange, marginBottom: 4 }}>{num}</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textMuted }}>{label}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textSecondary }}>{label}</div>
             </div>
           ))}
         </div>
@@ -331,7 +377,7 @@ export default function SalesPage() {
           {[...Array(2)].map((_, setIdx) => (
             <div key={setIdx} style={{ display: "flex", gap: 12, paddingRight: 12 }}>
               {["Flows", "Apex Triggers", "Validation Rules", "Custom Fields", "Permission Sets", "Page Layouts", "LWC", "SOQL Queries", "Quick Actions", "Record-Triggered Flows", "Screen Flows", "Approval Processes"].map((tool, i) => (
-                <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textMuted, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: "10px 20px", whiteSpace: "nowrap", display: "flex", alignItems: "center", height: 42 }}>
+                <div key={i} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: COLORS.textSecondary, background: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: "10px 20px", whiteSpace: "nowrap", display: "flex", alignItems: "center", height: 42 }}>
                   {tool}
                 </div>
               ))}
@@ -656,13 +702,13 @@ export default function SalesPage() {
           <SectionLabel>FAQ</SectionLabel>
           <H2 center>Frequently asked questions.</H2>
         </div>
-        <FAQItem q="Do I need to know how to code?" a="No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." />
-        <FAQItem q="What do I need to get started?" a="A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
-        <FAQItem q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." />
-        <FAQItem q="How long do I have access?" a="Lifetime. Watch it once, come back anytime. All future updates are included." />
-        <FAQItem q="What if I don't like it?" a="Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." />
-        <FAQItem q="Is this safe for my production org?" a="Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." />
-        <FAQItem q="Is this affiliated with Salesforce or Anthropic?" a="No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." />
+        <FAQItem idx={0} q="Do I need to know how to code?" a="No. The whole course assumes zero coding background. Claude Code writes the code. You describe what you want in plain English." />
+        <FAQItem idx={1} q="What do I need to get started?" a="A Claude subscription (Pro is $20/month — Claude Max is highly recommended for longer agent runs) and a Salesforce org that supports Salesforce DX (Enterprise, Unlimited, or Developer edition). The course walks you through everything." />
+        <FAQItem idx={2} q="How is this different from Agentforce?" a="Agentforce is a Salesforce product that costs $125-$550/user/month plus implementation. Claude Code runs on a $20/month Claude Pro plan from Anthropic (Max is highly recommended) and connects directly to your org. No Salesforce add-on license needed." />
+        <FAQItem idx={3} q="How long do I have access?" a="Lifetime. Watch it once, come back anytime. All future updates are included." />
+        <FAQItem idx={4} q="What if I don't like it?" a="Go through the course and if you didn't find value or didn't level up your Salesforce admin skills, email me within 30 days for a full refund. No questions asked." />
+        <FAQItem idx={5} q="Is this safe for my production org?" a="Great question — security is the #1 concern for admins, and it should be. In this course we work in a Salesforce sandbox, not production. Claude Code respects Salesforce's existing security model — it uses the same API permissions your user already has. And when you're ready to push changes to production, you still follow the same rigorous deployment process (change sets, CI/CD, whatever your org uses). Nothing bypasses your existing safeguards." />
+        <FAQItem idx={6} q="Is this affiliated with Salesforce or Anthropic?" a="No. This is an independent course. Salesforce and Claude are trademarks of their respective companies." />
       </Section>
 
       {/* ── FINAL CTA ── */}
@@ -679,16 +725,21 @@ export default function SalesPage() {
         </div>
       </section>
 
+      </main>
+
       {/* ── FOOTER ── */}
       <footer style={{ background: COLORS.bg, padding: "32px 20px", borderTop: `1px solid ${COLORS.border}` }}>
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700 }}>
-            <span style={{ color: COLORS.orange }}>cc</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
-            <span style={{ color: "rgba(255,255,255,0.35)" }}>for</span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>_</span>
-            <span style={{ color: COLORS.sfBlue }}>sf</span>
-            <span style={{ color: "rgba(255,255,255,0.12)" }}>__c</span>
+            <span aria-hidden="true">
+              <span style={{ color: COLORS.orange }}>cc</span>
+              <span style={{ color: "rgba(255,255,255,0.5)" }}>_</span>
+              <span style={{ color: "rgba(255,255,255,0.5)" }}>for</span>
+              <span style={{ color: "rgba(255,255,255,0.5)" }}>_</span>
+              <span style={{ color: COLORS.textSecondary }}>sf</span>
+              <span style={{ color: "rgba(255,255,255,0.5)" }}>__c</span>
+            </span>
+            <span className="sr-only">CC for SF</span>
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             {[
@@ -699,7 +750,7 @@ export default function SalesPage() {
               <a key={i} href={item.href} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{item.label}</a>
             ))}
           </div>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.12)" }}>© 2026 AI with Amit</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: COLORS.textSecondary }}>© 2026 AI with Amit</span>
         </div>
       </footer>
     </div>
@@ -781,7 +832,7 @@ function Scene({ lines }) {
   const hold = 2.2;
   const total = lines.length * perLine + hold;
   return (
-    <div style={{
+    <div aria-hidden="true" style={{
       width: "100%",
       height: "100%",
       minHeight: 180,
@@ -1162,7 +1213,7 @@ function FeatureShowcase() {
               <span style={{ fontSize: 22, flexShrink: 0, marginTop: 1, filter: on ? "none" : "grayscale(0.3)", transition: "filter 0.2s" }}>{f.icon}</span>
               <span style={{ flex: 1 }}>
                 <span style={{ display: "block", fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15.5, fontWeight: 700, color: on ? "#fff" : COLORS.textPrimary, marginBottom: 4 }}>{f.title}</span>
-                <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: on ? COLORS.textSecondary : COLORS.textMuted, lineHeight: 1.5 }}>{f.desc}</span>
+                <span style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: COLORS.textSecondary, lineHeight: 1.5 }}>{f.desc}</span>
               </span>
               <span style={{ flexShrink: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: on ? COLORS.orange : "rgba(255,255,255,0.15)", marginTop: 2 }}>{String(i + 1).padStart(2, "0")}</span>
             </button>
@@ -1172,7 +1223,7 @@ function FeatureShowcase() {
 
       {/* RIGHT: live terminal demo */}
       <div style={{ height: "fit-content", alignSelf: "start" }}>
-        <div style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
+        <div aria-hidden="true" style={{ width: "100%", background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", border: `1px solid ${COLORS.border}` }}>
           <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
             <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
             <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
@@ -1279,14 +1330,15 @@ function ROICalculator() {
 }
 
 function RoiSlider({ label, value, onChange, min, max, step, display, hint }) {
+  const inputId = `roi-slider-${label.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
   return (
     <div style={{ marginBottom: 22 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-        <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: COLORS.textSecondary, letterSpacing: 0.2 }}>{label}</label>
+        <label htmlFor={inputId} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: COLORS.textSecondary, letterSpacing: 0.2 }}>{label}</label>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, color: COLORS.orange, letterSpacing: 0.3 }}>{display}</span>
       </div>
-      <input type="range" className="roi-slider" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
-      {hint && (<div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textMuted, marginTop: 6, lineHeight: 1.5 }}>{hint}</div>)}
+      <input id={inputId} type="range" className="roi-slider" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
+      {hint && (<div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: COLORS.textSecondary, marginTop: 6, lineHeight: 1.5 }}>{hint}</div>)}
     </div>
   );
 }
@@ -1418,12 +1470,12 @@ function HeroTerminal() {
     { t: "  leads by region to the right", c: "#A5D6FF" },
     { t: "  owner and notifies them in Slack.", c: "#A5D6FF" },
     { t: "", c: "" },
-    { t: "Reading dev-org metadata…", c: COLORS.textMuted },
-    { t: "Building Record-Triggered Flow…", c: COLORS.textMuted },
-    { t: "  → Decision: Region", c: COLORS.textMuted },
-    { t: "  → 4 assignment branches", c: COLORS.textMuted },
-    { t: "  → Slack notification action", c: COLORS.textMuted },
-    { t: "Deploying to dev-org…", c: COLORS.textMuted },
+    { t: "Reading dev-org metadata…", c: COLORS.textSecondary },
+    { t: "Building Record-Triggered Flow…", c: COLORS.textSecondary },
+    { t: "  → Decision: Region", c: COLORS.textSecondary },
+    { t: "  → 4 assignment branches", c: COLORS.textSecondary },
+    { t: "  → Slack notification action", c: COLORS.textSecondary },
+    { t: "Deploying to dev-org…", c: COLORS.textSecondary },
     { t: "", c: "" },
     { t: "✓ Route_Lead_By_Region · Active", c: COLORS.green },
     { t: "✓ 4/4 tests passing", c: COLORS.green },
@@ -1434,13 +1486,13 @@ function HeroTerminal() {
   const total = lines.length * perLine + hold;
 
   return (
-    <div style={{ width: "100%", maxWidth: 540, background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.08)", border: `1px solid ${COLORS.border}` }}>
+    <div aria-hidden="true" style={{ width: "100%", maxWidth: 540, background: "#0E0E14", borderRadius: 14, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(218,119,86,0.08)", border: `1px solid ${COLORS.border}` }}>
       {/* title bar */}
       <div style={{ padding: "11px 16px", background: "rgba(255,255,255,0.02)", display: "flex", gap: 7, alignItems: "center", borderBottom: `1px solid ${COLORS.border}` }}>
         <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FF5F57" }} />
         <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#FEBC2E" }} />
         <div style={{ width: 11, height: 11, borderRadius: "50%", background: "#28C840" }} />
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginLeft: 12 }}>amit@dev-org — claude</span>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textSecondary, marginLeft: 12 }}>amit@dev-org — claude</span>
       </div>
       {/* body */}
       <div style={{ padding: "18px 22px 22px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, lineHeight: 1.8, minHeight: 360 }}>
