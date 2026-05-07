@@ -1272,19 +1272,50 @@ function FloatingVideo({ targetRef, src, title }) {
     let rafId = null;
     let transitionTimer = null;
 
+    const computeMiniRect = () => {
+      // Mobile: bottom-right, above the full-width sticky CTA (~92px clearance).
+      // Desktop: top-right, below the promo bar + nav (~84px from top).
+      const isMobile = window.matchMedia("(max-width: 720px)").matches;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const w = isMobile ? Math.min(220, vw * 0.52) : Math.min(320, vw * 0.38);
+      const h = w * 0.5625;
+      const right = isMobile ? 12 : 16;
+      const left = vw - w - right;
+      const top = isMobile ? Math.max(16, vh - h - 92) : 84;
+      return { top, left, w, h };
+    };
+
     const applyMini = () => {
       container.style.transition = TRANSITION;
-      container.style.top = "84px";
-      container.style.left = "auto";
-      container.style.right = "16px";
-      container.style.width = "min(320px, 38vw)";
-      container.style.height = "calc(min(320px, 38vw) * 0.5625)";
+      const r = computeMiniRect();
+      container.style.top = r.top + "px";
+      container.style.left = r.left + "px";
+      container.style.right = "auto";
+      container.style.bottom = "auto";
+      container.style.width = r.w + "px";
+      container.style.height = r.h + "px";
       container.style.borderRadius = "12px";
       container.style.boxShadow = "0 14px 40px rgba(0,0,0,0.32), 0 4px 12px rgba(0,0,0,0.18)";
       if (transitionTimer) clearTimeout(transitionTimer);
       transitionTimer = setTimeout(() => {
         // keep transition for resize comfort; cleared per-frame in inline mode
       }, 420);
+    };
+
+    let lastVw = window.innerWidth;
+    let lastVh = window.innerHeight;
+    const trackMini = () => {
+      // Re-anchor only when viewport actually changes (resize / rotate).
+      if (window.innerWidth === lastVw && window.innerHeight === lastVh) return;
+      lastVw = window.innerWidth;
+      lastVh = window.innerHeight;
+      const r = computeMiniRect();
+      container.style.transition = "none";
+      container.style.top = r.top + "px";
+      container.style.left = r.left + "px";
+      container.style.width = r.w + "px";
+      container.style.height = r.h + "px";
     };
 
     const applyInline = (rect) => {
@@ -1329,8 +1360,10 @@ function FloatingVideo({ targetRef, src, title }) {
           isMini = true;
           setMini(true);
           applyMini();
+        } else {
+          // already mini — re-anchor on resize/rotate without re-animating
+          trackMini();
         }
-        // mini state is static; do nothing per frame
       }
     };
 
