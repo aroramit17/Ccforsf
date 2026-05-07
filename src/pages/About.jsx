@@ -103,16 +103,25 @@ function CertBadge({ name }) {
   )
 }
 
-function ProjectCard({ title, kind, body, href }) {
+function ProjectCard({ title, kind, body, footer }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
-      <article style={{ padding: 24, border: `1px solid ${COLORS.border}`, borderRadius: 14, background: '#fff', height: '100%', display: 'flex', flexDirection: 'column', gap: 10, transition: 'transform 0.2s ease, border-color 0.2s ease' }} className="project-card">
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, fontWeight: 600, letterSpacing: 1.8, color: COLORS.orange, textTransform: 'uppercase' }}>{kind}</div>
-        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 19, fontWeight: 800, color: COLORS.textPrimary, lineHeight: 1.25, letterSpacing: -0.3 }}>{title}</h3>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, lineHeight: 1.6, color: COLORS.textSecondary, flex: 1 }}>{body}</p>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: COLORS.orange }}>Visit →</div>
-      </article>
-    </a>
+    <article
+      className="project-card"
+      style={{
+        padding: 24,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: 14,
+        background: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      }}
+    >
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, fontWeight: 600, letterSpacing: 1.8, color: COLORS.orange, textTransform: 'uppercase' }}>{kind}</div>
+      <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 19, fontWeight: 800, color: COLORS.textPrimary, lineHeight: 1.25, letterSpacing: -0.3 }}>{title}</h3>
+      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14.5, lineHeight: 1.6, color: COLORS.textSecondary, flex: 1 }}>{body}</p>
+      {footer && <div style={{ marginTop: 6 }}>{footer}</div>}
+    </article>
   )
 }
 
@@ -140,8 +149,31 @@ export default function About() {
         @media (min-width: 720px) { .project-grid { grid-template-columns: 1fr 1fr; gap: 22px; } }
         .career-row { transition: background 0.2s ease; }
         .career-row:hover { background: rgba(218,119,86,0.04); }
-        .project-card:hover { transform: translateY(-3px); border-color: rgba(218,119,86,0.4) !important; }
         .about-cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+        .about-sticky-cta {
+          position: fixed;
+          right: 24px;
+          bottom: 24px;
+          z-index: 60;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 14px 22px;
+          background: ${COLORS.orange};
+          color: #fff;
+          border-radius: 999px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          font-weight: 800;
+          letter-spacing: 0.3px;
+          text-decoration: none;
+          box-shadow: 0 14px 36px rgba(218,119,86,0.32), 0 4px 12px rgba(0,0,0,0.12);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .about-sticky-cta:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(218,119,86,0.42), 0 6px 14px rgba(0,0,0,0.16); }
+        @media (max-width: 600px) {
+          .about-sticky-cta { right: 14px; bottom: 14px; padding: 12px 18px; font-size: 13px; }
+        }
       `}</style>
 
       {/* HERO */}
@@ -161,9 +193,6 @@ export default function About() {
               <div className="about-cta-row">
                 <a href="/#pricing" style={{ display: 'inline-block', padding: '12px 22px', background: COLORS.orange, color: '#fff', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.3 }}>
                   Get the course →
-                </a>
-                <a href="https://amit.so" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '12px 22px', background: 'transparent', color: COLORS.textPrimary, border: `1px solid ${COLORS.borderStrong}`, borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3 }}>
-                  See my GTM portfolio →
                 </a>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginTop: 28, fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: COLORS.textMuted, letterSpacing: 0.05 }}>
@@ -250,11 +279,6 @@ export default function About() {
               body="Migrated Salesforce Classic to Lightning while re-engineering the full lead-to-cash process. Forecasting accuracy improved by 25% on the backside of the migration."
             />
           </div>
-          <div style={{ marginTop: 24 }}>
-            <a href="https://amit.so" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: COLORS.orange, textDecoration: 'none', letterSpacing: 0.5 }}>
-              See the rest of my work at amit.so →
-            </a>
-          </div>
         </div>
       </section>
 
@@ -334,25 +358,26 @@ export default function About() {
               kind="YouTube Channel"
               title="AI with Amit"
               body="Teaching SMBs and solopreneurs how to wire up AI agent workflows that actually move pipeline. Practical, no fluff."
-              href="https://www.youtube.com/@aiwithamit"
             />
             <ProjectCard
               kind="Medium Publication"
               title="GPTcommands"
               body="Real-world AI prompting, use cases, and automation guides. Where I publish the longer-form notes that don't fit in a video."
-              href="https://medium.com/gptcommands"
             />
             <ProjectCard
               kind="Course"
               title="CC for SF"
               body="The course you're already on. Salesforce Admins learn to ship Flows, fields, validation rules, and Apex with Claude Code instead of the click-tax."
-              href="/#pricing"
+              footer={(
+                <a href="/#pricing" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: COLORS.orange, textDecoration: 'none' }}>
+                  Get the course →
+                </a>
+              )}
             />
             <ProjectCard
               kind="Open Source Tool"
               title="Job Tracker"
               body="A small personal job application tracker I open-sourced. Shows the kind of vibe-coded tool you can ship in an afternoon when AI is in the loop."
-              href="https://amit.so#projects"
             />
           </div>
         </div>
@@ -368,23 +393,19 @@ export default function About() {
             Let's talk.
           </h2>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 17, lineHeight: 1.65, color: COLORS.textSecondary, marginBottom: 28, maxWidth: 580, marginLeft: 'auto', marginRight: 'auto' }}>
-            Questions about CC for SF, feedback on a blog post, or just want to compare notes on Claude Code workflows? Fastest path is email.
+            Ready to stop clicking and start prompting? The course is the whole reason this site exists.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
-            <a href="mailto:me@amit.so" style={{ display: 'inline-block', padding: '14px 26px', background: COLORS.orange, color: '#fff', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.3 }}>
-              me@amit.so
-            </a>
-            <a href="/#pricing" style={{ display: 'inline-block', padding: '14px 26px', background: 'transparent', color: COLORS.textPrimary, border: `1px solid ${COLORS.borderStrong}`, borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 700, textDecoration: 'none', letterSpacing: 0.3 }}>
+            <a href="/#pricing" style={{ display: 'inline-block', padding: '14px 26px', background: COLORS.orange, color: '#fff', borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 800, textDecoration: 'none', letterSpacing: 0.3 }}>
               Get the course →
             </a>
           </div>
-          <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 36, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600, letterSpacing: 0.05 }}>
-            <a href="https://amit.so" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.textSecondary, textDecoration: 'none' }}>amit.so</a>
-            <a href="https://www.youtube.com/@aiwithamit" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.textSecondary, textDecoration: 'none' }}>YouTube</a>
-            <a href="https://medium.com/gptcommands" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.textSecondary, textDecoration: 'none' }}>Medium</a>
-          </div>
         </div>
       </section>
+
+      <a href="/#pricing" className="about-sticky-cta" aria-label="Get Lifetime Access for $97">
+        Get Lifetime Access · $97 <span aria-hidden="true">→</span>
+      </a>
     </BlogLayout>
   )
 }

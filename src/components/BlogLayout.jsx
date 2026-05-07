@@ -9,13 +9,40 @@ const COLORS = {
 
 function BrandMark() {
   return (
-    <a href="/" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, fontWeight: 700, letterSpacing: 0.5, textDecoration: 'none' }}>
-      <span style={{ color: COLORS.orange }}>cc</span>
-      <span style={{ color: 'rgba(26,24,21,0.3)' }}>_</span>
-      <span style={{ color: 'rgba(26,24,21,0.55)' }}>for</span>
-      <span style={{ color: 'rgba(26,24,21,0.3)' }}>_</span>
-      <span style={{ color: COLORS.sfBlue }}>sf</span>
-      <span style={{ color: 'rgba(26,24,21,0.22)' }}>__c</span>
+    <a
+      href="/"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: 12,
+        letterSpacing: '0.06em',
+        color: COLORS.textPrimary,
+        textDecoration: 'none',
+      }}
+    >
+      <span
+        aria-hidden="true"
+        style={{
+          width: 22,
+          height: 22,
+          border: `1.5px solid ${COLORS.textPrimary}`,
+          display: 'grid',
+          placeItems: 'center',
+          fontFamily: "'Bricolage Grotesque', serif",
+          fontStyle: 'italic',
+          fontSize: 13,
+          fontWeight: 500,
+          letterSpacing: 0,
+          color: COLORS.textPrimary,
+        }}
+      >
+        CC
+      </span>
+      <span>
+        CC&nbsp;<span style={{ color: 'rgba(26,24,21,0.4)' }}>/</span>&nbsp;SF
+      </span>
     </a>
   )
 }
