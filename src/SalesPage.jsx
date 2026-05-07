@@ -1704,6 +1704,9 @@ function Instructor() {
                 <span>dice.com · Business Systems Director</span>
                 <span>webAI · RevOps Manager</span>
               </div>
+              <a href="/about" className="instructor-more-link">
+                More about me <span aria-hidden="true">→</span>
+              </a>
             </div>
           </div>
         </div>
@@ -1901,7 +1904,6 @@ function PricingBonuses() {
       title: "Private Slack for course members.",
       sub: "When 'just ask the team' isn't an option.",
       body: "You're the solo admin. Or the senior on a two-person team. Either way, there's no Slack channel to drop your weird Flow error into at 4:55pm on a Friday. This one is. Working admins, the instructor, and the kind of community where 'is this CPU-time limit normal?' gets answered in 12 minutes, not 12 days.",
-      worth: "$499",
       tagline: "Lifetime access",
     },
     {
@@ -1911,7 +1913,6 @@ function PricingBonuses() {
       title: "Real Claude Code transcripts from real orgs.",
       sub: "Every Salesforce prompt I've shipped.",
       body: "The unedited Claude Code sessions I run against production Salesforce orgs: the prompts that worked, the dead ends I had to back out of, the recovery patterns when Claude got it wrong. The kind of senior-architect ride-along that normally costs $5,000 in consulting time.",
-      worth: "$799",
       tagline: "Field-tested sessions",
     },
     {
@@ -1921,7 +1922,6 @@ function PricingBonuses() {
       title: "Handpicked Claude Code plugins for serious leverage.",
       sub: "My personal plugin stack for faster Claude Code work.",
       body: "You get the exact plugins I use to make Claude Code more useful across real projects, including Superpowers and Claude Mem. These are the productivity boosters, memory tools, workflow helpers, and repo habits I trust when I want Claude to move faster without losing context.",
-      worth: "$249",
       tagline: "Curated by Amit",
     },
   ];
@@ -1930,7 +1930,7 @@ function PricingBonuses() {
     <div className="pricing-bonuses">
       <div className="pricing-bonuses-head">
         <div className="eyebrow"><span className="num">+ 03</span>Bonuses · included free</div>
-        <div className="block-head-meta">$1,547 in extras · yours at no extra cost</div>
+        <div className="block-head-meta">Three bonuses, yours at no extra cost</div>
       </div>
 
       <div className="pricing-bonuses-intro">
@@ -1950,7 +1950,6 @@ function PricingBonuses() {
             <SObjectIcon kind={b.icon} />
             <div className="bonus-card-head">
               <span className="bonus-card-tag">{b.tag}</span>
-              <span className="bonus-card-worth">value <strong>{b.worth}</strong></span>
             </div>
             <div className="bonus-card-label">{b.label}</div>
             <h4 className="bonus-card-title">{b.title}</h4>
@@ -1967,23 +1966,23 @@ function PricingBonuses() {
       <div className="pricing-bonuses-stack">
         <div className="bonus-stack-row">
           <span>Course · twelve modules + capstone</span>
-          <span className="bonus-stack-val">$497</span>
+          <span className="bonus-stack-included">✓ Included</span>
         </div>
         <div className="bonus-stack-row">
           <span>Bonus 01 · The Inner Circle (lifetime)</span>
-          <span className="bonus-stack-val">$499</span>
+          <span className="bonus-stack-included">✓ Included</span>
         </div>
         <div className="bonus-stack-row">
           <span>Bonus 02 · The Production Vault</span>
-          <span className="bonus-stack-val">$799</span>
+          <span className="bonus-stack-included">✓ Included</span>
         </div>
         <div className="bonus-stack-row">
           <span>Bonus 03 · The Plugin Pack</span>
-          <span className="bonus-stack-val">$249</span>
+          <span className="bonus-stack-included">✓ Included</span>
         </div>
         <div className="bonus-stack-row bonus-stack-row--total">
-          <span>Total stacked value</span>
-          <span className="bonus-stack-val">$2,044</span>
+          <span>Regular price</span>
+          <span className="bonus-stack-val">$697</span>
         </div>
         <div className="bonus-stack-row bonus-stack-row--your">
           <span>Your price today</span>
