@@ -1266,7 +1266,7 @@ function FloatingVideo({ targetRef, src, title }) {
   }, []);
 
   useEffect(() => {
-    if (!mounted || dismissed) return;
+    if (!mounted) return;
     const target = targetRef.current;
     const container = containerRef.current;
     if (!target || !container) return;
@@ -1389,9 +1389,14 @@ function FloatingVideo({ targetRef, src, title }) {
       if (rafId) cancelAnimationFrame(rafId);
       if (transitionTimer) clearTimeout(transitionTimer);
     };
-  }, [targetRef, dismissed, mounted]);
+  }, [targetRef, mounted]);
 
-  if (!mounted || dismissed) return null;
+  if (!mounted) return null;
+
+  // `dismissed` only hides the floating mini overlay. When the walkthrough
+  // section scrolls into view the iframe still morphs inline — closing the
+  // mini player shouldn't blank out the embedded video in the section.
+  const hideMiniOverlay = dismissed && mini;
 
   return createPortal(
     <div
@@ -1399,7 +1404,15 @@ function FloatingVideo({ targetRef, src, title }) {
       className={`floating-video ${mini ? "is-mini" : "is-inline"}`}
       role="region"
       aria-label={title}
-      style={{ position: "fixed", zIndex: 50, overflow: "hidden", background: "#000" }}
+      aria-hidden={hideMiniOverlay ? "true" : "false"}
+      style={{
+        position: "fixed",
+        zIndex: 50,
+        overflow: "hidden",
+        background: "#000",
+        visibility: hideMiniOverlay ? "hidden" : "visible",
+        pointerEvents: hideMiniOverlay ? "none" : "auto",
+      }}
     >
       <iframe
         src={src}
@@ -1409,7 +1422,7 @@ function FloatingVideo({ targetRef, src, title }) {
         loading="lazy"
         style={{ border: 0, width: "100%", height: "100%", display: "block" }}
       />
-      {mini && (
+      {mini && !dismissed && (
         <button
           type="button"
           className="floating-video-close"
