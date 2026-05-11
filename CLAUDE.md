@@ -150,7 +150,21 @@ Use the `COLORS` token object. Do not introduce new hex codes. Do not swap fonts
 
 No GA, no Segment, no heatmap tools get dropped in without a one-line confirmation. If one is added, it must respect DNT and defer-load.
 
-### Rule 7 — QA every change before committing + pushing
+### Rule 7 — Confirm before adding anything that could pull visitors off the sales path
+
+The sales page exists to sell the course. Every section, link, button, and CTA either moves the visitor toward `#enroll` or it's a distraction. Pause and confirm with me before adding any of the following to `SalesPage.jsx` (or any future landing page):
+
+- A new section or block that doesn't directly support the buy decision (problem, proof, product, price, objections, CTA).
+- Any **outbound link** that leaves the page — blog posts, external articles, social profiles, YouTube, GitHub repos, partner sites. Exceptions already approved: footer legal links (`/privacy`, `/terms`, `/refund`), `mailto:` for support/refunds, the Thrivecart checkout URL, and the trademark disclaimer.
+- Any **internal link to a non-sales route** (e.g., `/blog`, `/blog/<slug>`, `/about`) placed above the footer.
+- A nav item, banner, modal, or floating element that competes with the primary CTA for attention.
+- A secondary CTA whose action is not "enroll" or "watch the demo" (e.g., "join the newsletter," "read the guide," "follow on X").
+
+Footer links to /blog, /about, and social profiles are allowed because the footer is below the conversion point. Above the footer, default to **no**.
+
+When confirming, lead with the conversion-cost question: *"What's the case that this adds more buyers than it leaks?"* If there isn't one, don't add it. Past incident: a "Read these first" featured-guides block sat between Pricing and FAQ and pointed users to /blog/* posts — pure distraction at the moment of decision. Removed 2026-05-10.
+
+### Rule 8 — QA every change before committing + pushing
 
 "It builds successfully" is not QA. "It renders correctly" is QA. Before any commit is pushed:
 
@@ -355,4 +369,4 @@ Always commit per-task. Never bundle unrelated changes.
 
 ---
 
-*Last updated: 2026-04-18*  
+*Last updated: 2026-05-10*  
