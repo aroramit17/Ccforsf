@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import SEO from "./components/SEO.jsx";
-import PromoBar from "./components/PromoBar.jsx";
 import { getFeaturedHomepageGuides } from "./lib/posts.js";
 import "./SalesPage.css";
 
@@ -2407,7 +2406,6 @@ export default function SalesPage() {
       />
 
       <a href="#main-content" className="skip-link">Skip to main content</a>
-      <PromoBar />
       <Nav />
       <StickyEnroll />
       <main id="main-content" tabIndex={-1}>
