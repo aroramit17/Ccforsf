@@ -628,6 +628,9 @@ function Friction() {
               Finally bridge the gap between "I know what the business needs" and "I don't
               know how to write the Apex for it." Be your own developer.
             </p>
+            <a href={ENROLL_HASH} className="btn btn--primary section-cta">
+              Break the bottleneck <span className="arrow">→</span>
+            </a>
           </div>
 
           <ol className="friction-list">
@@ -1147,6 +1150,9 @@ Risks:
               artifact, the kind of thing you'd normally file a ticket for. Claude Code
               isn't just a tool; it's how you get your lunch break back.
             </p>
+            <a href={ENROLL_HASH} className="btn btn--primary section-cta">
+              Get your lunch break back <span className="arrow">→</span>
+            </a>
           </div>
 
           <BacklogMock />
@@ -1772,6 +1778,9 @@ function Safety() {
               keep the leverage of AI without giving up the discipline that production orgs
               demand.
             </p>
+            <a href={ENROLL_HASH} className="btn btn--primary section-cta">
+              Ship fast, stay safe <span className="arrow">→</span>
+            </a>
           </div>
 
           <div className="safety-list">
@@ -2379,7 +2388,6 @@ export default function SalesPage() {
 
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <Nav />
-      <StickyEnroll />
       <main id="main-content" tabIndex={-1}>
         <Hero />
         <Marquee />

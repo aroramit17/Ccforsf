@@ -167,6 +167,7 @@
 }
 .ccsf-root .btn--primary .arrow { color: #FFFFFF !important; }
 .ccsf-root .btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); transform: translateY(-1px); }
+.ccsf-root .section-cta { margin-top: 32px; align-self: flex-start; }
 .ccsf-root .btn--ghost {
   background: transparent;
   color: var(--ink-900);
