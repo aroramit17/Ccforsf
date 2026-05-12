@@ -652,9 +652,31 @@ body[data-menu-open="true"] .floating-video { display: none !important; }
   border-top: 1px solid rgba(245,241,232,0.1);
   background: #1A1916;
   color: #EDE8DA;
-  padding: 80px 0 40px;
+  padding: 80px 0 0;
   position: relative;
   z-index: 2;
+  overflow: hidden;
+}
+.ccsf-root .footer-bigmark {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(80px, 22vw, 320px);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  text-align: center;
+  white-space: nowrap;
+  margin: 40px 0 -0.18em;
+  padding: 0 16px;
+  color: transparent;
+  background: linear-gradient(180deg, rgba(245,241,232,0.10) 0%, rgba(245,241,232,0.03) 60%, rgba(245,241,232,0) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  user-select: none;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .ccsf-root .footer-bigmark { font-size: clamp(64px, 26vw, 180px); }
 }
 .ccsf-root .footer .display { color: var(--bone-100); }
 .ccsf-root .footer a { color: var(--bone-300); text-decoration: none; transition: color 200ms; }

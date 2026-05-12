@@ -20,7 +20,7 @@ Any future copy, ad, email, meta tag, or schema should pull from this list. If a
 
 | Fact | Value |
 | :---- | :---- |
-| Price | **$97 one-time** (launch price, reg. $697) |
+| Price | **$197 one-time** (launch price, reg. $697) |
 | Guarantee | **30-day money-back, no questions asked** (framed around "went through the course and didn't level up") |
 | Format | **Total number of modules and total course time is TBD** |
 | Access | Lifetime access to the course |
@@ -37,7 +37,7 @@ Any future copy, ad, email, meta tag, or schema should pull from this list. If a
 - **Bonus 02 — The Production Vault**. Real Claude Code transcripts from production Salesforce orgs — prompts that worked, dead ends, recovery patterns. Updated monthly.
 - **Bonus 03 — The Plugin Pack**. 30+ curated Claude Code plugins for git, CI/CD, docs, code review, and security scanning. The leverage doesn't stop at Salesforce.
 
-Page presentation: regular price $697, today $97. Do not display per-bonus dollar values — keeps the value math credible.
+Page presentation: regular price $697, today $197. Do not display per-bonus dollar values — keeps the value math credible.
 
 ### Disclaimer (include near checkout and in footer)
 

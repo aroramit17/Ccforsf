@@ -4,7 +4,7 @@
 
 Key facts:
 
-- Price: $97 one-time, lifetime access. 30-day money-back guarantee.
+- Price: $197 one-time, lifetime access. 30-day money-back guarantee.
 - Tool dependency: Claude Pro subscription ($20/month).
 - Audience: working Salesforce Admins who know the platform and want to ship faster. Not for existing Salesforce developers and not a cert-prep course.
 - Salesforce license: works with any org on Enterprise, Unlimited, or Developer edition. No Agentforce license needed.

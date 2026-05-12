@@ -403,8 +403,8 @@ export default function About() {
         </div>
       </section>
 
-      <a href="/#enroll" className="about-sticky-cta" aria-label="Get Lifetime Access for $97">
-        Get Lifetime Access · $97 <span aria-hidden="true">→</span>
+      <a href="/#enroll" className="about-sticky-cta" aria-label="Get Lifetime Access for $197">
+        Get Lifetime Access · $197 <span aria-hidden="true">→</span>
       </a>
     </BlogLayout>
   )

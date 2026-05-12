@@ -43,7 +43,7 @@ const HOMEPAGE_JSON_LD = {
       "instructor": { "@id": "https://ccforsf.com/#amit" },
       "offers": {
         "@type": "Offer",
-        "price": "97",
+        "price": "197",
         "priceCurrency": "USD",
         "category": "OneTimePurchase",
         "availability": "https://schema.org/InStock",
@@ -232,7 +232,7 @@ function Nav() {
           <ThemeToggle />
         </div>
         <a href={ENROLL_HASH} className="btn btn--primary nav-mobile-cta" onClick={close}>
-          Get Lifetime Access for $97 <span className="arrow">→</span>
+          Get Lifetime Access for $197 <span className="arrow">→</span>
         </a>
       </div>
     </nav>
@@ -245,9 +245,9 @@ function StickyEnroll() {
     <a
       href={ENROLL_HASH}
       className={`sticky-enroll ${scrolled ? "sticky-enroll--show" : ""}`}
-      aria-label="Enroll, get lifetime access for $97"
+      aria-label="Enroll, get lifetime access for $197"
     >
-      <span className="sticky-enroll-text">Get Lifetime Access: $97</span>
+      <span className="sticky-enroll-text">Get Lifetime Access: $197</span>
       <span className="arrow">→</span>
     </a>
   );
@@ -366,7 +366,7 @@ function Hero() {
 
           <div className="hero-ctas">
             <a href={ENROLL_HASH} className="btn btn--primary">
-              Get Lifetime Access for $97 <span className="arrow">→</span>
+              Get Lifetime Access for $197 <span className="arrow">→</span>
             </a>
             <a href="#model" className="btn btn--ghost">
               See how it works
@@ -2143,7 +2143,7 @@ function PricingBonuses() {
         </div>
         <div className="bonus-stack-row bonus-stack-row--your">
           <span>Your price today</span>
-          <span className="bonus-stack-val bonus-stack-val--accent">$97</span>
+          <span className="bonus-stack-val bonus-stack-val--accent">$197</span>
         </div>
       </div>
     </div>
@@ -2202,8 +2202,8 @@ function Pricing() {
               <div className="eyebrow">Launch price · USD</div>
               <div className="pricing-price">
                 <span className="dollar">$</span>
-                <span className="num">97</span>
-                <span className="reg">reg. $197</span>
+                <span className="num">197</span>
+                <span className="reg">reg. $697</span>
               </div>
               <div className="pricing-sub">One-time · lifetime access</div>
             </div>
@@ -2358,6 +2358,7 @@ function Footer() {
           <div>Not affiliated with Salesforce, Inc. or Anthropic, PBC.</div>
         </div>
       </div>
+      <div className="footer-bigmark" aria-hidden="true">CC for SF</div>
     </footer>
   );
 }
@@ -2371,7 +2372,7 @@ export default function SalesPage() {
     <div className="ccsf-root">
       <SEO
         title="CC for SF: Claude Code for Salesforce Admins"
-        description="Hands-on mini-course. Use Claude Code to ship Flows, validation rules, and metadata work from plain English. No developer in the loop. $97 one-time, 30-day guarantee."
+        description="Hands-on mini-course. Use Claude Code to ship Flows, validation rules, and metadata work from plain English. No developer in the loop. $197 one-time, 30-day guarantee."
         path="/"
         jsonLd={HOMEPAGE_JSON_LD}
       />
