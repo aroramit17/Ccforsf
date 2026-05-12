@@ -1,0 +1,106 @@
+---
+title: "AI for Salesforce Flows: the admin's guide to shipping Flows 10× faster"
+description: "Using AI — specifically Claude Code — to build record-triggered Flows, screen Flows, and scheduled Flows from plain English. What actually works in 2026, with examples."
+date: 2026-04-19
+author: Amit
+heroImage: /amit-headshot.png
+tldr:
+  - "Generate Flow XML from English prompts in your terminal, then deploy with `sf project deploy start`."
+  - "Works for record-triggered, screen, and scheduled Flows — including Apex actions and subflow calls."
+  - "The trick is showing Claude one example Flow from your org first; it copies your conventions instead of inventing new ones."
+faq:
+  - q: "Does this replace Flow Builder?"
+    a: "No. Flow Builder is still where you visually debug and step through. Claude Code is faster for the initial draft and for repetitive Flows that follow the same pattern."
+  - q: "Can Claude debug a Flow that fails at runtime?"
+    a: "Yes — paste the Flow Interview error or the debug log into the prompt. Claude reads it, points to the failing element, and proposes a fix you can deploy."
+  - q: "What about Salesforce-managed Flow templates?"
+    a: "Treat them as read-only. Have Claude generate a copy under a new name instead of editing the managed Flow directly."
+  - q: "Is generating Flows by AI safe to deploy to production?"
+    a: "Same rules as any other deploy. Get a code review, run it in a sandbox, and ship via your normal release pipeline. Do not deploy AI-generated Flows directly to prod without reading them first."
+---
+
+Everyone's selling "AI for Salesforce Flows" right now. Most of the pitches are generic AI features bolted onto the Flow Builder UI. This post is about something different: using a real AI coding agent to **generate and deploy Flow metadata from your terminal**, no Flow Builder required.
+
+If you build Flows as part of your job, this is the workflow that'll save you the most hours.
+
+## The three categories of AI-for-Flows
+
+Before the how-to, a quick map of what's actually out there in 2026:
+
+1. **Einstein / Flow AI inside the Flow Builder.** Suggests next steps, generates formulas, drafts descriptions. Helpful but stays inside the canvas — you're still clicking.
+2. **Agentforce with Flow actions.** An Agentforce agent *runs* a Flow at runtime. Useful for user-facing automation, not for building Flows.
+3. **Coding agents (Claude Code, Cursor) with SF DX.** You describe the Flow in plain English at your terminal, the agent generates the XML, and deploys it. This is the category the rest of this post is about.
+
+Category 3 is where the 10× speedup comes from, because you skip the canvas entirely.
+
+## The workflow
+
+You sit in your terminal. You've got a Salesforce DX project for your org (or you let Claude Code scaffold one). Your prompt looks like this:
+
+```
+Build a record-triggered Flow on Lead.
+
+Trigger: after insert or update, when Region__c changes.
+
+Logic:
+  - If Region__c = "NA", set OwnerId to our NA queue.
+  - If "EMEA", EMEA queue.
+  - If "APAC", APAC queue.
+  - Otherwise, leave Owner unchanged.
+
+Also: post a Chatter message on the Lead saying
+"Auto-assigned to {Queue} based on Region"
+and deploy to dev-org.
+```
+
+Claude Code will typically:
+
+1. Read your `sfdx-project.json` to find where Flow metadata lives.
+2. Check existing queues in the org so the references resolve.
+3. Generate the Flow `.flow-meta.xml` file with the right trigger config, decision node, assignment branches, and Post to Chatter action.
+4. Show you the diff.
+5. On your approval, run `sf project deploy start` (or the equivalent) and report the result.
+
+Total time, from "I should build a Flow" to "Flow is live in dev-org": about 4–6 minutes, most of which is you reading the diff.
+
+## What this is good at
+
+**Record-triggered Flows.** Assignment, field updates, related-record creation, Chatter posts, callouts to external services. Straightforward logic, maps cleanly to XML.
+
+**Screen Flows.** You describe the screens, fields, and navigation in plain English. Claude writes the screen components and choice sets. Reviewing the generated metadata is faster than dragging 18 elements onto a canvas.
+
+**Scheduled Flows.** Daily cleanup, weekly rollups, stale-record detection. Easy to describe, easy to verify.
+
+**Refactoring existing Flows.** "This Flow has three Decision nodes doing similar things — collapse them into one." Claude reads the existing Flow, proposes the refactor, shows the before/after XML.
+
+## What to watch out for
+
+**Names and references.** Claude can invent a Queue name that doesn't exist, or a Custom Field that isn't in your org. Always run a dry deploy (`sf project deploy start --dry-run`) before the real one. Or just… let it fail and read the error.
+
+**Decision logic corner cases.** If you said "if Region is empty," make sure the generated `ISBLANK` check is exactly what you want — `ISBLANK` vs `ISNULL` vs `= ""` all matter.
+
+**Flow versioning.** If the Flow already exists, Claude will create a new version. Make sure you activate the right one and deactivate the old one, or ask Claude to do it as part of the deploy.
+
+**Testing.** Generated Flows still need to be tested. Claude can write a test recipe — a list of inputs with expected outcomes — but you have to run it (or have Claude run it via the Salesforce CLI's Flow test commands).
+
+## A real example
+
+Last week I replaced a 43-step screen Flow that collected intake info for a new customer onboarding. The original had three subflows, two loops, and a Send Email action that kept failing intermittently.
+
+My prompt:
+
+> "Read the current `Customer_Intake` screen Flow. Rewrite it as a single Flow with three screens: contact info, company info, product selection. Remove the subflows. Use the new email template `New_Customer_Welcome_v2` instead of the old one. Keep all existing field mappings. Deploy to sandbox."
+
+Five minutes. One diff review. Deploy succeeded on the first try. I ran the existing Flow test recipe and three scenarios passed. I fixed one that didn't (misnamed a field), redeployed.
+
+The old way — dragging elements, renaming variables, finding the template picker — would have been a half day.
+
+## When this doesn't work
+
+Complex Flows with heavy loop logic, dynamic formula evaluation, or integrations that don't map cleanly to Flow metadata still need a human in the loop. Claude Code is a force multiplier, not a replacement. But for the 80% of Flows that are assignment / field updates / notifications, you're done clicking.
+
+## Getting started
+
+If you want the full workflow — installing Claude Code, connecting it to your org, the prompts that actually work for Flows — [that's the course](/#pricing). $197, lifetime access, 30-day money-back guarantee.
+
+Or [read the comparison with Agentforce](/blog/claude-code-vs-agentforce) if you're still trying to figure out which tool fits which job.

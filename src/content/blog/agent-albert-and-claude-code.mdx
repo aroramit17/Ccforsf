@@ -1,0 +1,80 @@
+---
+title: "Salesforce is shipping an AI that watches you. Here's why admins still need Claude Code."
+description: "Marc Benioff just confirmed Agent Albert — an AI that studies user behavior and takes actions autonomously. Here's what it changes for admins, and what it doesn't."
+date: 2026-04-22
+author: Amit
+heroImage: /amit-headshot.png
+---
+
+Marc Benioff confirmed on X last week that Salesforce is building something called **Agent Albert** — an AI platform that, in his words, "automatically studies its users and takes actions on their behalf." Target launch window: end of 2026, likely debuting at Dreamforce.
+
+The *Wall Street Journal* broke the story. Key facts from the reporting:
+
+- The project has been in development for three years, since the weekend after ChatGPT shipped.
+- Benioff runs **Saturday AI meetings** with ~40 executives. Agent Albert came out of that group.
+- It's the next evolution past Agentforce. If Agentforce is "conversational agents you configure," Agent Albert is "an AI that watches what you do and starts doing it for you."
+
+If you're a Salesforce Admin, two questions immediately follow: *what does this actually do*, and *do I still have a job building Flows in three years?*
+
+Here's the honest take.
+
+## What Agent Albert is (and isn't)
+
+Per the reporting, Agent Albert is about **passive automation for end users**. A sales rep takes a call in Salesforce; Albert notices they committed to sending a follow-up doc, and it drafts and queues the email. A service agent logs a case; Albert notices the same customer called last week about the same issue, and surfaces the context automatically.
+
+It's the *assistant* tier of AI. It lives inside the user's session, watches what they do, and takes small actions on their behalf.
+
+It's not:
+
+- A replacement for Flow Builder. Flows are still how you define *what the platform does*, not what a user does.
+- A replacement for Apex. Business logic that runs on database events is still your domain.
+- A replacement for admins. Someone still has to define the data model, the security, and the guardrails Albert operates inside.
+
+This is the same split that exists today between Agentforce and Claude Code. Agentforce is a runtime that serves users inside your org. Claude Code is a builder's tool that lives on your laptop and helps you configure the platform itself. Agent Albert sits alongside Agentforce — it's more of the runtime layer.
+
+## Where Claude Code actually fits
+
+Agent Albert is going to be an incredible product demo. It'll ship with a thousand capabilities and Salesforce will price it as a premium add-on. The problem for admins isn't "will Albert do my job" — it's "will Albert have the right data, fields, permissions, and automation to do *anything* useful in my org?"
+
+That's still a configuration job. And it's the job Claude Code is built for.
+
+```
+Before Agent Albert rolls out, I need:
+- A "Last_Contacted__c" datetime field on Account
+- A Flow that updates it every time a Chatter post or call is logged
+- A permission set exposing it to our SDR team
+- An Apex trigger that flags accounts with no contact in 90 days
+- Tests for all of the above
+
+Build all that, deploy to dev-org, and show me the diff.
+```
+
+That's a prompt, not a ticket. You're still the one defining the model Albert will run on top of. The work just happens in minutes instead of days.
+
+In other words: **Agent Albert will accelerate end users. Claude Code accelerates admins.** The two aren't competing — they're different layers of the same stack, which is exactly how Agentforce and Claude Code already relate today.
+
+## The career question, honestly
+
+Every time Salesforce ships a new AI product, there's a wave of "is admin work still a job?" discourse. The honest answer has always been: *admin work changes; it doesn't disappear*.
+
+What's changing with Agent Albert specifically:
+
+- **Less "I built this one Flow" work**, because the platform will surface smaller automations directly to end users.
+- **More "I designed the data model and governance that makes Albert useful" work**, because Albert is only as good as the org it runs in.
+- **More urgency on the skills gap**. Admins who can move fast — who can prompt-engineer fields, Flows, and validations into existence — are going to define what their orgs look like while slower admins are still waiting on tickets.
+
+Claude Code is the clearest lever any admin has to move into the second bucket. You're going to be the person on your team who configures the org Agent Albert runs in. Better to be fast at it.
+
+## What to do in the next six months
+
+Don't wait for Dreamforce. A few concrete moves:
+
+1. **Get fluent in Claude Code now**, before Agent Albert launches and the admin job description shifts. The skill takes two weeks of real practice to internalize. [The course](/#pricing) compresses that.
+2. **Audit your org's data model**. Fields that are 60% populated and inconsistently named aren't useful to *any* AI — not Agentforce, not Claude Code, not Agent Albert. Clean it up with Claude Code generating the migration scripts.
+3. **Start documenting your automations in `CLAUDE.md`**. Future you will thank present you when Albert ships and you need to explain to it how your org actually works. ([Starter template here.](/blog/your-first-claude-md-for-salesforce))
+
+The admins who come out ahead of the Agent Albert launch won't be the ones who fear-tweet about AI replacing them. They'll be the ones who've already wired AI deep into how they work, on the builder side, before Salesforce ships the user-facing version.
+
+---
+
+**Related:** [Claude Code vs Agentforce](/blog/claude-code-vs-agentforce) · [Build Agentforce agents without hand-writing Agent Script](/blog/agentforce-with-claude-code) · [Get the course →](/#pricing)

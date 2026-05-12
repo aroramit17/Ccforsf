@@ -1,0 +1,135 @@
+---
+title: "Validation rules with Claude Code: from English to deployed formula"
+description: "Salesforce validation rule syntax is a tax. ISPICKVAL, ISBLANK, nested AND/OR. Describe the rule in plain English and let Claude Code write the formula, test it, and deploy."
+date: 2026-04-17
+author: Amit
+heroImage: /amit-headshot.png
+tldr:
+  - "Describe the rule in plain English. Claude writes the formula, generates an Apex unit test, and deploys."
+  - "Round-trip on a tricky rule (stage gate + ISPICKVAL + amount threshold) takes about 3 minutes."
+  - "The friendly error message is part of the rule — Claude writes both at once."
+faq:
+  - q: "What about cross-object validation rules?"
+    a: "Works the same. Claude can read the relationship and write the formula referencing the parent record's field. You will need a master-detail or a lookup with the right field reference."
+  - q: "How does Claude know my picklist values?"
+    a: "It queries the org via the MCP server. Make sure MCP is wired up so picklist values come from your real metadata, not guesses."
+  - q: "Can Claude write the Apex test for the rule?"
+    a: "Yes. Generate the rule and a unit test in the same prompt. Aim for both the positive path (rule allows valid records) and the negative path (rule blocks invalid ones)."
+  - q: "What if the rule already exists and I am just modifying it?"
+    a: "Retrieve the metadata first, ask Claude to update the formula, then redeploy. Do not ask Claude to write a `new` rule when you mean to edit an existing one — it will create a duplicate."
+---
+
+Salesforce validation rules are supposed to be the easy part of admin work. Pick a formula, type some conditions, save. In practice, they're where admins lose an hour every week.
+
+You need the right formula functions. You need to spell `ISPICKVAL` correctly. You need to nest three `AND(...)` calls without missing a comma. You need the error message to be friendly. You need to test it without accidentally breaking sales ops' pipeline report.
+
+None of that is hard. All of it is slow.
+
+## What the Claude Code workflow looks like
+
+You open your terminal. Your Salesforce DX project is already connected to your org. Your prompt is:
+
+```
+Create a validation rule on Opportunity.
+
+Rule: Close Date must be set when Stage = "Closed Won".
+
+Error message: "A Close Date is required to move this
+opportunity to Closed Won. Please set the Close Date before saving."
+
+Display the error on the CloseDate field.
+
+Deploy to dev-org.
+```
+
+That's the whole input.
+
+Claude Code will:
+
+1. Read your `sfdx-project.json` and find `force-app/main/default/objects/Opportunity/validationRules/`.
+2. Pick a rule name that doesn't collide with existing rules (e.g., `Require_CloseDate_On_Closed_Won`).
+3. Write the `.validationRule-meta.xml` with the right formula:
+   ```
+   AND(
+     ISPICKVAL(StageName, "Closed Won"),
+     ISBLANK(CloseDate)
+   )
+   ```
+4. Set `errorDisplayField` to `CloseDate` and drop the error message in.
+5. Show you the diff.
+6. On your approval, deploy via `sf project deploy start`.
+
+Total time: about 90 seconds, most of which is you reading.
+
+## Harder rules
+
+Validation rules get annoying fast when multiple fields interact. Here's a real one a team asked me about last month:
+
+> "When an Opportunity is in a Renewal record type AND the Account is a Strategic tier AND the Amount is over $50k, Legal must be selected in the Deal_Desk_Review__c picklist."
+
+Writing that formula by hand, you're going to:
+
+- Forget whether record types use `RecordType.DeveloperName` or `RecordType.Name` (it's DeveloperName).
+- Check whether `Account.Tier__c` is a picklist or text field (changes the function).
+- Miss a parenthesis somewhere and spend 10 minutes hunting it.
+
+Claude Code reads your org's metadata. It already knows Account.Tier__c is a picklist, so it picks `ISPICKVAL`. It knows record types use DeveloperName. It closes the parens.
+
+Generated formula:
+
+```
+AND(
+  ISPICKVAL(RecordType.DeveloperName, "Renewal"),
+  ISPICKVAL(Account.Tier__c, "Strategic"),
+  Amount > 50000,
+  NOT(ISPICKVAL(Deal_Desk_Review__c, "Legal"))
+)
+```
+
+You still have to **read that formula** and confirm the last condition is right. (`NOT(ISPICKVAL(..., "Legal"))` means "not Legal" — which is what "Legal must be selected" requires as the *trigger* for the error.) Reading is fast. Writing it from scratch is not.
+
+## Error messages that don't sound like a computer wrote them
+
+The default instinct is to write "Please fill in the Close Date field." That's fine. It's also generic.
+
+Ask Claude to write the message in your company voice:
+
+> "Make the error message sound like our Head of Sales wrote it — direct, not preachy, and it should explain *why* the rule exists, not just what to do."
+
+You'll get something like:
+
+> "Closed Won without a Close Date means your forecast report lies to the CFO. Set it before saving."
+
+Whether you ship that exact message is up to you. But letting the AI draft with real voice constraints beats the generic "Please enter a valid value."
+
+## Testing before you ship
+
+This is the step most admins skip. Claude Code won't let you.
+
+After generating the rule, Claude can run it against sample records:
+
+> "Test this rule against a new Opportunity with Stage = Closed Won and CloseDate = null. Confirm it blocks the save. Then test with CloseDate set. Confirm it allows the save."
+
+The tool writes a little test recipe and runs it via the Salesforce CLI. You get pass/fail for each scenario in 20 seconds. If something fails — maybe the rule fires on an existing record that's already Closed Won with no Close Date, and the bulk update breaks — you find out *before* you deploy to prod.
+
+This is the part of the workflow that separates "AI wrote me some code" from "AI actually shipped working Salesforce."
+
+## Deploy, version, document
+
+Claude Code writes the deploy command, runs it, and captures the output. If anything fails, it reads the error, proposes a fix, and asks if you want to retry.
+
+When the deploy succeeds, Claude can also:
+
+- Add a one-line comment to the rule's description field explaining why it exists (helpful for the next admin who looks at it in six months).
+- Log the rule's deploy hash in a changelog file if you keep one.
+- Update your team's internal doc if you point Claude at it.
+
+All of this is stuff you *should* do. Most of it is stuff admins skip because it's tedious. It stops being tedious when you're not the one typing it.
+
+## When to still write rules by hand
+
+If the rule is truly a one-liner (`NOT(ISBLANK(Phone))`), the ceremony of prompting an AI is more work than just typing it. Use your judgment. Anywhere the formula is longer than one line — or touches more than one field — Claude Code is faster.
+
+---
+
+**Related:** [AI for Salesforce Flows](/blog/ai-for-salesforce-flows) · [Agentforce agents with Claude Code](/blog/agentforce-with-claude-code) · [Get the full course →](/#pricing)

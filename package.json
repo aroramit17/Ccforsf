@@ -5,14 +5,28 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "queue:add": "node scripts/queue-add.mjs",
+    "queue:list": "node -e \"const y=require('yaml');const f=require('fs').readFileSync('content/topic-queue.yaml','utf8');const q=y.parse(f.slice(f.indexOf('\\n- ')))||[];console.table(q.map(t=>({slug:t.slug,status:t.status,title:t.title.slice(0,60)})))\"",
+    "queue:next": "node scripts/pick-next-topic.mjs",
+    "images:optimize": "node scripts/optimize-images.mjs",
+    "prebuild": "node scripts/optimize-images.mjs && node scripts/build-sitemap.mjs",
     "build": "vite-react-ssg build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mdx-js/react": "^3.1.1",
+    "@mdx-js/rollup": "^3.1.1",
+    "@vercel/postgres": "^0.10.0",
+    "gray-matter": "^4.0.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-router-dom": "^6.30.3"
+    "react-router-dom": "^6.30.3",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -23,7 +37,9 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "sharp": "^0.34.5",
     "vite": "^7.3.2",
-    "vite-react-ssg": "^0.9.1-beta.1"
+    "vite-react-ssg": "^0.9.1-beta.1",
+    "yaml": "^2.8.3"
   }
 }

@@ -1,0 +1,155 @@
+---
+title: "Your first CLAUDE.md for a Salesforce DX project"
+description: "Claude Code reads a file called CLAUDE.md at the start of every session. It's the single highest-leverage file in your repo. Here's how to write one for a Salesforce org."
+date: 2026-04-16
+author: Amit
+heroImage: /amit-headshot.png
+tldr:
+  - "CLAUDE.md is the briefing Claude reads at the start of every session. Write one and your output quality jumps overnight."
+  - "Cover four things: project overview, key workflows, naming/coding conventions, and what NOT to touch."
+  - "Keep it under 300 lines, refresh it whenever you change a convention, and check it into the repo."
+faq:
+  - q: "Where does CLAUDE.md live?"
+    a: "At the root of your repo. Claude Code looks for it in the working directory and walks up the tree, so a project-level CLAUDE.md is enough for most teams."
+  - q: "Do I need separate CLAUDE.md files for sandbox and prod?"
+    a: "Usually no — the same conventions apply. If your prod org has stricter deploy rules, add a `Production deploy gotchas` section instead of forking the file."
+  - q: "Should CLAUDE.md include credentials or org IDs?"
+    a: "No. Reference org aliases (`prod`, `dev-org`) instead. Treat CLAUDE.md as public — it gets committed to the repo."
+  - q: "Can I share one CLAUDE.md across my team?"
+    a: "Yes, and you should. Update it via PR like any other code. The file is the team's shared brief, not a personal scratchpad."
+  - q: "How is CLAUDE.md different from a README?"
+    a: "README is for humans skimming the repo. CLAUDE.md is for an AI agent about to do work. Be explicit about constraints (deploy targets, code style, what is deprecated) in a way you would not bother writing in a README."
+---
+
+There's one file in a Salesforce DX project that does more to improve Claude Code's output than anything else you can change. It's called `CLAUDE.md`, it lives in the repo root, and most admins don't know it exists.
+
+It's the briefing document Claude reads at the start of every session. If you skip it, Claude reads your code blind and guesses at your org's conventions. If you write a good one, Claude shows up already knowing what alias to deploy to, which objects are legacy, and which naming conventions your team uses.
+
+This post is the starter `CLAUDE.md` I give every admin in the course.
+
+## Why it matters
+
+Without a `CLAUDE.md`, every session starts like this:
+
+- Claude asks: "What org should I deploy to?"
+- You type: "dev-org."
+- Claude asks: "What's the naming convention for custom fields?"
+- You type: "`Lowercase_With_Underscores__c`, and no prefixes except for our managed package fields."
+- Claude asks: "Should I use SOQL or the REST API for this query?"
+- You type: …
+
+Multiply that by every session. It's a small tax, but a constant one. And the reason you're using Claude Code in the first place is to eliminate small, constant taxes.
+
+A `CLAUDE.md` ships that context once, and Claude reads it automatically from then on.
+
+## What to put in it
+
+Here's the structure I use. Copy it and edit.
+
+### 1. What this project is
+
+Two or three sentences. Which org is this? What kind of work happens here? Who uses it? This prevents Claude from treating a production sales org the same way it treats a playground sandbox.
+
+### 2. Org facts
+
+Absolute facts Claude should never have to ask about:
+
+- Org alias (e.g., `dev-org`, `uat-org`, `prod-org`)
+- Edition (Enterprise / Unlimited / Developer)
+- Whether you use namespaces
+- Which managed packages are installed (and their prefixes)
+- API version you build against
+
+### 3. Conventions
+
+The rules Claude should follow when generating new metadata:
+
+- Custom field naming: `Snake_Case_With__c` vs `CamelCase__c`
+- Automation preference: "Build in Flow first. Only use Apex triggers when Flow can't express the logic."
+- Test class naming: `<ClassName>_Test.cls`
+- Permission set naming: `<Feature_Area>_Access`
+- Whether to ship field descriptions (yes, always — future-you will thank past-you)
+
+### 4. Don'ts
+
+The stuff that's cost your team before. This is the most underrated section.
+
+- "Don't deploy to prod without confirming with me. Prod alias is `prod-org`; dev work should always go to `dev-org`."
+- "Don't create new record types without asking — we have four, that's enough."
+- "Don't touch the `Legacy_` objects. Those are being deprecated next quarter."
+- "Don't write Apex triggers without a corresponding test class. Deploy will fail anyway."
+
+### 5. Key workflows
+
+Commands or patterns you use repeatedly. Claude will default to these instead of reinventing.
+
+- "Before creating or modifying components, use `retrieve_metadata` to pull current state."
+- "After changes, run `sf project deploy start --dry-run` before the real deploy."
+- "Use `run_code_analyzer` before deploying Apex."
+
+### 6. People and context
+
+Who is Claude working for? What's their role?
+
+- "I'm a Salesforce Admin, not a developer. Explain Apex in terms of Flow when possible."
+- "When I ask for a 'quick rule,' I mean a validation rule, not an Apex trigger."
+
+This last section is easy to dismiss. Don't. A Claude Code that knows it's working with an admin produces different output than one that thinks it's working with a senior Salesforce engineer. Both are correct; one is more useful to you.
+
+## A minimal starter
+
+Here's the shortest `CLAUDE.md` I'd recommend for a real org:
+
+```markdown
+# CLAUDE.md
+
+## Project
+This is the Salesforce DX project for Acme Corp's production sales org.
+It's a B2B sales motion; Account, Contact, Opportunity, and Lead are
+the main objects. We use CPQ for quoting.
+
+## Org aliases
+- `dev-org`  → developer sandbox (default for all new work)
+- `uat-org`  → UAT sandbox
+- `prod-org` → production (DO NOT deploy here without confirming with me)
+
+## Conventions
+- Custom fields: Snake_Case, with __c suffix (standard)
+- Prefer Flow over Apex triggers. Apex only when Flow can't express it.
+- Test classes: <ClassName>_Test.cls, minimum 80% coverage
+- Always ship field descriptions
+
+## Don'ts
+- Don't deploy to prod-org without confirmation.
+- Don't touch `Legacy_*` objects — deprecating Q3.
+- Don't create record types without asking.
+
+## Workflows
+- Pull metadata before editing: `retrieve_metadata`
+- Dry-run deploys first: `sf project deploy start --dry-run`
+- Run code analyzer on Apex before deploy
+
+## About me
+I'm a Salesforce Admin. When I say "quick rule," I mean a validation
+rule. Explain Apex in terms of Flow analogues when possible.
+```
+
+Twenty-five lines. It'll save you an hour in the first week.
+
+## What to leave out
+
+Don't dump every field definition, every Flow, every automation into this file. Claude reads your org metadata directly — it doesn't need a mirror of it in a markdown doc.
+
+`CLAUDE.md` is for **conventions, preferences, and guardrails**. Anything that isn't derivable from the code or org metadata. If you find yourself writing "the Account object has fields X, Y, Z," stop and delete it — Claude will read that from the object when it needs to.
+
+## Keep it alive
+
+A stale `CLAUDE.md` is worse than none at all. If the `prod-org` alias changes, update it. If you start using Data Cloud and want Claude to follow different patterns there, add a section. Treat it like the one doc you actually reread every quarter.
+
+## Bonus
+
+In the [CC for SF course](/#pricing), this starter file is one of the free bonuses — the **CLAUDE.md Starter Template** tailored for Salesforce DX projects, with extra sections for CPQ, Data Cloud, and multi-org deployments. ($29 value, included.)
+
+---
+
+**Related:** [AI for Salesforce Flows](/blog/ai-for-salesforce-flows) · [Validation rules with Claude Code](/blog/validation-rules-with-claude-code) · [Migrating Aura to LWC](/blog/migrating-aura-to-lwc-with-claude-code)

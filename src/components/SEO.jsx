@@ -2,7 +2,7 @@ import { Head } from 'vite-react-ssg'
 
 const SITE_URL = 'https://ccforsf.com'
 
-export default function SEO({ title, description, path, image = '/amit-headshot.png', jsonLd, noindex }) {
+export default function SEO({ title, description, path, image = '/og/og-home.png', jsonLd, noindex }) {
   const url = `${SITE_URL}${path}`
   const absoluteImage = image.startsWith('http') ? image : `${SITE_URL}${image}`
 
@@ -27,7 +27,7 @@ export default function SEO({ title, description, path, image = '/amit-headshot.
 
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       {jsonLd && (
         <script type="application/ld+json">

@@ -1,0 +1,137 @@
+# Blog topic queue — consumed by the daily scheduled-drafts agent.
+#
+# How to add topics:
+#   1. Edit this file directly (bottom of the list).
+#   2. Or: `npm run queue:add -- "Title" "Angle / hook in one sentence"`
+#
+# Statuses:
+#   - queued   → eligible to be drafted on the next scheduled run
+#   - drafted  → the scheduled agent has opened a PR with a draft for this topic
+#   - shipped  → the draft PR has been merged (set manually after merge)
+#   - skip     → archived; do not draft
+#
+# The scheduled agent picks the FIRST entry with status == queued, drafts it,
+# and flips status to "drafted". Keep this file ordered by priority.
+
+- slug: auto-assign-leads-by-region
+  title: Auto-assign leads by region with Claude Code
+  angle: Record-triggered Flow on Lead across 3 regions with Chatter post, start-to-deploy in under 5 minutes
+  keywords:
+    - lead assignment
+    - record triggered flow
+    - claude code
+  status: queued
+- slug: bulk-field-creation-salesforce
+  title: Create 20 custom fields at once with Claude Code
+  angle: "Real CRM-hygiene project: show the prompt, generated metadata, and the permission-set update that usually gets forgotten"
+  keywords:
+    - custom fields
+    - bulk
+    - salesforce dx
+  status: queued
+- slug: apex-triggers-without-writing-apex
+  title: Ship an Apex trigger without writing Apex
+  angle: Describe the trigger in English, Claude writes both the trigger and the test class — why the test class is the real win
+  keywords:
+    - apex triggers
+    - test classes
+    - claude code
+  status: queued
+- slug: claude-code-setup-salesforce-first-time
+  title: "Setting up Claude Code for Salesforce work: the 15-minute first run"
+  angle: Install, connect to a dev org via SF DX, write the first prompt. What trips people up the first time
+  keywords:
+    - claude code install
+    - salesforce dx setup
+    - getting started
+  status: queued
+- slug: permission-sets-with-claude-code
+  title: Generate a permission set with Claude Code in one prompt
+  angle: Describe the feature area, Claude builds the permission set XML with field-level and object-level access, shows the diff before deploy
+  keywords:
+    - permission sets
+    - salesforce security
+    - claude code
+  status: queued
+- slug: page-layout-automation-claude-code
+  title: Update page layouts without opening Page Layout Editor
+  angle: Edit Opportunity page layout from your terminal — add a section, reorder fields, deploy. When clicking through Setup stops being necessary
+  keywords:
+    - page layouts
+    - lightning record pages
+    - admin productivity
+  status: queued
+- slug: salesforce-dx-project-claude-code-primer
+  title: What actually lives in a Salesforce DX project (and why Claude Code needs it)
+  angle: Walkthrough of force-app/main/default/ for admins who've never cracked open a DX project. What metadata goes where
+  keywords:
+    - salesforce dx
+    - force-app
+    - metadata structure
+  status: queued
+- slug: record-triggered-vs-scheduled-flows
+  title: "Record-triggered vs scheduled Flows: Claude Code picks the right one"
+  angle: Describe the behavior in English, let Claude pick the Flow type. The heuristics Claude uses and when you should override
+  keywords:
+    - flows
+    - automation patterns
+    - claude code
+  status: queued
+- slug: code-analyzer-in-the-loop
+  title: Catch PMD violations before the deploy with Claude Code
+  angle: run_code_analyzer inside Claude Code — how to fold static analysis into your generate/deploy loop so prod deploys don't fail at 5pm
+  keywords:
+    - pmd
+    - code analyzer
+    - apex quality
+  status: queued
+- slug: salesforce-cli-commands-you-stop-typing
+  title: The 8 Salesforce CLI commands you'll stop typing after Claude Code
+  angle: "Honest list of the sf commands Claude wraps: deploy start, project retrieve, apex test run. What still needs your hands"
+  keywords:
+    - salesforce cli
+    - sf commands
+    - claude code
+  status: queued
+- slug: debugging-failed-deploys-with-claude
+  title: Reading a failed Salesforce deploy with Claude Code
+  angle: Error messages from sf deploy start are often cryptic — how Claude reads them, proposes the fix, and retries. Real example with a dependency-order failure
+  keywords:
+    - deploy errors
+    - metadata dependencies
+    - troubleshooting
+  status: queued
+- slug: multi-org-workflows-claude-code
+  title: Managing dev, UAT, and prod orgs from one Claude Code session
+  angle: sf org aliases, how to tell Claude which org to deploy to, and the CLAUDE.md section that prevents prod accidents
+  keywords:
+    - multi org
+    - sandbox
+    - uat
+    - prod deployment
+  status: queued
+- slug: formula-field-generation
+  title: Formula fields in 30 seconds with Claude Code
+  angle: Complex formulas (CASE, nested IF, DATETIME math) are where formula syntax gets painful. Describe the logic, get the formula. Includes the formula-length gotcha
+  keywords:
+    - formula fields
+    - salesforce formulas
+    - admin productivity
+  status: queued
+- slug: soql-queries-from-english
+  title: Writing SOQL with Claude Code when you don't remember the relationship name
+  angle: Parent-to-child vs child-to-parent queries, custom relationship APIs. Claude reads the schema and writes the SOQL; show a real query a support engineer asked for
+  keywords:
+    - soql
+    - queries
+    - relationships
+    - claude code
+  status: queued
+- slug: lightning-record-page-customization
+  title: Customize a Lightning Record Page without the App Builder
+  angle: Add a dynamic form, conditional tabs, and a related list — from a prompt. When the App Builder UI still wins
+  keywords:
+    - lightning record pages
+    - dynamic forms
+    - app builder
+  status: queued

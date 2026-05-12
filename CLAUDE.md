@@ -20,22 +20,24 @@ Any future copy, ad, email, meta tag, or schema should pull from this list. If a
 
 | Fact | Value |
 | :---- | :---- |
-| Price | **$97 one-time** (launch price, reg. $197) |
+| Price | **$197 one-time** (launch price, reg. $697) |
 | Guarantee | **30-day money-back, no questions asked** (framed around "went through the course and didn't level up") |
 | Format | **Total number of modules and total course time is TBD** |
 | Access | Lifetime access to the course |
 | Checkout | Thrivecart (but students don’t need to know that) |
-| Tool dependency | Claude Pro subscription at $20/month (Claude Max is highly recommended) |
+| Tool dependency | **Claude Max subscription ($100/month, required)** — Anthropic moved Claude Code access into the Max plan in 2026. The old Pro tier is no longer sufficient. |
 | SF license required | None beyond the existing Enterprise / Unlimited / Developer edition |
 | Works with | Salesforce DX projects |
 
 ### Module list (coming soon)
 
-### Bonuses
+### Bonuses (shown on the Pricing section, no individual dollar values displayed)
 
-- **CLAUDE.md Starter Template** (value: $29)  
-- **Prompt Library** — 20+ tested prompts for Flows, fields, validation rules, Apex (value: $49)  
-- **Access to private Claude community**
+- **Bonus 01 — The Inner Circle**. Lifetime access to the private Slack community for course members. Working admins, the instructor, and async help on Flow / MCP / Apex questions.
+- **Bonus 02 — The Production Vault**. Real Claude Code transcripts from production Salesforce orgs — prompts that worked, dead ends, recovery patterns. Updated monthly.
+- **Bonus 03 — The Plugin Pack**. 30+ curated Claude Code plugins for git, CI/CD, docs, code review, and security scanning. The leverage doesn't stop at Salesforce.
+
+Page presentation: regular price $697, today $197. Do not display per-bonus dollar values — keeps the value math credible.
 
 ### Disclaimer (include near checkout and in footer)
 
@@ -147,6 +149,36 @@ Use the `COLORS` token object. Do not introduce new hex codes. Do not swap fonts
 ### Rule 6 — No analytics or third-party scripts without asking
 
 No GA, no Segment, no heatmap tools get dropped in without a one-line confirmation. If one is added, it must respect DNT and defer-load.
+
+### Rule 7 — Confirm before adding anything that could pull visitors off the sales path
+
+The sales page exists to sell the course. Every section, link, button, and CTA either moves the visitor toward `#enroll` or it's a distraction. Pause and confirm with me before adding any of the following to `SalesPage.jsx` (or any future landing page):
+
+- A new section or block that doesn't directly support the buy decision (problem, proof, product, price, objections, CTA).
+- Any **outbound link** that leaves the page — blog posts, external articles, social profiles, YouTube, GitHub repos, partner sites. Exceptions already approved: footer legal links (`/privacy`, `/terms`, `/refund`), `mailto:` for support/refunds, the Thrivecart checkout URL, and the trademark disclaimer.
+- Any **internal link to a non-sales route** (e.g., `/blog`, `/blog/<slug>`, `/about`) placed above the footer.
+- A nav item, banner, modal, or floating element that competes with the primary CTA for attention.
+- A secondary CTA whose action is not "enroll" or "watch the demo" (e.g., "join the newsletter," "read the guide," "follow on X").
+
+Footer links to /blog, /about, and social profiles are allowed because the footer is below the conversion point. Above the footer, default to **no**.
+
+When confirming, lead with the conversion-cost question: *"What's the case that this adds more buyers than it leaks?"* If there isn't one, don't add it. Past incident: a "Read these first" featured-guides block sat between Pricing and FAQ and pointed users to /blog/* posts — pure distraction at the moment of decision. Removed 2026-05-10.
+
+### Rule 8 — QA every change before committing + pushing
+
+"It builds successfully" is not QA. "It renders correctly" is QA. Before any commit is pushed:
+
+- **Visual / style / copy changes**: run `npm run build`, then open the affected page in a browser and confirm the change renders as intended — contrast, layout, spacing, word choice, responsive behavior on both desktop and mobile widths.
+- **Functional changes**: exercise the flow end-to-end (submit the form and verify the DB write, click through the modal, refresh and test from a clean state).
+- **CLI-only sessions where a browser isn't available**: explicitly reason about color pairings in every CSS edit. For every `color:` property you touch, identify the background it sits on and verify contrast. Low-contrast text is the most common bug that ships unnoticed. Also `grep` the built HTML in `dist/` for key strings to confirm they're present.
+
+**Past incidents this rule is for:**
+
+- Waitlist modal inputs rendered black-on-black after the dark → light theme flip — text color was correctly flipped, input `background` was left hardcoded dark.
+- Blog post code blocks rendered black-on-black — `.post-body pre code` inherited the inline-code text color instead of the `<pre>` element's light color.
+- 500 server error on the waitlist form shown as "Something went wrong" — the fallback message fired because the response body wasn't JSON.
+
+In each case, the code compiled, the build succeeded, and the bug shipped. Every one would have been caught in 30 seconds of visual review.
 
 ---
 
@@ -330,9 +362,11 @@ Always commit per-task. Never bundle unrelated changes.
 - [x] Add `<Head>` tags to every route via shared `src/components/SEO.jsx` (title, description, canonical, OG, Twitter, JSON-LD)  
 - [ ] Register site with Google Search Console and Bing Webmaster Tools; submit sitemap  
 - [ ] Wire up Thrivecart embed / button to replace the non-functional CTA buttons  
+- [ ] **Waitlist DB setup in Vercel** (required for `/api/waitlist` to work): in Vercel dashboard → Storage → Create Postgres (Neon) database → link to this project. `POSTGRES_URL` env var auto-injects. The function at `api/waitlist.js` lazily creates the `waitlist(id, name, email, role, created_at)` table on first call.  
 - [ ] Add real testimonials to replace the placeholder Sarah/Marcus/Priya quotes OR clearly mark them as illustrative — FTC matters  
 - [x] Privacy, Terms, and Refund pages shipped at `/privacy`, `/terms`, `/refund` (footer links wired)
+- [x] `public/llms.txt` shipped — LLM-friendly index per [llmstxt.org](https://llmstxt.org/). Update it whenever a page, blog post, or product fact changes (same cadence as `sitemap.xml`). `robots.txt` points to it.
 
 ---
 
-*Last updated: 2026-04-18*  
+*Last updated: 2026-05-10*  

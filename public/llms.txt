@@ -1,0 +1,81 @@
+# CC for SF: Claude Code for Salesforce Admins
+
+> CC for SF is a hands-on mini-course that teaches Salesforce Admins how to use Claude Code (Anthropic's agentic CLI) to build Flows, custom fields, validation rules, Apex triggers, batch jobs, and Lightning Web Components without clicking through Setup or writing code by hand. The whole course is structured around a capstone build: a complete Salesforce org for a fictional solar installer, BrightPath Energy. Created by Amit, 8x Salesforce Certified GTM Engineer.
+
+Key facts:
+
+- Price: $197 one-time, lifetime access. 30-day money-back guarantee.
+- Tool dependency: Claude Pro subscription ($20/month).
+- Audience: working Salesforce Admins who know the platform and want to ship faster. Not for existing Salesforce developers and not a cert-prep course.
+- Salesforce license: works with any org on Enterprise, Unlimited, or Developer edition. No Agentforce license needed.
+- Independence: not affiliated with or endorsed by Salesforce or Anthropic. Salesforce and Claude are trademarks of their respective companies.
+- Current status: enrollment open via Thrivecart checkout on the homepage.
+- Homepage headline: "The modern Salesforce Admin doesn't just manage the org. They prompt it."
+- Testimonials section headline: "Proof from admins who stopped waiting."
+- Bonuses section headline: "The extras that make this a no-brainer."
+- Bonuses include a private course community, a production prompt vault, and Amit's handpicked Claude Code plugin stack, including Superpowers and Claude Mem.
+
+## Security & data handling
+
+- Claude Code is a local CLI that runs on the admin's own machine. Salesforce records, customer data, and credentials never leave the admin's environment unless the admin explicitly pastes them into a prompt.
+- Claude Code uses the admin's existing Salesforce login. It respects every permission, profile, sharing rule, and SOX control already in place.
+- Anthropic's API does not train on Pro or Max plan inputs by default. Your metadata stays yours.
+- Course work happens against a Salesforce sandbox. Production deploys go through whatever change-set / CI-CD path is already approved at the admin's company.
+
+## Core pages
+
+- [Homepage](https://ccforsf.com/): Course overview, typewriter operating-model headline, headless Salesforce market-shift section, scroll-stacked build artifacts, walkthrough, BrightPath Solar capstone, bonuses, pricing, FAQ, testimonials, and Thrivecart checkout.
+- [About Amit](https://ccforsf.com/about): Instructor bio, credentials, and why the course exists.
+- [Blog](https://ccforsf.com/blog): Tutorials and field notes on using Claude Code with Salesforce.
+
+## Blog posts
+
+- [Deploy Flows between Salesforce orgs with Claude Code (replace Change Sets)](https://ccforsf.com/blog/deploy-flows-between-salesforce-orgs-with-claude-code): Retrieve a Flow from one org, run a best-practices review (hardcoded IDs, missing fault paths, DML in loops), check dependencies in the target org, and deploy — all from a single prompt. Replaces Change Sets and rebuild-from-scratch.
+- [Connect Claude Code to your Salesforce org with MCP (VS Code setup)](https://ccforsf.com/blog/connect-claude-code-to-salesforce-with-mcp): Six-phase VS Code setup guide for wiring Claude Code to a Salesforce org via the Salesforce DX MCP server: prerequisites, .mcp.json config, verification, and multi-org patterns.
+- [Salesforce is shipping an AI that watches you. Here's why admins still need Claude Code.](https://ccforsf.com/blog/agent-albert-and-claude-code): Analysis of Salesforce's Agent Albert announcement and why admins still need Claude Code as a builder's tool.
+- [Build Agentforce agents without hand-writing Agent Script](https://ccforsf.com/blog/agentforce-with-claude-code): How to describe an Agentforce agent in English and let Claude Code generate and deploy the .ascript file.
+- [Claude Code vs Agentforce: when to use which](https://ccforsf.com/blog/claude-code-vs-agentforce): Decision framework comparing Anthropic's Claude Code CLI with Salesforce's Agentforce platform.
+- [AI for Salesforce Flows](https://ccforsf.com/blog/ai-for-salesforce-flows): The admin's guide to generating record-triggered, screen, and scheduled Flows with Claude Code.
+- [Migrating Aura components to LWC with Claude Code](https://ccforsf.com/blog/migrating-aura-to-lwc-with-claude-code): Using the Salesforce DX MCP tools to port Aura components to LWC in minutes.
+- [Validation rules with Claude Code](https://ccforsf.com/blog/validation-rules-with-claude-code): From plain-English rule description to deployed formula and error message.
+- [Your first CLAUDE.md for a Salesforce DX project](https://ccforsf.com/blog/your-first-claude-md-for-salesforce): The starter CLAUDE.md file every Salesforce DX project should ship with.
+
+## What the course covers
+
+The curriculum is structured around the BrightPath Solar capstone: a full Salesforce org build for a fictional solar installer.
+
+Phase I: Foundation & data model:
+- Why Claude Code, why now (set inside the BrightPath capstone scenario).
+- Install Claude Code, authenticate to a Salesforce DX sandbox, and ship a first artifact.
+- Custom fields on Account, Contact, and Opportunity (Customer Type, Utility Provider, System Size, Financing Method, etc.).
+
+Phase II: Custom objects & schema:
+- Six custom objects with relationships: Site Survey, Installation, Warranty Claim, Equipment, Incentive Program, Incentive Application.
+- Record types and page layouts (Residential vs Commercial; three Opportunity record types).
+- Permission sets and a custom Salesforce app with custom tabs (Sales Rep, Operations, Admin personas).
+- Validation rules (stage-gated amounts, future-only dates, warranty expiration logic).
+
+Phase III: Flows from English:
+- Lead Intake screen flow (creates Account + Contact + Opportunity).
+- Post-Survey auto-update record-triggered flow.
+- Installation milestone notifications (record-triggered, branching).
+- Warranty expiration scheduled flow (daily 7am).
+
+Phase IV: Apex, LWC & ops:
+- Apex trigger: tiered Commission Calculator with handler-class pattern, bulkified, 90% test coverage.
+- Apex trigger: Installation Status Validator (forward-only progression, custom errors).
+- Batch + Schedulable: nightly Annual Production Estimator and lifetime savings rollup.
+- Lightning Web Component: Installation Timeline (wired with @wire, CSS-only, responsive).
+- Dummy data, reports, and a live dashboard.
+
+## Legal
+
+- [Privacy Policy](https://ccforsf.com/privacy): Data collection, cookies, analytics, GDPR rights.
+- [Terms of Service](https://ccforsf.com/terms): Licensing, course use, intellectual property, arbitration, liability limits.
+- [Refund Policy](https://ccforsf.com/refund): Details of the 30-day money-back guarantee.
+
+## Optional
+
+- [Support email](mailto:support@ccforsf.com): Questions about the course, refund requests, or press inquiries.
+- [Sitemap](https://ccforsf.com/sitemap.xml): XML sitemap of all indexable pages.
+- [robots.txt](https://ccforsf.com/robots.txt): Crawler directives for search engines and AI/answer-engine bots.
