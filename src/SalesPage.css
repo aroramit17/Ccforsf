@@ -2505,13 +2505,46 @@ body[data-menu-open="true"] .floating-video { display: none !important; }
   margin-top: 8px;
 }
 .ccsf-root .pricing-reimburse {
-  margin-top: 10px;
+  position: relative;
+  display: inline-block;
+  margin-top: 14px;
+  padding: 8px 14px;
   font-family: var(--serif);
   font-size: 13px;
   font-style: italic;
-  color: var(--ink-600);
   line-height: 1.5;
   max-width: 38ch;
+  color: #fff;
+  background: #000;
+  border-radius: 2px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.55);
+}
+.ccsf-root .pricing-reimburse::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+  transform: translateX(-110%);
+  animation: pricing-reimburse-shimmer 3.6s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+@keyframes pricing-reimburse-shimmer {
+  0%   { transform: translateX(-110%); }
+  55%  { transform: translateX(110%); }
+  100% { transform: translateX(110%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ccsf-root .pricing-reimburse::before { animation: none; }
 }
 .ccsf-root .pricing-cta { width: 100%; justify-content: center; }
 .ccsf-root .pricing-guarantee {
