@@ -2505,37 +2505,36 @@ body[data-menu-open="true"] .floating-video { display: none !important; }
   margin-top: 8px;
 }
 .ccsf-root .pricing-reimburse {
+  position: relative;
   display: inline-block;
   margin-top: 14px;
-  padding: 3px 8px;
-  max-width: 38ch;
-  background-image: linear-gradient(#000, #000);
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: 0% 100%;
-  animation: pricing-highlighter 5.5s ease-in-out infinite;
-  animation-delay: 0.4s;
-  will-change: background-size;
-}
-.ccsf-root .pricing-reimburse > span {
   font-family: var(--serif);
   font-size: 14px;
   font-style: italic;
-  line-height: 1.6;
-  color: #fff;
-  mix-blend-mode: difference;
+  line-height: 1.55;
+  color: var(--ink-800);
+  max-width: 38ch;
+  padding-bottom: 4px;
 }
-@keyframes pricing-highlighter {
-  0%   { background-size: 0% 100%; }
-  28%  { background-size: 100% 100%; }
-  62%  { background-size: 100% 100%; }
-  92%  { background-size: 0% 100%; }
-  100% { background-size: 0% 100%; }
+.ccsf-root .pricing-reimburse::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+}
+.ccsf-root .pricing-reimburse.in::after {
+  transform: scaleX(1);
 }
 @media (prefers-reduced-motion: reduce) {
-  .ccsf-root .pricing-reimburse {
-    animation: none;
-    background-size: 100% 100%;
+  .ccsf-root .pricing-reimburse::after {
+    transition: none;
+    transform: scaleX(1);
   }
 }
 .ccsf-root .pricing-cta { width: 100%; justify-content: center; }

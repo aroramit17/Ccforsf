@@ -2215,8 +2215,8 @@ function Pricing() {
                 <span className="reg">reg. $697</span>
               </div>
               <div className="pricing-sub">One-time · lifetime access</div>
-              <div className="pricing-reimburse">
-                <span>Most teams expense this through their learning &amp; development budget.</span>
+              <div className="pricing-reimburse reveal">
+                Most teams expense this through their learning &amp; development budget.
               </div>
             </div>
 
