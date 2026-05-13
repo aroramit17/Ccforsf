@@ -2215,6 +2215,9 @@ function Pricing() {
                 <span className="reg">reg. $697</span>
               </div>
               <div className="pricing-sub">One-time · lifetime access</div>
+              <div className="pricing-reimburse">
+                Most teams expense this through their learning &amp; development budget.
+              </div>
             </div>
 
             <div className="pricing-thrivecart-wrap">

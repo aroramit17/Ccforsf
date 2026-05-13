@@ -2504,6 +2504,15 @@ body[data-menu-open="true"] .floating-video { display: none !important; }
   color: var(--ink-500); letter-spacing: 0.06em;
   margin-top: 8px;
 }
+.ccsf-root .pricing-reimburse {
+  margin-top: 10px;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-600);
+  line-height: 1.5;
+  max-width: 38ch;
+}
 .ccsf-root .pricing-cta { width: 100%; justify-content: center; }
 .ccsf-root .pricing-guarantee {
   margin-top: 16px; padding-top: 20px;
