@@ -2505,46 +2505,38 @@ body[data-menu-open="true"] .floating-video { display: none !important; }
   margin-top: 8px;
 }
 .ccsf-root .pricing-reimburse {
-  position: relative;
   display: inline-block;
   margin-top: 14px;
-  padding: 8px 14px;
-  font-family: var(--serif);
-  font-size: 13px;
-  font-style: italic;
-  line-height: 1.5;
+  padding: 3px 8px;
   max-width: 38ch;
+  background-image: linear-gradient(#000, #000);
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 0% 100%;
+  animation: pricing-highlighter 5.5s ease-in-out infinite;
+  animation-delay: 0.4s;
+  will-change: background-size;
+}
+.ccsf-root .pricing-reimburse > span {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.6;
   color: #fff;
-  background: #000;
-  border-radius: 2px;
-  overflow: hidden;
-  isolation: isolate;
-  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.55);
+  mix-blend-mode: difference;
 }
-.ccsf-root .pricing-reimburse::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    transparent 35%,
-    rgba(255, 255, 255, 0.28) 50%,
-    transparent 65%,
-    transparent 100%
-  );
-  transform: translateX(-110%);
-  animation: pricing-reimburse-shimmer 3.6s ease-in-out infinite;
-  animation-delay: 1.2s;
-}
-@keyframes pricing-reimburse-shimmer {
-  0%   { transform: translateX(-110%); }
-  55%  { transform: translateX(110%); }
-  100% { transform: translateX(110%); }
+@keyframes pricing-highlighter {
+  0%   { background-size: 0% 100%; }
+  28%  { background-size: 100% 100%; }
+  62%  { background-size: 100% 100%; }
+  92%  { background-size: 0% 100%; }
+  100% { background-size: 0% 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ccsf-root .pricing-reimburse::before { animation: none; }
+  .ccsf-root .pricing-reimburse {
+    animation: none;
+    background-size: 100% 100%;
+  }
 }
 .ccsf-root .pricing-cta { width: 100%; justify-content: center; }
 .ccsf-root .pricing-guarantee {

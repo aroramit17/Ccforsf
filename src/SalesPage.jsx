@@ -2216,7 +2216,7 @@ function Pricing() {
               </div>
               <div className="pricing-sub">One-time · lifetime access</div>
               <div className="pricing-reimburse">
-                Most teams expense this through their learning &amp; development budget.
+                <span>Most teams expense this through their learning &amp; development budget.</span>
               </div>
             </div>
 
