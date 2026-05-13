@@ -1,0 +1,145 @@
+---
+title: "Auto-assign Salesforce leads by region with Claude Code"
+description: "A record-triggered Flow that routes leads to the right rep across three regions — with a Chatter post on assign — built and deployed in under 5 minutes."
+date: 2026-05-13
+author: Amit
+heroImage: /amit-headshot.png
+tldr:
+  - "One prompt builds the full record-triggered Flow: region check, rep assignment, Chatter notification to the new owner. Under 5 minutes start to deploy."
+  - "Claude reads your actual picklist values before generating the Flow — no hardcoded strings that break when a value changes or a rep leaves."
+  - "The Chatter post is the step most admins forget. Claude adds it when you mention it in the prompt."
+faq:
+  - q: "What if my region logic is more complex than a simple picklist match?"
+    a: "Add the rules in plain English. Claude handles nested conditions: 'If Territory is West AND Industry is Technology, assign to the Tech West queue. Otherwise assign to the general West queue.' The more specific you are in the prompt, the more accurate the generated decision logic."
+  - q: "Can the Flow assign to a queue instead of a specific user?"
+    a: "Yes. Say 'assign to the West Leads queue' in your prompt. Claude writes a Get Records element that looks up the queue by name at runtime and uses that ID in the Update Records element — so the assignment survives queue renames and org migrations."
+  - q: "Does this work on objects other than Lead?"
+    a: "The same pattern works on any object. Change the trigger ('On Account creation' instead of 'On Lead creation') and the field reference. The Flow structure and the deploy command are identical."
+  - q: "What if the Region__c picklist doesn't exist yet?"
+    a: "Ask Claude to create it first: 'Add a Region__c picklist to Lead with values North, South, West, East.' It generates the field metadata XML and deploys it before building the Flow. One session, two artifacts."
+---
+
+Most orgs have some version of this problem. A lead comes in from a web form. It lands in the default queue. The rep for that territory doesn't see it for two days. Or it gets assigned to someone who left six months ago because the assignment rule was configured in 2021 and nobody updated it.
+
+The fix is straightforward: a record-triggered Flow that checks the lead's region on creation, assigns the owner to the right queue, and posts a Chatter message so the rep actually notices. Textbook admin work. And in Flow Builder, it's 45 minutes of clicking — minimum.
+
+Claude Code does it in five minutes. Here's the exact workflow.
+
+## The painful version
+
+Here's what building this manually looks like in Flow Builder:
+
+1. New Flow → Record-Triggered Flow → Object: Lead → Trigger: A record is created.
+2. Add a Decision element. Three outcomes: North, South, West, plus Default. For each outcome, write the condition: `Region__c Equals [picklist value]`. Three conditions, typed by hand.
+3. For each outcome, add an Assignment element to set `OwnerId`. You need the queue ID — not the name, the 18-character ID. Open a new browser tab. Setup → Queues. Copy each ID. Paste into each Assignment. Three tabs, three copies.
+4. Realize that if a queue gets renamed or replaced, you'll have hardcoded IDs in the Flow XML that silently stop working. Decide to use a Get Records lookup instead. Redo step 3 with a Get Records element per outcome.
+5. Add an Update Records element after each Assignment path to write `OwnerId` to the record. Wire each decision branch through it.
+6. Add the Chatter Post. Action element. Post to a user. The recipient is `OwnerId` — but the Flow variable is the result of the Get Records lookup, and the mapping isn't obvious the first time you set it up.
+7. Activate. Test with a lead in your sandbox. The "West" path fires even when Region is blank because you used `equals` instead of `equals (exact match)` — or you forgot to check null handling in the Default path.
+8. Fix the logic. Retest. Activate again. Forty minutes have passed.
+
+That's three regions. Add a fourth territory, a round-robin override, or a bypass for VIP accounts, and you're looking at another hour — easy.
+
+## The Claude Code version
+
+Open your terminal in your Salesforce DX project. Both orgs authenticated. One prompt:
+
+```
+Create a record-triggered Flow on Lead.
+
+Trigger: when a Lead record is created.
+
+Logic: check the Region__c picklist field.
+  - If North, assign to the North Leads queue.
+  - If South, assign to the South Leads queue.
+  - If West, assign to the West Leads queue.
+  - Default (blank or unrecognized): assign to the General Leads queue.
+
+After assigning the owner, post a Chatter message to the new owner:
+"New lead assigned to you: {Lead.FirstName} {Lead.LastName}
+from {Lead.Company}. Check it out."
+
+Name the Flow: Lead_Region_Assignment
+Deploy to dev-org.
+```
+
+Claude Code, with the Salesforce DX MCP server wired in (see [the MCP setup post](/blog/connect-claude-code-to-salesforce-with-mcp)), runs four steps:
+
+1. **Read the schema.** Queries `Region__c` from your Lead object. Pulls the actual picklist values. If your values are "North America", "EMEA", "APAC" instead of "North", "South", "West" — that's what ends up in the Flow conditions.
+2. **Look up the queues.** Runs a SOQL query for the four queue names. Gets their record IDs. Generates the Flow with Get Records lookups, not hardcoded IDs — the Flow survives queue renames and org-to-org deploys.
+3. **Generate the Flow XML.** Writes `Lead_Region_Assignment.flow-meta.xml` under `force-app/main/default/flows/`. Decision element, four Assignment elements, four Update Records elements, four Chatter Post actions. Shows you the diff.
+4. **Deploy.** On your approval, runs `sf project deploy start --metadata Flow:Lead_Region_Assignment --target-org dev-org`. Prints the deploy ID and result.
+
+Total: under five minutes. Most of that is you reading the diff.
+
+## What the session looks like
+
+Here's a realistic terminal transcript from a dev-org deploy:
+
+```
+> Create a record-triggered Flow on Lead. Trigger: when a Lead is created.
+  Region__c — North → North Leads queue, South → South Leads queue,
+  West → West Leads queue, default → General Leads queue.
+  After assigning, Chatter-post to the new owner.
+  Name: Lead_Region_Assignment. Deploy to dev-org.
+
+[mcp:salesforce] describe Lead.Region__c
+  → picklist values: North, South, West
+
+[mcp:salesforce] SELECT Id, Name FROM Group
+  WHERE Type = 'Queue'
+  AND Name IN ('North Leads','South Leads','West Leads','General Leads')
+  → North Leads:    00G4T000001aXyzAAE
+  → South Leads:    00G4T000001aXyzBBF
+  → West Leads:     00G4T000001aXyzCCG
+  → General Leads:  00G4T000001aXyzDDH
+
+Generated: force-app/main/default/flows/Lead_Region_Assignment.flow-meta.xml
+  + 1 Decision element (4 outcomes)
+  + 4 Get Records elements (queue lookup by name)
+  + 4 Assignment elements (OwnerId → queue record ID)
+  + 4 Update Records elements
+  + 4 Chatter Post actions
+
+Diff: [+] Lead_Region_Assignment.flow-meta.xml (247 lines)
+
+Deploy to dev-org? [y/N] y
+
+[mcp:salesforce] sf project deploy start
+                 --metadata Flow:Lead_Region_Assignment
+                 --target-org dev-org
+
+✓ Deploy succeeded (Id: 0Af4T000003cQRSAY)
+  Flow Lead_Region_Assignment version 1 — Active in dev-org.
+```
+
+Four minutes and change. The Flow is active. The Chatter post is wired. Queue lookups are dynamic.
+
+This is the same artifact you'd get after 45 minutes in Flow Builder — but you can read the XML in the diff and verify the logic before it deploys. That's not just faster; it's more auditable.
+
+## When NOT to use Claude Code for this
+
+A few cases where a different tool wins:
+
+- **You already have Salesforce's native Lead Assignment Rules set up and they work.** Assignment Rules are simple, zero-code, and native. If your logic is "assign by zip code range" or "round-robin across five reps with load balancing," Assignment Rules handle that without a Flow, without a prompt, and without a deploy. Don't build a Flow where a Setup screen already does the job.
+- **You need true round-robin with load tracking.** A Flow can't maintain a rotating counter across concurrent saves without a shared custom field — and that field becomes a contention point under load. If you need real round-robin, look at a routing app (LeanData, Chili Piper, Revenue Grid) or an Apex trigger that handles it properly.
+- **The assignment logic lives inside a managed package.** If your org uses a CPQ or sales engagement tool that controls Lead routing, fight the package configuration, not a competing Flow.
+- **Your dev sandbox has empty queues.** Claude deploys a working Flow, but if the queue membership doesn't reflect reality, you can't validate the assignment end-to-end. Make sure queues exist with real or representative members before testing.
+
+## Common pitfalls
+
+Sharp edges that will bite you:
+
+- **The Flow re-fires on every save, not just creation.** If you later change the trigger to "a record is created or updated," the assignment logic runs every time a rep touches the record. Add an entry condition: `{!$Record.IsNew} = true` to restrict it to new records only.
+- **Region__c is blank on web-to-lead submissions.** Many web forms don't collect a region field. Leads arrive with a blank `Region__c` and fall to the Default path every time — your queues are useless. Map region from `State` or `PostalCode` at creation, or add a Chatter alert to a routing admin when the field is blank.
+- **The Chatter post uses fields that can be null.** `Lead.Company` is not required in Salesforce. If it's blank, your post reads "New lead from ." Ask Claude to wrap it: `{!IF(ISBLANK(Lead.Company), 'an unknown company', Lead.Company)}` in the Chatter message template.
+- **Two record-triggered Flows run on the same object.** If you already have a Flow firing on Lead creation — for, say, field defaulting or a welcome email — you now have two. Salesforce runs both; they don't block each other. But if both try to write `OwnerId`, the last one wins. Audit your existing Flows before adding another.
+- **Deploy succeeds but queues don't receive email notifications.** Chatter notifications are separate from Salesforce email alerts. If your reps rely on email, you'll want a separate Email Alert element — or a Send Email action in the same Flow. The Chatter post is visible in the record feed but doesn't send push or email by default.
+
+## What to read next
+
+For the next level — deploying this Flow from dev to staging to prod without rebuilding it — read [Deploy Flows between Salesforce orgs with Claude Code](/blog/deploy-flows-between-salesforce-orgs-with-claude-code). It covers the dependency check, the hardcoded-ID review, and the multi-hop deploy pattern.
+
+For a broader overview of Flow automation with Claude Code — screen Flows, scheduled Flows, and the patterns that work across all of them — [AI for Salesforce Flows](/blog/ai-for-salesforce-flows) is the starting point.
+
+And if you want to go deeper on the full build — Flows, custom fields, Apex, and a complete Salesforce org from scratch — the [CC for SF course](/#pricing) covers all of it in order.

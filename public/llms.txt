@@ -30,6 +30,7 @@ Key facts:
 
 ## Blog posts
 
+- [Auto-assign Salesforce leads by region with Claude Code](https://ccforsf.com/blog/auto-assign-leads-by-region): One prompt builds a record-triggered Lead assignment Flow with regional routing across three queues and a Chatter post to the new owner, deployed in under 5 minutes.
 - [Deploy Flows between Salesforce orgs with Claude Code (replace Change Sets)](https://ccforsf.com/blog/deploy-flows-between-salesforce-orgs-with-claude-code): Retrieve a Flow from one org, run a best-practices review (hardcoded IDs, missing fault paths, DML in loops), check dependencies in the target org, and deploy — all from a single prompt. Replaces Change Sets and rebuild-from-scratch.
 - [Connect Claude Code to your Salesforce org with MCP (VS Code setup)](https://ccforsf.com/blog/connect-claude-code-to-salesforce-with-mcp): Six-phase VS Code setup guide for wiring Claude Code to a Salesforce org via the Salesforce DX MCP server: prerequisites, .mcp.json config, verification, and multi-org patterns.
 - [Salesforce is shipping an AI that watches you. Here's why admins still need Claude Code.](https://ccforsf.com/blog/agent-albert-and-claude-code): Analysis of Salesforce's Agent Albert announcement and why admins still need Claude Code as a builder's tool.
