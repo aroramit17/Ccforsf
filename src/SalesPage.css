@@ -167,6 +167,7 @@
 }
 .ccsf-root .btn--primary .arrow { color: #FFFFFF !important; }
 .ccsf-root .btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); transform: translateY(-1px); }
+.ccsf-root .section-cta { margin-top: 32px; align-self: flex-start; }
 .ccsf-root .btn--ghost {
   background: transparent;
   color: var(--ink-900);
@@ -2502,6 +2503,39 @@ body[data-menu-open="true"] .floating-video { display: none !important; }
   font-family: var(--mono); font-size: 11px;
   color: var(--ink-500); letter-spacing: 0.06em;
   margin-top: 8px;
+}
+.ccsf-root .pricing-reimburse {
+  position: relative;
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--serif);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--ink-800);
+  max-width: 38ch;
+  padding-bottom: 4px;
+}
+.ccsf-root .pricing-reimburse::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: #000;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+}
+.ccsf-root .pricing-reimburse.in::after {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ccsf-root .pricing-reimburse::after {
+    transition: none;
+    transform: scaleX(1);
+  }
 }
 .ccsf-root .pricing-cta { width: 100%; justify-content: center; }
 .ccsf-root .pricing-guarantee {
