@@ -8,6 +8,7 @@ export default function SEO({ title, description, path, image = '/og/og-home.png
 
   return (
     <Head>
+      <meta charSet="UTF-8" />
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
