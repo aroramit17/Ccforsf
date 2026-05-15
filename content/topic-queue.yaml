@@ -20,7 +20,7 @@
     - lead assignment
     - record triggered flow
     - claude code
-  status: queued
+  status: drafted
 - slug: bulk-field-creation-salesforce
   title: Create 20 custom fields at once with Claude Code
   angle: "Real CRM-hygiene project: show the prompt, generated metadata, and the permission-set update that usually gets forgotten"

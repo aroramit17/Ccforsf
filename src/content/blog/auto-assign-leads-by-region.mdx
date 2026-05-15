@@ -1,0 +1,159 @@
+---
+title: "Auto-assign Salesforce leads by region with Claude Code"
+description: "Build a record-triggered Flow on Lead that routes to 3 sales regions, posts to Chatter, and deploys to your org — from a single prompt in under 5 minutes."
+date: 2026-05-15
+author: Amit
+heroImage: /amit-headshot.png
+tldr:
+  - "One prompt builds the entire record-triggered Flow on Lead: 3-region decision branching, owner assignment to a queue, and a Chatter post notification — no clicking required."
+  - "Claude queries your org for real queue and Chatter group IDs before writing any metadata, so no hardcoded IDs slip through to the target org."
+  - "Start to active Flow: under 5 minutes, including the deploy."
+faq:
+  - q: "What if I have more than 3 regions?"
+    a: "Describe all of them in your prompt. Claude adds one Decision outcome per region. Past 6–7 regions, a Custom Metadata Type lookup table is cleaner than a long decision tree — Claude can scaffold that pattern too, just ask."
+  - q: "Does this replace Lead Assignment Rules?"
+    a: "No. It builds a record-triggered Flow that runs in addition to any existing Lead Assignment Rules. Assignment Rules fire first; the Flow runs after. If you want Chatter posts or more complex branching logic on top of your existing rules, this Flow is the right addition."
+  - q: "How does Claude know my queue names?"
+    a: "It calls `sf data query` against your org via the MCP server to look up Group records where Type = 'Queue'. That's why you need the Salesforce DX MCP server wired up before prompting — without it, Claude guesses names that may not match your org."
+  - q: "Can I add round-robin assignment within each region?"
+    a: "Not natively in Flow. Flow has no round-robin element. For true round-robin you need an Apex invocable action that tracks the last assigned rep. Claude can scaffold the Apex class and the invocable wrapper, but that's a bigger build than the Flow alone — scope it separately."
+---
+
+Every Salesforce org eventually gets the same question from sales leadership: "Why did that lead go to the wrong person again?" The answer is usually that someone covered for a rep on vacation, the Lead Assignment Rule hasn't been touched since 2021, and nobody's sure which queue actually belongs to which region anymore.
+
+The fix is a record-triggered Flow: when a Lead comes in, check the state, route to the right queue, post to a team Chatter group so the handoff is visible. It's maybe two hours of work in Setup and Flow Builder. Or it's one prompt and five minutes.
+
+## The painful version
+
+Here's what building this automation looks like without Claude Code:
+
+1. Go to Setup → Lead Assignment Rules → New. Name the rule. Save.
+2. Click into the rule to add entries. Entry #1: West Region. Add state criteria — California, Oregon, Washington, Nevada, Arizona, Utah, Idaho, Montana, Wyoming, Colorado. Select the queue. Hope the dropdown label matches what your ops team calls it.
+3. Repeat for Central. Fourteen states. Enter them one at a time. Save.
+4. Repeat for East (Default). Save.
+5. Realize Lead Assignment Rules have no Chatter notification element. You need a separate Flow for that.
+6. Open Flow Builder. New Flow. Record-Triggered. Lead object. Trigger on create or update.
+7. Set entry criteria so this doesn't fire on every single Lead update for the rest of time.
+8. Build a Decision element. Three outcomes. One per region.
+9. Connect Assignment elements in each branch to set `OwnerId` to the queue ID. Look up the queue IDs — they're GUIDs, not names.
+10. Add Post to Chatter actions in each branch. Type the message text. Use merge fields correctly.
+11. Add fault paths on every DML element. Both of them. If you forget one, the Flow fails silently.
+12. Activate. Create a test Lead with a California address. The Flow fires but the Chatter post fails — the group ID is wrong. The West Chatter group is named `Sales_West_US`, not `West_Sales_Team`.
+13. Fix it. Re-test. Done. Ninety minutes have passed.
+
+The part that's exhausting isn't any single step. It's the context-switching: Setup tab, Flow Builder tab, back to Setup to look up a queue ID, back to Flow Builder to paste it.
+
+## The Claude Code version
+
+Open your terminal. Your Salesforce DX project is connected to your org via the [Salesforce DX MCP server](/blog/connect-claude-code-to-salesforce-with-mcp). Prompt:
+
+```
+Build a record-triggered Flow on the Lead object. Trigger on create or update.
+Entry criteria: IsNew = true OR ISCHANGED(State).
+
+When a Lead is created or its State changes:
+- West Region (CA, OR, WA, NV, AZ, UT, ID, MT, WY, CO): assign to queue "Sales_West_AMER",
+  post to Chatter group "West_Sales_Team" — message: "New lead {Lead.Name} from {Lead.State} — routed to West queue."
+- Central Region (TX, OK, KS, NE, SD, ND, MN, IA, MO, IL, WI, MI, IN, OH): assign to "Sales_Central_AMER",
+  post to "Central_Sales_Team".
+- Everything else: assign to "Sales_East_AMER", post to "East_Sales_Team".
+
+Add fault paths on all DML and action elements.
+Deploy to dev-org.
+```
+
+Claude runs four steps:
+
+1. **Look up real IDs.** Queries `Group WHERE Type = 'Queue'` and `CollaborationGroup` in your org. Resolves queue names to Salesforce IDs before writing a single line of metadata. If a name doesn't match, it tells you before generating anything.
+2. **Generate the Flow XML.** Creates `force-app/main/default/flows/Lead_Region_Assignment.flow-meta.xml`. Decision element with three outcomes, Assignment elements, Post to Chatter actions, fault paths on every DML element.
+3. **Diff review.** Reads back the generated XML and confirms the state lists, queue IDs, and Chatter group IDs match what it found. Reports any discrepancy.
+4. **Deploy.** Runs `sf project deploy start --metadata Flow:Lead_Region_Assignment --target-org dev-org`. Outputs the deploy ID and confirms the Flow is active.
+
+Total time: 3–5 minutes, most of it Salesforce CLI network latency.
+
+## What the terminal looks like
+
+Representative transcript from a real session:
+
+```bash
+> Build a record-triggered Flow on the Lead object. [full prompt above]
+
+[mcp:salesforce] sf data query \
+  --query "SELECT Id, Name FROM Group WHERE Type = 'Queue'" \
+  --target-org dev-org
+✓ 6 rows returned
+  Sales_West_AMER    → 00G3k0000004cQ1EAI
+  Sales_Central_AMER → 00G3k0000004cQ2EAI
+  Sales_East_AMER    → 00G3k0000004cQ3EAI
+  (3 others)
+
+[mcp:salesforce] sf data query \
+  --query "SELECT Id, Name FROM CollaborationGroup" \
+  --target-org dev-org
+✓ West_Sales_Team    → 0F93k000000TczqCAC
+  Central_Sales_Team → 0F93k000000TcztCAC
+  East_Sales_Team    → 0F93k000000TczuCAC
+
+Generating Lead_Region_Assignment.flow-meta.xml…
+
+  Entry criteria: {!$Record.IsNew} = true OR ISCHANGED({!$Record.State})
+  Decision: Route_By_Region
+    → West_Region   (State IN [CA,OR,WA,NV,AZ,UT,ID,MT,WY,CO])
+    → Central_Region (State IN [TX,OK,KS,NE,SD,ND,MN,IA,MO,IL,WI,MI,IN,OH])
+    → Default_East
+
+  Per branch:
+    Assignment element:   sets Lead.OwnerId to resolved queue ID
+    Post to Chatter:      uses {!$Record.Name}, {!$Record.State}
+    Fault path:           connected on Assignment and Post elements
+
+  ✓ 3 queues resolved to real IDs
+  ✓ 3 Chatter groups resolved to real IDs
+  ✓ Fault paths connected on all 6 elements
+
+[mcp:salesforce] sf project deploy start \
+  --metadata Flow:Lead_Region_Assignment \
+  --target-org dev-org
+
+✓ Deploy succeeded (Id: 0Af4T0000023dZRSAY)
+Flow Lead_Region_Assignment version 1 is active in dev-org.
+```
+
+Four minutes and 38 seconds from enter to active Flow. Correct queue IDs, correct Chatter group IDs, fault paths on every element.
+
+## The part people forget: fault paths
+
+In nine out of ten hand-built Flows, at least one DML or action element has no fault path connected. The Flow fails at runtime, Salesforce swallows the error, and a Lead gets created with no owner assignment and no Chatter notification. Nobody notices until sales asks why three leads sat in the default queue for a week.
+
+Claude connects fault paths on every element that can fail — Assignment, Post to Chatter, any Get Records. If you want the fault path to do something beyond default behavior (send an email to an admin, write to an error log object, post to a monitoring Chatter group), add it to the prompt. Claude can add a Post to Platform Event element on each fault path that feeds into a monitoring Flow.
+
+This is the kind of thing you know you should do when building by hand. You also know you're going to skip it because you've been building this Flow for an hour and you just want it done.
+
+## When NOT to use Claude Code for lead assignment
+
+A few cases where another tool wins:
+
+- **You have an existing assignment rule with 50+ criteria entries.** If it already works, don't touch it. Claude can help you migrate it to a Flow eventually, but that's a project, not a quick build.
+- **Your marketing automation sets owner on create.** If HubSpot, Marketo, or Pardot is already setting `OwnerId` when it creates the Lead, a record-triggered Flow that also sets `OwnerId` will fire on the same record and overwrite the MA assignment. Map the ownership model first. One system owns the assignment.
+- **You need round-robin within a region.** Native Flow has no round-robin element. You need Apex. Claude can scaffold the Apex invocable action, but that's a 30-minute build, not a 5-minute one. Do it separately once the region routing is stable.
+- **Your org is on Salesforce Government Cloud with strict metadata approval gates.** The generation benefit is the same, but the deploy path goes through your change advisory board as usual. Generate with Claude, review through your normal process.
+
+## Common pitfalls
+
+- **No entry criteria.** A record-triggered Flow without entry criteria fires on every Lead save — including bulk data imports of 50,000 records. Always scope with `IsNew = true` or `ISCHANGED(State)` as shown above.
+- **Queue assignment vs. owner display.** When you assign a Lead to a queue, `OwnerId` becomes the queue's group ID. If the Chatter post reads `{!$Record.OwnerId}` immediately after the assignment, it shows an ID string, not a name. Use `{!$Record.Owner.Name}` instead, or query the queue's `Name` via a Get Records element before posting.
+- **Scope creep on the trigger condition.** "Trigger on create or update" without `ISCHANGED(State)` means every field edit fires the Flow. If a rep updates the Lead description six months later, the lead re-routes. Narrow it.
+- **Missing the default branch test.** West and Central get tested. East (the default) gets skipped. Test all three branches. Prompt Claude to generate test records covering each one.
+- **Deploying Active to prod without a sandbox run.** The Flow deploys as Active. If the Chatter group IDs in prod don't match the ones in dev, the fault paths fire silently on every lead creation. Test in sandbox against real leads before promoting.
+
+## What to build next
+
+Once this Flow is running, the obvious follow-up is a follow-up notification: if a Lead in a queue hasn't been contacted within 48 hours, post a reminder to Chatter and escalate. That's a scheduled Flow — one more prompt, same pattern.
+
+For the full range of Flow types Claude handles, the [AI for Salesforce Flows](/blog/ai-for-salesforce-flows) post is the overview. And if you're deploying Flows across orgs, [replacing Change Sets with Claude Code](/blog/deploy-flows-between-salesforce-orgs-with-claude-code) covers the retrieve → review → deploy loop that works for any Flow, including this one.
+
+The [CC for SF course](/#pricing) goes deeper on the Lead automation pattern — the capstone build includes a Lead Intake screen Flow that creates Account + Contact + Opportunity from a single form, with regional routing wired on top.
+
+---
+
+**Related:** [AI for Salesforce Flows](/blog/ai-for-salesforce-flows) · [Validation rules with Claude Code](/blog/validation-rules-with-claude-code) · [Deploy Flows between Salesforce orgs with Claude Code](/blog/deploy-flows-between-salesforce-orgs-with-claude-code)
