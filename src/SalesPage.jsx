@@ -6,7 +6,7 @@ import "./SalesPage.css";
 /* ══════════════════════════ CONSTANTS ══════════════════════════ */
 
 const ENROLL_HASH = "#enroll";
-const THRIVECART_EMBED_ID = "tc-webpay-57-DEF6PH";
+const THRIVECART_EMBED_ID = "tc-webpay-57-MCRX93";
 const TYPEWRITER_WORDS = [
   "fields",
   "permission sets",
