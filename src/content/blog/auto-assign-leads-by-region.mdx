@@ -1,0 +1,95 @@
+---
+title: "Auto-assign leads by region with Claude Code"
+description: "Route leads to three regional queues with a record-triggered Flow and a Chatter post — without opening Flow Builder. One prompt, under 5 minutes to deploy."
+date: 2026-05-16
+author: Amit
+heroImage: /amit-headshot.png
+---
+
+The ticket comes in: "West region leads keep landing in the wrong queue." You know what follows. Open Flow Builder. Create a record-triggered Flow on Lead. Add a Decision element. Wire up three Assignment elements. Add a Chatter Post action. Save. Debug. Deploy.
+
+That's 30 clicks minimum. Probably 45.
+
+Here's what it looks like with Claude Code.
+
+## The use case
+
+Three regions. Three queues:
+
+- **West** → `Lead_Queue_West`
+- **East** → `Lead_Queue_East`
+- **Central** → `Lead_Queue_Central`
+
+When a new Lead is created, the Flow checks the `State` field, assigns the Lead to the right queue, and posts a Chatter message confirming the routing. If the state doesn't match any region, the Lead stays unassigned. No error, no noise.
+
+## The prompt
+
+One block of text. No Flow canvas, no drag-and-drop.
+
+```
+Build a record-triggered Flow on the Lead object.
+
+Trigger: when a Lead is created (isNew() == true).
+
+Branching logic:
+- If Lead.State is in [CA, OR, WA, NV, AZ] → assign to queue Lead_Queue_West
+- If Lead.State is in [NY, NJ, CT, MA, PA] → assign to queue Lead_Queue_East
+- If Lead.State is in [TX, IL, OH, MI, IN] → assign to queue Lead_Queue_Central
+- Else: leave OwnerId unchanged. No error.
+
+After a successful assignment, post a Chatter message to the Lead record:
+"Routed to [region name] queue based on state: {Lead.State}"
+
+Save with API name Auto_Assign_Leads_By_Region. Deploy to dev-org when done.
+```
+
+That's the full input. Claude reads it and gets to work.
+
+## What Claude builds
+
+Claude Code will:
+
+1. **Retrieve Lead metadata.** It confirms the `State` field API name and fetches the queue IDs for each regional queue from your specific org — so the generated XML references the right records.
+2. **Generate the Flow XML.** One `RecordChangeTrigger` (isNew = true, object = Lead), one `Decision` element with four outcomes (West, East, Central, Default), three `RecordUpdate` elements setting `OwnerId` to the matching queue, and three `RecordCreate` elements for the Chatter `FeedItem`.
+3. **Show you the diff** before anything deploys. The file lands at `force-app/main/default/flows/Auto_Assign_Leads_By_Region.flow-meta.xml`. Read it.
+4. **Deploy via SF CLI.**
+
+```bash
+sf project deploy start \
+  --source-dir force-app/main/default/flows/Auto_Assign_Leads_By_Region.flow-meta.xml \
+  --target-org dev-org
+```
+
+The Chatter post uses `{!Lead.State}` — a merge field pulled directly from the triggering record. No extra variable required.
+
+## What to verify before promoting to production
+
+Don't rubber-stamp the diff. Three things matter here.
+
+**Queue names across environments.** Claude fetches queue IDs from your dev-org by name. The deploy handles this by name, not ID — but the names must match exactly in sandbox and production. Check Setup → Queues in both orgs before promoting.
+
+**The Default branch is empty.** Leads that don't match any region should pass through silently. If Claude added an action in the Default outcome, remove it. A silent no-op is the right behavior.
+
+**Chatter visibility.** Posts on Lead records are visible to the owner and anyone following the record. If your team doesn't use Chatter for internal routing notes, ask Claude to swap this for a Task create action instead — same prompt, one line changed.
+
+## The time comparison
+
+From first prompt to a deployed Flow in dev-org: under 5 minutes. Most of that is the CLI handshake and waiting for Salesforce to confirm the deployment.
+
+The manual path — clicking through Flow Builder with a Decision element, three Assignment branches, and a Chatter Post — takes 20–30 minutes for an admin who already knows exactly what they're building. Longer if the canvas fights you on element order.
+
+Five minutes vs thirty. The delta only grows when you add a fourth region, or a fifth, or when the requirements change a week after you shipped.
+
+## When to go back to Flow Builder
+
+Claude Code isn't always the right tool for this. Use Flow Builder directly when:
+
+- You're debugging an existing Flow's runtime behavior and need to trace element-by-element execution in the Flow debugger.
+- The Flow has complex screen components where visual layout matters.
+- You're handing the Flow to someone who needs to maintain it in Setup and isn't comfortable with XML diffs.
+
+For net-new automation that's purely logic — no screen, no user interaction — the terminal is faster.
+
+---
+
+**Related:** [Deploy Flows between Salesforce orgs with Claude Code →](/blog/deploy-flows-between-salesforce-orgs-with-claude-code) · [Validation rules in one prompt →](/blog/validation-rules-with-claude-code) · [See what the course covers →](/#pricing)
